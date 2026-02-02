@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Brain, FileText, ArrowRight, Shield, Activity } from "lucide-react";
+import { Brain, FileText, ArrowRight, Shield, Activity, BookOpen } from "lucide-react";
 
 interface Tool {
   id: string;
@@ -7,6 +7,7 @@ interface Tool {
   description: string;
   icon: typeof Brain;
   available: boolean;
+  href: string;
 }
 
 export default function Home() {
@@ -18,6 +19,7 @@ export default function Home() {
         "Formato estructurado para evaluación psiquiátrica en urgencias. Generación de informes en PDF.",
       icon: FileText,
       available: true,
+      href: "/tools/historia-clinica",
     },
     {
       id: "examen-mental",
@@ -26,6 +28,7 @@ export default function Home() {
         "Herramienta de redacción rápida con checklist para elaborar examen mental de forma estructurada.",
       icon: Brain,
       available: true,
+      href: "/tools/examen-mental",
     },
     {
       id: "ciwa-ar",
@@ -34,6 +37,7 @@ export default function Home() {
         "Evaluación rápida de síndrome de abstinencia alcohólica. Puntuación automática y recomendaciones.",
       icon: Activity,
       available: true,
+      href: "/tools/ciwa-ar",
     },
     {
       id: "phq-9",
@@ -42,6 +46,16 @@ export default function Home() {
         "Cribado de depresión. Calcula severidad y sugiere pautas de manejo. Incluye alerta de riesgo suicida.",
       icon: Activity,
       available: true,
+      href: "/tools/phq-9",
+    },
+    {
+      id: "psicoeducacion",
+      title: "Recursos de Psicoeducación",
+      description:
+        "Material educativo para pacientes y familiares, listo para imprimir y entregar en consulta.",
+      icon: BookOpen,
+      available: true,
+      href: "/recursos-psicoeducacion",
     },
     {
       id: "calculadora-dosis",
@@ -50,6 +64,7 @@ export default function Home() {
         "Próximamente - Calculadora de equivalencias y dosis de psicofármacos.",
       icon: Brain,
       available: false,
+      href: "#",
     },
   ];
 
@@ -129,7 +144,7 @@ export default function Home() {
             return (
               <Link
                 key={tool.id}
-                href={`/tools/${tool.id}`}
+                href={tool.href}
                 className="group relative rounded-lg border-2 border-slate-200 bg-white p-6 text-left transition-all duration-200 hover:-translate-y-1 hover:border-slate-400 hover:shadow-xl"
               >
                 <div className="mb-4 flex items-start justify-between">
