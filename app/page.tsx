@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { Brain, FileText, ArrowRight, Shield, Activity, BookOpen } from "lucide-react";
+import {
+  Brain,
+  FileText,
+  ArrowRight,
+  Shield,
+  Activity,
+  BookOpen,
+} from "lucide-react";
 
 interface Tool {
   id: string;
@@ -31,22 +38,13 @@ export default function Home() {
       href: "/tools/examen-mental",
     },
     {
-      id: "ciwa-ar",
-      title: "Calculadora CIWA-Ar",
+      id: "escalas-clinicas",
+      title: "Escalas Clínicas",
       description:
-        "Evaluación rápida de síndrome de abstinencia alcohólica. Puntuación automática y recomendaciones.",
+        "Calculadoras clínicas como CIWA-Ar, PHQ-9 y otras escalas de uso frecuente en psiquiatría.",
       icon: Activity,
       available: true,
-      href: "/tools/ciwa-ar",
-    },
-    {
-      id: "phq-9",
-      title: "Cuestionario PHQ-9",
-      description:
-        "Cribado de depresión. Calcula severidad y sugiere pautas de manejo. Incluye alerta de riesgo suicida.",
-      icon: Activity,
-      available: true,
-      href: "/tools/phq-9",
+      href: "/tools/escalas-clinicas",
     },
     {
       id: "psicoeducacion",
@@ -56,15 +54,6 @@ export default function Home() {
       icon: BookOpen,
       available: true,
       href: "/recursos-psicoeducacion",
-    },
-    {
-      id: "calculadora-dosis",
-      title: "Calculadora de Dosis",
-      description:
-        "Próximamente - Calculadora de equivalencias y dosis de psicofármacos.",
-      icon: Brain,
-      available: false,
-      href: "#",
     },
   ];
 
@@ -115,31 +104,6 @@ export default function Home() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {tools.map((tool) => {
             const Icon = tool.icon;
-
-            if (!tool.available) {
-              return (
-                <div
-                  key={tool.id}
-                  className="relative rounded-lg border-2 border-slate-100 bg-white p-6 text-left opacity-60"
-                >
-                  <div className="mb-4 flex items-start justify-between">
-                    <div className="rounded-lg bg-slate-50 p-3">
-                      <Icon className="h-6 w-6 text-slate-400" />
-                    </div>
-                    <span className="rounded bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-500">
-                      Próximamente
-                    </span>
-                  </div>
-
-                  <h3 className="mb-2 text-lg font-semibold text-slate-600">
-                    {tool.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-slate-600">
-                    {tool.description}
-                  </p>
-                </div>
-              );
-            }
 
             return (
               <Link
