@@ -46,14 +46,14 @@ const CATEGORIES: Category[] = [
             {
                 title: "Entendiendo la Depresión",
                 type: "Paciente",
-                url: "#",
+                url: "/pdfs/depresion/depresion.pdf",
                 description: "Guía básica sobre síntomas y tratamiento.",
             },
             {
-                title: "Apoyo al familiar con depresión",
-                type: "Familiar",
-                url: "#",
-                description: "Cómo ayudar sin descuidarse a uno mismo.",
+                title: "Plan de seguridad - suicidio",
+                type: "Paciente",
+                url: "/pdfs/depresion/plan-seguridad-crisis.pdf",
+                description: "Plan de seguridad en crisis",
             },
         ],
     },
@@ -66,7 +66,7 @@ const CATEGORIES: Category[] = [
             {
                 title: "Manejo de Crisis de Pánico",
                 type: "Paciente",
-                url: "#",
+                url: "/pdfs/ansiedad/ansiedad.pdf",
                 description: "Técnicas de respiración y grounding.",
             },
         ],
@@ -80,7 +80,12 @@ const CATEGORIES: Category[] = [
             {
                 title: "¿Qué es la psicosis?",
                 type: "Paciente",
-                url: "#",
+                url: "/pdfs/psicosis/psicosis.pdf",
+            },
+            {
+                title: "Entendiendo la esquizofrenia",
+                type: "Paciente",
+                url: "/pdfs/psicosis/esquizofrenia.pdf",
             },
         ],
     },
@@ -93,7 +98,7 @@ const CATEGORIES: Category[] = [
             {
                 title: "Entendiendo el TOC",
                 type: "Paciente",
-                url: "#",
+                url: "/pdfs/toc/toc.pdf",
             },
         ],
     },
@@ -104,9 +109,9 @@ const CATEGORIES: Category[] = [
         icon: Users,
         resources: [
             {
-                title: "Viviendo con TLP",
+                title: "Entendiendo el TLP",
                 type: "Paciente",
-                url: "#",
+                url: "/pdfs/tlp/tlp.pdf",
             },
         ],
     },
@@ -119,7 +124,7 @@ const CATEGORIES: Category[] = [
             {
                 title: "Prevención de recaídas",
                 type: "Paciente",
-                url: "#",
+                url: "/pdfs/adicciones/prevencion-recaidas.pdf",
             },
         ],
     },
@@ -132,7 +137,7 @@ const CATEGORIES: Category[] = [
             {
                 title: 'Pautas de Higiene del Sueño',
                 type: 'Paciente',
-                url: '/pdfs/sueno/higiene-del-sueno-psiqui-tools.pdf',
+                url: '/pdfs/sueno/higiene-sueno.pdf',
                 description: 'Recomendaciones prácticas para mejorar el sueño.'
             },
         ],
