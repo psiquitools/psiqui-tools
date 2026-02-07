@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Brain, Download, Printer, AlertCircle, ArrowLeft } from "lucide-react";
+import {
+  Brain,
+  Download,
+  ArrowLeft,
+} from "lucide-react";
 import jsPDF from "jspdf";
 
 /* ===================== TIPOS ===================== */
@@ -12,119 +16,144 @@ type SeccionData = {
   texto: string;
 };
 
-interface ExamenMentalData {
+type ExamenMentalData = {
+  concienciaOrientacion: SeccionData;
+  actitud: SeccionData;
   apariencia: SeccionData;
-  conciencia: SeccionData;
-  orientacion: SeccionData;
-  atencion: SeccionData;
-  memoria: SeccionData;
+  psicomotricidad: SeccionData;
+  sustancias: SeccionData;
   lenguaje: SeccionData;
+  estadoAnimo: SeccionData;
   pensamiento: SeccionData;
-  percepcion: SeccionData;
-  afecto: SeccionData;
-  agresividad: SeccionData;
-  riesgoSuicida: SeccionData;
+  riesgo: SeccionData;
   biorritmos: SeccionData;
-  juicio: SeccionData;
-}
+  juicioInsight: SeccionData;
+};
 
-/* ===================== ESTADO INICIAL (CLAVE) ===================== */
+/* ===================== ESTADO INICIAL ===================== */
 
 const estadoInicial: ExamenMentalData = {
+  concienciaOrientacion: { opciones: [], texto: "" },
+  actitud: { opciones: [], texto: "" },
   apariencia: { opciones: [], texto: "" },
-  conciencia: { opciones: [], texto: "" },
-  orientacion: { opciones: [], texto: "" },
-  atencion: { opciones: [], texto: "" },
-  memoria: { opciones: [], texto: "" },
+  psicomotricidad: { opciones: [], texto: "" },
+  sustancias: { opciones: [], texto: "" },
   lenguaje: { opciones: [], texto: "" },
+  estadoAnimo: { opciones: [], texto: "" },
   pensamiento: { opciones: [], texto: "" },
-  percepcion: { opciones: [], texto: "" },
-  afecto: { opciones: [], texto: "" },
-  agresividad: { opciones: [], texto: "" },
-  riesgoSuicida: { opciones: [], texto: "" },
+  riesgo: { opciones: [], texto: "" },
   biorritmos: { opciones: [], texto: "" },
-  juicio: { opciones: [], texto: "" },
+  juicioInsight: { opciones: [], texto: "" },
 };
 
 /* ===================== OPCIONES ===================== */
 
 const opcionesDisponibles: Record<keyof ExamenMentalData, string[]> = {
-  apariencia: [
-    "Adecuada higiene",
-    "Vestimenta acorde",
-    "Contacto visual",
-    "Cooperativo",
-    "Descuidado",
-    "Agitado",
-    "Hostil",
-  ],
-  conciencia: ["Lúcido", "Somnoliento", "Obnubilado", "Estuporoso"],
-  orientacion: [
-    "Orientado en tiempo",
-    "Orientado en espacio",
-    "Orientado en persona",
+  concienciaOrientacion: [
+    "Consciente",
+    "Lúcido",
+    "Somnoliento",
+    "Orientado globalmente",
+    "Parcialmente orientado",
     "Desorientado",
   ],
-  atencion: [
-    "Atención conservada",
-    "Distraído",
-    "Hipervigilante",
-    "Inatento",
+
+  actitud: [
+    "Abordable",
+    "Colabora",
+    "Parcialmente colaborador",
+    "Reticente",
+    "Hostil",
+    "Buen contacto",
+    "Escaso contacto visual",
   ],
-  memoria: [
-    "Memoria inmediata conservada",
-    "Memoria reciente conservada",
-    "Memoria remota conservada",
-    "Alteraciones mnésicas",
+
+  apariencia: [
+    "Aspecto adecuado",
+    "Aspecto descuidado",
+    "Conductualmente adecuado",
+    "Conducta desorganizada",
   ],
+
+  psicomotricidad: [
+    "Sin alteraciones de la psicomotricidad",
+    "Inquietud psicomotriz",
+    "Agitación",
+    "Enlentecimiento psicomotor",
+  ],
+
+  sustancias: [
+    "Sin signos de intoxicación o abstinencia",
+    "Signos de intoxicación",
+    "Signos de abstinencia",
+    "Signos de impregnación farmacológica",
+  ],
+
   lenguaje: [
-    "Fluido y coherente",
-    "Logorrea",
-    "Pobreza del lenguaje",
-    "Mutismo",
-    "Tangencial",
+    "Lenguaje conservado",
+    "Discurso espontáneo",
+    "Discurso inducido",
+    "Coherente",
+    "Bien estructurado",
     "Circunstancial",
+    "Tangencial",
+    "Logorrea",
+    "Verborrea",
+    "Presión del habla",
+    "Hipofónico",
   ],
-  pensamiento: [
-    "Curso lógico",
-    "Ideas delirantes",
-    "Ideas obsesivas",
-    "Fuga de ideas",
-    "Bloqueos",
-  ],
-  percepcion: [
-    "Sin alteraciones perceptivas",
-    "Alucinaciones auditivas",
-    "Alucinaciones visuales",
-    "Ilusiones",
-  ],
-  afecto: [
+
+  estadoAnimo: [
     "Eutímico",
-    "Deprimido",
+    "Estado de ánimo reactivo a la situación actual",
+    "Ánimo triste",
     "Ansioso",
     "Irritable",
     "Lábil",
-    "Aplanado",
+    "Afecto congruente",
+    "Afecto aplanado",
+    "Buena resonancia afectiva",
   ],
-  agresividad: [
-    "Niega autoagresividad",
-    "Niega heteroagresividad",
-    "Autoagresividad presente",
-    "Heteroagresividad presente",
+
+  pensamiento: [
+    "Sin alteraciones del pensamiento",
+    "Ideas delirantes",
+    "Ideas de referencia",
+    "Ideas obsesivas",
+    "Ideas de perjuicio",
+    "Rumiaciones",
+    "Fobias de impulsión",
   ],
-  riesgoSuicida: [
-    "Niega ideación suicida",
-    "Ideación pasiva",
-    "Ideación activa",
-    "Planificación",
+
+  riesgo: [
+    "No auto ni heteroagresividad",
+    "No ideación autolítica en el momento actual",
+    "Ideas pasivas de muerte, sin planificación ni estructuración",
+    "Ideación autolítica",
+    "Ideación estructurada",
+    "Planificación suicida",
     "Frenadores presentes",
-    "Verbaliza proyectos vitales",
+    "Factores protectores presentes",
+    "Verbaliza planes encaminados a la continuidad vital",
   ],
-  biorritmos: ["Conservados", "Alterados"],
-  juicio: [
-    "Juicio conservado",
-    "Juicio alterado",
+
+  biorritmos: [
+    "Biorritmos conservados",
+    "Biorritmos alterados",
+    "Insomnio de conciliación",
+    "Insomnio de mantenimiento",
+    "Insomnio mixto",
+    "Sueño no reparador",
+    "Apetito conservado",
+    "Apetito disminuido",
+    "Hiperfagia",
+  ],
+
+  juicioInsight: [
+    "Juicio de realidad conservado",
+    "Juicio de realidad alterado",
     "Insight presente",
+    "Insight parcial",
     "Insight ausente",
   ],
 };
@@ -190,22 +219,19 @@ export default function ExamenMentalPage() {
     window.open(URL.createObjectURL(doc.output("blob")));
   };
 
-  const seccionesOrdenadas: { key: keyof ExamenMentalData; titulo: string }[] =
-    [
-      { key: "apariencia", titulo: "Apariencia y Conducta" },
-      { key: "conciencia", titulo: "Conciencia" },
-      { key: "orientacion", titulo: "Orientación" },
-      { key: "atencion", titulo: "Atención" },
-      { key: "memoria", titulo: "Memoria" },
-      { key: "lenguaje", titulo: "Lenguaje" },
-      { key: "pensamiento", titulo: "Pensamiento" },
-      { key: "percepcion", titulo: "Percepción" },
-      { key: "afecto", titulo: "Afecto y Ánimo" },
-      { key: "agresividad", titulo: "Auto / Heteroagresividad" },
-      { key: "riesgoSuicida", titulo: "Riesgo Suicida" },
-      { key: "biorritmos", titulo: "Biorritmos" },
-      { key: "juicio", titulo: "Juicio e Insight" },
-    ];
+  const secciones: { key: keyof ExamenMentalData; titulo: string }[] = [
+    { key: "concienciaOrientacion", titulo: "Conciencia y Orientación" },
+    { key: "actitud", titulo: "Actitud y Abordaje" },
+    { key: "apariencia", titulo: "Aspecto y Conducta" },
+    { key: "psicomotricidad", titulo: "Psicomotricidad" },
+    { key: "sustancias", titulo: "Consumo de Sustancias" },
+    { key: "lenguaje", titulo: "Lenguaje y Discurso" },
+    { key: "estadoAnimo", titulo: "Estado de Ánimo y Afecto" },
+    { key: "pensamiento", titulo: "Pensamiento" },
+    { key: "riesgo", titulo: "Riesgo Autolítico y Heteroagresividad" },
+    { key: "biorritmos", titulo: "Biorritmos" },
+    { key: "juicioInsight", titulo: "Juicio e Insight" },
+  ];
 
   return (
     <div className="bg-slate-50 min-h-screen">
@@ -239,25 +265,18 @@ export default function ExamenMentalPage() {
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <button
-              onClick={() => window.print()}
-              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
-            >
-              <Printer className="w-4 h-4" />
-            </button>
-            <button
-              onClick={exportarPDF}
-              className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900"
-            >
-              <Download className="w-4 h-4" />
-            </button>
-          </div>
+          <button
+            onClick={exportarPDF}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900"
+          >
+            <Download className="w-4 h-4" />
+            Generar PDF
+          </button>
         </div>
 
         {/* Formulario */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {seccionesOrdenadas.map(({ key, titulo }) => (
+          {secciones.map(({ key, titulo }) => (
             <div key={key} className="bg-white rounded-lg shadow p-6">
               <h3 className="text-lg font-semibold text-slate-800 mb-3">
                 {titulo}
@@ -271,7 +290,7 @@ export default function ExamenMentalPage() {
                   >
                     <input
                       type="checkbox"
-                      checked={examen[key].opciones.includes(opcion)}
+                      checked={(examen[key]?.opciones ?? []).includes(opcion)}
                       onChange={() => toggleOpcion(key, opcion)}
                     />
                     {opcion}
@@ -280,21 +299,9 @@ export default function ExamenMentalPage() {
               </div>
 
               <textarea
-                className="
-    w-full
-    border border-slate-300
-    rounded-lg
-    p-2
-    text-sm
-    text-slate-800
-    bg-white
-    placeholder:text-slate-400
-    focus:outline-none
-    focus:ring-2
-    focus:ring-slate-500
-  "
+                className="w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
                 placeholder="Descripción adicional…"
-                value={examen[key].texto}
+                value={examen[key]?.texto ?? ""}
                 onChange={(e) => cambiarTexto(key, e.target.value)}
               />
             </div>
