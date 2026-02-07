@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   Brain,
   FileText,
@@ -74,12 +75,14 @@ export default function Home() {
         <div className="mb-12 text-center">
           <div className="mb-6 flex items-center justify-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-slate-800 shadow-lg">
-              <div className="text-center">
-                <div className="text-2xl font-light tracking-tight text-white">
-                  PT
-                </div>
-                <div className="mx-auto mt-1 h-0.5 w-8 bg-slate-400" />
-              </div>
+              <Image
+                src="/logo1.png"
+                alt="psiqui.tools"
+                width={85}
+                height={85}
+                className="object-contain"
+                priority
+              />
             </div>
           </div>
 
