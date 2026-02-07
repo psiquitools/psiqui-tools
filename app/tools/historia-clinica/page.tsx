@@ -551,7 +551,7 @@ export default function HistoriaClinicaPage() {
                             Historia Clínica Psiquiátrica
                         </h1>
                         <p className="text-sm text-slate-600">
-                            Urgencias – Evaluación Completa
+                            Evaluación Completa
                         </p>
                     </div>
 

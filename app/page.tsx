@@ -6,6 +6,7 @@ import {
   Shield,
   Activity,
   BookOpen,
+  History,
 } from "lucide-react";
 
 interface Tool {
@@ -23,7 +24,7 @@ export default function Home() {
       id: "historia-clinica",
       title: "Historia Clínica de Urgencias",
       description:
-        "Formato estructurado para evaluación psiquiátrica en urgencias. Generación de informes en PDF.",
+        "Formato estructurado para evaluación psiquiátrica básica. Generación de informes en PDF.",
       icon: FileText,
       available: true,
       href: "/tools/historia-clinica",
@@ -32,7 +33,7 @@ export default function Home() {
       id: "examen-mental",
       title: "Examen Mental",
       description:
-        "Herramienta de redacción rápida con checklist para elaborar examen mental de forma estructurada.",
+        "Herramienta tipo checklist para elaborar examen mental de forma estructurada.",
       icon: Brain,
       available: true,
       href: "/tools/examen-mental",
@@ -41,7 +42,7 @@ export default function Home() {
       id: "escalas-clinicas",
       title: "Escalas Clínicas",
       description:
-        "Calculadoras clínicas como CIWA-Ar, PHQ-9 y otras escalas de uso frecuente en psiquiatría.",
+        "Calculadoras clínicas de uso frecuente en psiquiatría.",
       icon: Activity,
       available: true,
       href: "/tools/escalas-clinicas",
@@ -54,6 +55,15 @@ export default function Home() {
       icon: BookOpen,
       available: true,
       href: "/recursos-psicoeducacion",
+    },
+    {
+      id: "antecedentes",
+      title: "Organizador de Antecedentes",
+      description:
+        "Introduce los eventos de los antecedentes psiquiátricos del paciente y esta herramienta los organizará cronológicamente.",
+      icon: History,
+      available: true,
+      href: "/tools/organizador-antecedentes-psq",
     },
   ];
 
@@ -92,7 +102,7 @@ export default function Home() {
                 </h3>
                 <p className="text-sm text-slate-300">
                   Todas las herramientas funcionan localmente en su dispositivo.
-                  No se almacena, transmite ni guarda información clínica. Evite
+                  No se almacena, transmite ni guarda información clínica. De cualquier forma, evite
                   introducir datos identificativos de pacientes.
                 </p>
               </div>

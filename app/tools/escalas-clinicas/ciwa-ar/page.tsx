@@ -164,11 +164,11 @@ export default function CiwaArPage() {
 
                 {/* Volver */}
                 <Link
-                    href="/"
+                    href="/tools/escalas-clinicas"
                     className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
                 >
                     <ArrowLeft className="w-4 h-4" />
-                    Volver a psiqui.tools
+                    Volver a Escalas Clínicas
                 </Link>
 
                 {/* Header */}
@@ -196,8 +196,8 @@ export default function CiwaArPage() {
                                     key={opt.value}
                                     onClick={() => handleSelect(item.id, opt.value)}
                                     className={`text-left px-3 py-2 rounded border transition-colors ${scores[item.id] === opt.value
-                                            ? "bg-slate-800 text-white border-slate-800"
-                                            : "bg-slate-50 hover:bg-slate-100 border-slate-200"
+                                        ? "bg-slate-800 text-white border-slate-800"
+                                        : "bg-slate-50 hover:bg-slate-100 border-slate-200"
                                         }`}
                                 >
                                     <span className="font-semibold mr-2">{opt.value}</span>
