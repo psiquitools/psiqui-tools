@@ -1,5 +1,5 @@
 "use client";
-import TopBar from "@/components/TopBar";
+
 import { useState } from "react";
 import {
     User,
@@ -55,14 +55,12 @@ interface HistoriaClinica {
 /* ===================== SECCIONES ===================== */
 
 const secciones = [
-    { id: 0, titulo: "Datos de Identificación", icon: User },
-    { id: 1, titulo: "Motivo de Consulta", icon: FileText },
-    { id: 2, titulo: "Enfermedad Actual", icon: Stethoscope },
-    { id: 3, titulo: "Antecedentes Personales", icon: ClipboardList },
-    { id: 4, titulo: "Psicobiografía", icon: User },
-    { id: 5, titulo: "Examen Mental", icon: Brain },
-    { id: 6, titulo: "Juicio Clínico", icon: Eye },
-    { id: 7, titulo: "Plan de Manejo", icon: Pill },
+    { id: 0, titulo: "Identificación y Episodio Actual", icon: FileText },
+    { id: 1, titulo: "Antecedentes Personales", icon: ClipboardList },
+    { id: 2, titulo: "Psicobiografía", icon: User },
+    { id: 3, titulo: "Examen Mental", icon: Brain },
+    { id: 4, titulo: "Juicio Clínico", icon: Eye },
+    { id: 5, titulo: "Plan de Manejo", icon: Pill },
 ];
 
 export default function HistoriaClinicaPage() {
@@ -97,7 +95,7 @@ export default function HistoriaClinicaPage() {
         const doc = new jsPDF();
         const marginX = 20;
         let y = 20;
-        const line = 7;
+        const line = 5;
         const width = 170;
 
         const titulo = (texto: string) => {
@@ -132,23 +130,18 @@ export default function HistoriaClinicaPage() {
         doc.text("HISTORIA CLÍNICA PSIQUIÁTRICA", marginX, y);
         y += line * 2;
 
-        doc.setFont("helvetica", "normal");
-        doc.text(`Fecha y hora: ${historia.datosIdentificacion.fechaHora}`, marginX, y);
-        y += line * 2;
-
         // 1. Datos de identificación
-        titulo("1. DATOS DE IDENTIFICACIÓN");
+        titulo("DATOS DE IDENTIFICACIÓN");
         parrafo(`Identificador: ${historia.datosIdentificacion.identificador}`);
 
         // 2. Motivo de consulta
-        titulo("2. MOTIVO DE CONSULTA");
+        titulo("MOTIVO DE CONSULTA");
         parrafo(historia.motivoConsulta);
 
         // 3. Antecedentes personales
-        titulo("3. ANTECEDENTES PERSONALES");
 
         doc.setFont("helvetica", "bold");
-        doc.text("ANTECEDENTES MÉDICO-QUIRÚRGICOS:", marginX, y);
+        doc.text("ANTECEDENTES PERSONALES MÉDICO-QUIRÚRGICOS:", marginX, y);
         y += line;
 
         doc.setFont("helvetica", "normal");
@@ -222,19 +215,19 @@ export default function HistoriaClinicaPage() {
         parrafo(historia.psicobiografia);
 
         // 4. Enfermedad actual
-        titulo("4. ENFERMEDAD ACTUAL");
+        titulo("ENFERMEDAD ACTUAL");
         parrafo(historia.enfermedadActual);
 
         // 5. Examen mental
-        titulo("5. EXAMEN MENTAL");
+        titulo("EXAMEN MENTAL");
         parrafo(historia.examenMental);
 
         // 6. Juicio clínico
-        titulo("6. JUICIO CLÍNICO");
+        titulo("JUICIO CLÍNICO");
         parrafo(historia.juicioClinico);
 
         // 7. Plan de manejo
-        titulo("7. PLAN DE MANEJO");
+        titulo("PLAN DE MANEJO");
         parrafo(historia.planManejo);
 
         // Abrir PDF en navegador
@@ -258,17 +251,19 @@ export default function HistoriaClinicaPage() {
             case 0:
                 return (
                     <>
-                        <h2 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">
-                            Datos de Identificación
+                        <h2 className="text-xl font-bold text-slate-800 mb-6 border-b border-slate-200 pb-2">
+                            Identificación y Episodio Actual
                         </h2>
 
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                        {/* Aviso */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
                             <p className="text-sm text-blue-800">
                                 No introduzca datos identificativos reales del paciente.
                             </p>
                         </div>
 
-                        <label className="block text-sm text-slate-700 mb-1">
+                        {/* Identificador */}
+                        <label className="text-slate-800 font-semibold mt-8 mb-2">
                             Identificador
                         </label>
                         <input
@@ -286,50 +281,39 @@ export default function HistoriaClinicaPage() {
                             }
                         />
 
-                        <label className="block text-sm text-slate-700 mt-4 mb-1">
-                            Fecha y hora
-                        </label>
-                        <input
-                            className={`${input} bg-gray-50`}
-                            readOnly
-                            value={historia.datosIdentificacion.fechaHora}
+                        {/* Motivo de consulta */}
+                        <h3 className="text-slate-800 font-semibold mt-8 mb-2">
+                            Motivo de Consulta
+                        </h3>
+                        <textarea
+                            className={textarea}
+                            value={historia.motivoConsulta}
+                            onChange={(e) =>
+                                setHistoria({
+                                    ...historia,
+                                    motivoConsulta: e.target.value,
+                                })
+                            }
+                        />
+
+                        {/* Enfermedad actual */}
+                        <h3 className="text-slate-800 font-semibold mt-6 mb-2">
+                            Episodio Actual
+                        </h3>
+                        <textarea
+                            className={`${textarea} min-h-[180px]`}
+                            value={historia.enfermedadActual}
+                            onChange={(e) =>
+                                setHistoria({
+                                    ...historia,
+                                    enfermedadActual: e.target.value,
+                                })
+                            }
                         />
                     </>
                 );
 
             case 1:
-                return (
-                    <>
-                        <h2 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">
-                            Motivo de Consulta
-                        </h2>
-                        <textarea
-                            className={textarea}
-                            value={historia.motivoConsulta}
-                            onChange={(e) =>
-                                setHistoria({ ...historia, motivoConsulta: e.target.value })
-                            }
-                        />
-                    </>
-                );
-
-            case 2:
-                return (
-                    <>
-                        <h2 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">
-                            Enfermedad Actual
-                        </h2>
-                        <textarea
-                            className={`${textarea} min-h-[180px]`}
-                            value={historia.enfermedadActual}
-                            onChange={(e) =>
-                                setHistoria({ ...historia, enfermedadActual: e.target.value })
-                            }
-                        />
-                    </>
-                );
-
-            case 3:
                 return (
                     <>
                         <h2 className="text-xl font-bold text-slate-800 mb-6 border-b border-slate-200 pb-2">
@@ -578,7 +562,7 @@ export default function HistoriaClinicaPage() {
                         />
                     </>
                 );
-            case 4:
+            case 2:
                 return (
                     <>
                         <h2 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">
@@ -598,7 +582,7 @@ export default function HistoriaClinicaPage() {
                         />
                     </>
                 );
-            case 5:
+            case 3:
                 return (
                     <>
                         <h2 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">
@@ -618,7 +602,7 @@ export default function HistoriaClinicaPage() {
                         />
                     </>
                 );
-            case 6:
+            case 4:
                 return (
                     <>
                         <h2 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">
@@ -638,7 +622,7 @@ export default function HistoriaClinicaPage() {
                         />
                     </>
                 );
-            case 7:
+            case 5:
                 return (
                     <>
                         <h2 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">
