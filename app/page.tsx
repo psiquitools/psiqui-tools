@@ -23,7 +23,7 @@ export default function Home() {
   const tools: Tool[] = [
     {
       id: "historia-clinica",
-      title: "Historia Clínica de Urgencias",
+      title: "Historia Clínica Psiquiátrica",
       description:
         "Formato estructurado para evaluación psiquiátrica básica. Generación de informes en PDF.",
       icon: FileText,

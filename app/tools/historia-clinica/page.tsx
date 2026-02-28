@@ -31,8 +31,15 @@ interface HistoriaClinica {
         alergias: string;
 
         saludMental: string;
-        hospitalizacionesPsiq: string;
-        intentosAutoliticos: string;
+        ingresosPsiq: {
+            estado: "no" | "si";
+            descripcion: string;
+        };
+
+        intentosAutoliticos: {
+            estado: "no" | "si";
+            descripcion: string;
+        };
 
         tratamientoHabitual: string;
 
@@ -72,8 +79,8 @@ export default function HistoriaClinicaPage() {
             medicoQuirurgicos: "",
             alergias: "",
             saludMental: "",
-            hospitalizacionesPsiq: "",
-            intentosAutoliticos: "",
+            ingresosPsiq: { estado: "no", descripcion: "" },
+            intentosAutoliticos: { estado: "no", descripcion: "" },
             tratamientoHabitual: "",
             familiaresSaludMental: "",
             habitosToxicos: "",
@@ -143,10 +150,14 @@ export default function HistoriaClinicaPage() {
         doc.setFont("helvetica", "bold");
         doc.text("ANTECEDENTES MÉDICO-QUIRÚRGICOS:", marginX, y);
         y += line;
-        doc.setFont("helvetica", "normal");
-        parrafo(historia.antecedentes.medicoQuirurgicos);
 
+        doc.setFont("helvetica", "normal");
+
+        // Alergias primero
         parrafo(`Alergias: ${historia.antecedentes.alergias}`);
+
+        // Luego antecedentes médico-quirúrgicos
+        parrafo(historia.antecedentes.medicoQuirurgicos);
 
         doc.setFont("helvetica", "bold");
         doc.text("ANTECEDENTES PERSONALES EN SALUD MENTAL:", marginX, y);
@@ -154,14 +165,38 @@ export default function HistoriaClinicaPage() {
         doc.setFont("helvetica", "normal");
         parrafo(historia.antecedentes.saludMental);
 
-        parrafo(`Hospitalizaciones psiquiátricas: ${historia.antecedentes.hospitalizacionesPsiq}`);
-        parrafo(`Intentos autolíticos: ${historia.antecedentes.intentosAutoliticos}`);
+        // Ingresos psiquiátricos
+        if (historia.antecedentes.ingresosPsiq.estado === "no") {
+            parrafo("No antecedentes de ingresos psiquiátricos previos.");
+        } else {
+            parrafo(
+                "Antecedentes de ingresos psiquiátricos previos: " +
+                historia.antecedentes.ingresosPsiq.descripcion
+            );
+        }
+
+        // Intentos autolíticos
+        if (historia.antecedentes.intentosAutoliticos.estado === "no") {
+            parrafo("No antecedentes de intentos autolíticos previos.");
+        } else {
+            parrafo(
+                "Antecedentes de intentos autolíticos previos: " +
+                historia.antecedentes.intentosAutoliticos.descripcion
+            );
+        }
 
         // Subapartado menor
         doc.setFont("helvetica", "bold");
-        doc.text("Tratamiento habitual:", marginX, y);
+
+        const textoTratamiento = "Tratamiento habitual:";
+        doc.text(textoTratamiento, marginX, y);
+
+        const anchoTratamiento = doc.getTextWidth(textoTratamiento);
+        doc.line(marginX, y + 1, marginX + anchoTratamiento, y + 1);
+
         y += line;
-        doc.setFont("helvetica", "bold");
+
+        doc.setFont("helvetica", "normal");
         parrafo(historia.antecedentes.tratamientoHabitual);
 
         doc.setFont("helvetica", "bold");
@@ -171,8 +206,15 @@ export default function HistoriaClinicaPage() {
         parrafo(historia.antecedentes.familiaresSaludMental);
 
         doc.setFont("helvetica", "bold");
-        doc.text("Hábitos tóxicos:", marginX, y);
+
+        const textoHabitos = "Hábitos tóxicos:";
+        doc.text(textoHabitos, marginX, y);
+
+        const anchoHabitos = doc.getTextWidth(textoHabitos);
+        doc.line(marginX, y + 1, marginX + anchoHabitos, y + 1);
+
         y += line;
+
         doc.setFont("helvetica", "normal");
         parrafo(historia.antecedentes.habitosToxicos);
 
@@ -294,24 +336,12 @@ export default function HistoriaClinicaPage() {
                             Antecedentes Personales
                         </h2>
 
+                        {/* ================= MÉDICO-QUIRÚRGICOS ================= */}
                         <h3 className="text-slate-800 font-semibold mb-2">
                             Antecedentes Médico-Quirúrgicos
                         </h3>
-                        <textarea
-                            className={textarea}
-                            value={historia.antecedentes.medicoQuirurgicos}
-                            onChange={(e) =>
-                                setHistoria({
-                                    ...historia,
-                                    antecedentes: {
-                                        ...historia.antecedentes,
-                                        medicoQuirurgicos: e.target.value,
-                                    },
-                                })
-                            }
-                        />
 
-                        <label className="block text-sm text-slate-700 mt-3 mb-1">
+                        <label className="block text-sm text-slate-700 mb-1">
                             Alergias
                         </label>
                         <input
@@ -328,9 +358,26 @@ export default function HistoriaClinicaPage() {
                             }
                         />
 
+                        <textarea
+                            className={`${textarea} mt-3`}
+                            placeholder="Patologías médicas relevantes, cirugías, comorbilidades..."
+                            value={historia.antecedentes.medicoQuirurgicos}
+                            onChange={(e) =>
+                                setHistoria({
+                                    ...historia,
+                                    antecedentes: {
+                                        ...historia.antecedentes,
+                                        medicoQuirurgicos: e.target.value,
+                                    },
+                                })
+                            }
+                        />
+
+                        {/* ================= SALUD MENTAL ================= */}
                         <h3 className="text-slate-800 font-semibold mt-6 mb-2">
                             Antecedentes Personales en Salud Mental
                         </h3>
+
                         <textarea
                             className={textarea}
                             value={historia.antecedentes.saludMental}
@@ -345,40 +392,138 @@ export default function HistoriaClinicaPage() {
                             }
                         />
 
-                        <label className="block text-sm text-slate-700 mt-3 mb-1">
-                            Hospitalizaciones psiquiátricas
-                        </label>
-                        <textarea
-                            className={textarea}
-                            value={historia.antecedentes.hospitalizacionesPsiq}
-                            onChange={(e) =>
-                                setHistoria({
-                                    ...historia,
-                                    antecedentes: {
-                                        ...historia.antecedentes,
-                                        hospitalizacionesPsiq: e.target.value,
-                                    },
-                                })
-                            }
-                        />
+                        {/* ================= INGRESOS PSIQUIÁTRICOS ================= */}
 
-                        <label className="block text-sm text-slate-700 mt-3 mb-1">
+                        <label className="block text-sm font-medium text-slate-800 mt-3 mb-1">
+                            Ingresos psiquiátricos
+                        </label>
+
+                        <label className="flex items-center gap-2 text-sm text-slate-800">
+                            <input
+                                type="radio"
+                                name="ingresosPsiq"
+                                checked={historia.antecedentes.ingresosPsiq.estado === "no"}
+                                onChange={() =>
+                                    setHistoria({
+                                        ...historia,
+                                        antecedentes: {
+                                            ...historia.antecedentes,
+                                            ingresosPsiq: { estado: "no", descripcion: "" },
+                                        },
+                                    })
+                                }
+                            />
+                            No antecedentes de ingresos psiquiátricos previos
+                        </label>
+
+                        <label className="flex items-center gap-2 mt-1 text-sm text-slate-800">
+                            <input
+                                type="radio"
+                                name="ingresosPsiq"
+                                checked={historia.antecedentes.ingresosPsiq.estado === "si"}
+                                onChange={() =>
+                                    setHistoria({
+                                        ...historia,
+                                        antecedentes: {
+                                            ...historia.antecedentes,
+                                            ingresosPsiq: {
+                                                ...historia.antecedentes.ingresosPsiq,
+                                                estado: "si",
+                                            },
+                                        },
+                                    })
+                                }
+                            />
+                            Presenta antecedentes de ingresos psiquiátricos
+                        </label>
+
+                        {historia.antecedentes.ingresosPsiq.estado === "si" && (
+                            <textarea
+                                className={`${textarea} mt-2`}
+                                placeholder="Describa ingresos previos relevantes..."
+                                value={historia.antecedentes.ingresosPsiq.descripcion}
+                                onChange={(e) =>
+                                    setHistoria({
+                                        ...historia,
+                                        antecedentes: {
+                                            ...historia.antecedentes,
+                                            ingresosPsiq: {
+                                                ...historia.antecedentes.ingresosPsiq,
+                                                descripcion: e.target.value,
+                                            },
+                                        },
+                                    })
+                                }
+                            />
+                        )}
+
+
+                        {/* ================= INTENTOS AUTOLÍTICOS ================= */}
+
+                        <label className="block text-sm font-medium text-slate-800 mt-4 mb-1">
                             Intentos autolíticos
                         </label>
-                        <textarea
-                            className={textarea}
-                            value={historia.antecedentes.intentosAutoliticos}
-                            onChange={(e) =>
-                                setHistoria({
-                                    ...historia,
-                                    antecedentes: {
-                                        ...historia.antecedentes,
-                                        intentosAutoliticos: e.target.value,
-                                    },
-                                })
-                            }
-                        />
 
+                        <label className="flex items-center gap-2 text-sm text-slate-800">
+                            <input
+                                type="radio"
+                                name="intentosAutoliticos"
+                                checked={historia.antecedentes.intentosAutoliticos.estado === "no"}
+                                onChange={() =>
+                                    setHistoria({
+                                        ...historia,
+                                        antecedentes: {
+                                            ...historia.antecedentes,
+                                            intentosAutoliticos: { estado: "no", descripcion: "" },
+                                        },
+                                    })
+                                }
+                            />
+                            No antecedentes de intentos autolíticos previos
+                        </label>
+
+                        <label className="flex items-center gap-2 mt-1 text-sm text-slate-800">
+                            <input
+                                type="radio"
+                                name="intentosAutoliticos"
+                                checked={historia.antecedentes.intentosAutoliticos.estado === "si"}
+                                onChange={() =>
+                                    setHistoria({
+                                        ...historia,
+                                        antecedentes: {
+                                            ...historia.antecedentes,
+                                            intentosAutoliticos: {
+                                                ...historia.antecedentes.intentosAutoliticos,
+                                                estado: "si",
+                                            },
+                                        },
+                                    })
+                                }
+                            />
+                            Presenta antecedentes de intentos autolíticos
+                        </label>
+
+                        {historia.antecedentes.intentosAutoliticos.estado === "si" && (
+                            <textarea
+                                className={`${textarea} mt-2`}
+                                placeholder="Describa intentos autolíticos previos..."
+                                value={historia.antecedentes.intentosAutoliticos.descripcion}
+                                onChange={(e) =>
+                                    setHistoria({
+                                        ...historia,
+                                        antecedentes: {
+                                            ...historia.antecedentes,
+                                            intentosAutoliticos: {
+                                                ...historia.antecedentes.intentosAutoliticos,
+                                                descripcion: e.target.value,
+                                            },
+                                        },
+                                    })
+                                }
+                            />
+                        )}
+
+                        {/* ================= TRATAMIENTO ================= */}
                         <h3 className="text-slate-800 font-semibold mt-6 mb-2">
                             Tratamiento Habitual
                         </h3>
@@ -396,6 +541,7 @@ export default function HistoriaClinicaPage() {
                             }
                         />
 
+                        {/* ================= FAMILIARES ================= */}
                         <h3 className="text-slate-800 font-semibold mt-6 mb-2">
                             Antecedentes Familiares en Salud Mental
                         </h3>
@@ -413,6 +559,7 @@ export default function HistoriaClinicaPage() {
                             }
                         />
 
+                        {/* ================= HÁBITOS TÓXICOS ================= */}
                         <h3 className="text-slate-800 font-semibold mt-6 mb-2">
                             Hábitos Tóxicos
                         </h3>
