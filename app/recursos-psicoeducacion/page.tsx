@@ -50,9 +50,9 @@ const CATEGORIES: Category[] = [
                 description: "Guía básica sobre síntomas y tratamiento.",
             },
             {
-                title: "Plan de seguridad - suicidio",
+                title: "Plan de seguridad",
                 type: "Paciente",
-                url: "/pdfs/depresion/plan-seguridad-crisis.pdf",
+                url: "/pdfs/depresion/plan-seguridad-byn.pdf",
                 description: "Plan de seguridad en crisis",
             },
         ],
