@@ -64,10 +64,10 @@ const CATEGORIES: Category[] = [
         icon: Zap,
         resources: [
             {
-                title: "Manejo de Crisis de Pánico",
+                title: "Trastornos de Ansiedad",
                 type: "Paciente",
                 url: "/pdfs/ansiedad/ansiedad.pdf",
-                description: "Técnicas de respiración y grounding.",
+                description: "Psicoeducación sobre ansiedad",
             },
         ],
     },
