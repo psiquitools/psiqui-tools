@@ -8,6 +8,7 @@ import {
   Activity,
   BookOpen,
   History,
+  Calculator,
 } from "lucide-react";
 
 interface Tool {
@@ -43,10 +44,19 @@ export default function Home() {
       id: "escalas-clinicas",
       title: "Escalas Clínicas",
       description:
-        "Calculadoras clínicas de uso frecuente en psiquiatría.",
+        "Escalas de evaluación de uso frecuente en psiquiatría: CIWA-Ar, GAD-7 y más.",
       icon: Activity,
       available: true,
       href: "/tools/escalas-clinicas",
+    },
+    {
+      id: "calculadoras",
+      title: "Calculadoras Clínicas",
+      description:
+        "Equivalencias de benzodiacepinas, antipsicóticos y otras conversiones de uso frecuente en guardia.",
+      icon: Calculator,
+      available: true,
+      href: "/tools/calculadoras-clinicas",
     },
     {
       id: "psicoeducacion",
