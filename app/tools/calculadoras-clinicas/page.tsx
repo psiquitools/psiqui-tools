@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Pill } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pill, TrendingDown } from "lucide-react";
 
 interface Calculadora {
     id: string;
@@ -18,6 +18,14 @@ export default function CalculadorasPage() {
                 "Conversión entre benzodiacepinas usando diazepam como referencia. Incluye fármacos Z y presentaciones disponibles en España.",
             icon: Pill,
             href: "/tools/calculadoras-clinicas/equivalencias-bzd",
+        },
+        {
+            id: "discontinuacion-bzd",
+            title: "Plan de discontinuación de benzodiacepinas",
+            description:
+                "Genera un plan de retirada gradual con enfoque hiperbólico según el fármaco, la dosis, el tiempo de uso y la velocidad de reducción. Incluye texto para informe clínico.",
+            icon: TrendingDown,
+            href: "/tools/calculadoras-clinicas/discontinuacion-bzd",
         },
     ];
 

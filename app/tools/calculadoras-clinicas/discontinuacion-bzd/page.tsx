@@ -21,14 +21,14 @@ type Benzo = {
     eq5mgDiazepam: number;
 };
 
-type Velocidad = "lenta" | "moderada" | "rapida";
+type TiempoUso = "corto" | "medio" | "prolongado" | "cronico";
+type Velocidad = "rapida" | "moderada" | "lenta";
 
 type Paso = {
     paso: number;
     semana: number;
-    dosis: number;
     eqDiazepam: number;
-    reduccionPorc: number;
+    dosisOriginal: number;
 };
 
 // ─── DATOS ───────────────────────────────────────────────────────────────────
@@ -50,88 +50,93 @@ const BENZOS: Benzo[] = [
     { id: "zolpidem", nombre: "Zolpidem", marcaEspana: "Stilnox®", eq5mgDiazepam: 10 },
 ];
 
-const VELOCIDAD_CONFIG: Record<Velocidad, {
-    label: string;
-    descripcion: string;
-    porcentajePorPaso: number;
-    semanasPorPaso: number;
-    color: string;
-}> = {
-    lenta: {
-        label: "Lenta",
-        descripcion: "5% cada 4 semanas — recomendada para uso crónico > 1 año",
-        porcentajePorPaso: 5,
-        semanasPorPaso: 4,
-        color: "text-green-700 bg-green-50 border-green-200",
-    },
-    moderada: {
-        label: "Moderada",
-        descripcion: "10% cada 4 semanas — para uso de 3-12 meses",
-        porcentajePorPaso: 10,
-        semanasPorPaso: 4,
-        color: "text-yellow-700 bg-yellow-50 border-yellow-200",
-    },
-    rapida: {
-        label: "Rápida",
-        descripcion: "10% cada 2 semanas — para uso < 3 meses o bajo riesgo",
-        porcentajePorPaso: 10,
-        semanasPorPaso: 2,
-        color: "text-orange-700 bg-orange-50 border-orange-200",
-    },
+// Duración total en semanas según tiempo de uso y velocidad
+const DURACION_SEMANAS: Record<TiempoUso, Record<Velocidad, number>> = {
+    corto: { rapida: 1, moderada: 1, lenta: 2 },
+    medio: { rapida: 4, moderada: 5, lenta: 6 },
+    prolongado: { rapida: 6, moderada: 8, lenta: 10 },
+    cronico: { rapida: 10, moderada: 12, lenta: 14 },
 };
 
-// ─── CÁLCULO HIPERBÓLICO ──────────────────────────────────────────────────────
-// Cada paso reduce un % de la dosis ACTUAL (no de la inicial)
-// Esto produce la curva hiperbólica: pasos cada vez más pequeños en mg absolutos
+const TIEMPO_USO_CONFIG: Record<TiempoUso, {
+    label: string;
+    descripcion: string;
+}> = {
+    corto: { label: "Corto (< 4 semanas)", descripcion: "Contexto de ingreso o uso puntual" },
+    medio: { label: "Medio (1-6 meses)", descripcion: "Reducción en pocas semanas" },
+    prolongado: { label: "Prolongado (6-12 meses)", descripcion: "Reducción gradual en 2-3 meses" },
+    cronico: { label: "Crónico (> 1 año)", descripcion: "Reducción lenta, máximo 3 meses" },
+};
+
+const VELOCIDAD_LABEL: Record<Velocidad, string> = {
+    rapida: "Rápida",
+    moderada: "Moderada",
+    lenta: "Lenta",
+};
+
+// ─── ALGORITMO ───────────────────────────────────────────────────────────────
+// Calcula el número de pasos óptimo para ajustarse a la duración objetivo,
+// luego divide la dosis en pasos hiperbólicos (reducciones progresivamente
+// más pequeñas) que encajan en ese tiempo.
 
 function calcularPlan(
-    dosisInicial: number,
+    eqDiazepamInicial: number,
+    tiempoUso: TiempoUso,
     velocidad: Velocidad,
-    eqDiazepamFactor: number // mg del fármaco por cada 5mg de diazepam
+    farmaco: Benzo,
+    dosisOriginalInicial: number
 ): Paso[] {
-    const config = VELOCIDAD_CONFIG[velocidad];
-    const factor = config.porcentajePorPaso / 100;
+    const duracionTotal = DURACION_SEMANAS[tiempoUso][velocidad];
+
+    // Número de pasos de reducción (sin contar inicio ni suspensión final)
+    // Mínimo 2 pasos, máximo ajustado para no tener intervalos < 1 semana
+    const numPasosReduccion = Math.max(2, Math.min(8, duracionTotal));
+
+    // Intervalo entre pasos en semanas (redondeado a entero)
+    const semanasPorPaso = Math.max(1, Math.round(duracionTotal / numPasosReduccion));
+
+    // Generar secuencia hiperbólica de dosis en eq. diazepam
+    // La reducción de cada paso es proporcional a la dosis actual (hiperbólico)
+    // Usamos una secuencia geométrica: cada paso es (1 - factor) del anterior
+    // factor = 1 - (dosisMin/dosisInicial)^(1/numPasos)
+    const dosisMinEq = 0.5; // mínimo práctico en eq. diazepam
+    const factor = 1 - Math.pow(dosisMinEq / eqDiazepamInicial, 1 / numPasosReduccion);
+
     const pasos: Paso[] = [];
 
-    // Convertir dosis inicial a equivalente diazepam
-    const eqDiazepamInicial = (dosisInicial / eqDiazepamFactor) * 5;
+    // Paso 0 — dosis inicial
+    pasos.push({
+        paso: 1,
+        semana: 0,
+        eqDiazepam: Math.round(eqDiazepamInicial * 100) / 100,
+        dosisOriginal: dosisOriginalInicial,
+    });
 
-    let dosisActual = dosisInicial;
-    let eqDiazepamActual = eqDiazepamInicial;
-    let semana = 0;
-    let numeroPaso = 0;
+    let eqActual = eqDiazepamInicial;
 
-    // Umbral de parada: < 2% de la dosis inicial en eq diazepam, o < 0.5mg eq diazepam
-    const umbralParada = Math.min(eqDiazepamInicial * 0.02, 0.5);
+    for (let i = 1; i <= numPasosReduccion; i++) {
+        eqActual = eqActual * (1 - factor);
+        // Redondear a 0.25 más cercano para que sea farmacéuticamente manejable
+        eqActual = Math.max(dosisMinEq, Math.round(eqActual / 0.25) * 0.25);
 
-    // Límite de pasos para evitar loops infinitos
-    const maxPasos = 60;
+        const dosisOriginal = Math.round(
+            (eqActual / 5) * farmaco.eq5mgDiazepam * 100
+        ) / 100;
 
-    while (eqDiazepamActual > umbralParada && numeroPaso < maxPasos) {
-        // Añadir el paso actual (dosis que tomará el paciente en este periodo)
         pasos.push({
-            paso: numeroPaso + 1,
-            semana,
-            dosis: Math.round(dosisActual * 1000) / 1000,
-            eqDiazepam: Math.round(eqDiazepamActual * 100) / 100,
-            reduccionPorc: numeroPaso === 0 ? 0 : config.porcentajePorPaso,
+            paso: pasos.length + 1,
+            semana: i * semanasPorPaso,
+            eqDiazepam: Math.round(eqActual * 100) / 100,
+            dosisOriginal,
         });
-
-        // Calcular reducción para el siguiente paso (% de la dosis actual)
-        const reduccion = dosisActual * factor;
-        dosisActual = dosisActual - reduccion;
-        eqDiazepamActual = (dosisActual / eqDiazepamFactor) * 5;
-        semana += config.semanasPorPaso;
-        numeroPaso++;
     }
 
-    // Añadir paso final: 0
+    // Paso final — suspensión
     pasos.push({
-        paso: numeroPaso + 1,
-        semana,
-        dosis: 0,
+        paso: pasos.length + 1,
+        semana: (numPasosReduccion + 1) * semanasPorPaso,
         eqDiazepam: 0,
-        reduccionPorc: config.porcentajePorPaso,
+        dosisOriginal: 0,
     });
 
     return pasos;
@@ -142,6 +147,7 @@ function calcularPlan(
 export default function DiscontinuacionBZDPage() {
     const [farmacoId, setFarmacoId] = useState<string>("lorazepam");
     const [dosis, setDosis] = useState<string>("");
+    const [tiempoUso, setTiempoUso] = useState<TiempoUso>("medio");
     const [velocidad, setVelocidad] = useState<Velocidad>("moderada");
     const [copiedTable, setCopiedTable] = useState(false);
     const [copiedText, setCopiedText] = useState(false);
@@ -150,55 +156,57 @@ export default function DiscontinuacionBZDPage() {
     const dosisNum = parseFloat(dosis);
     const dosisValida = !isNaN(dosisNum) && dosisNum > 0;
 
-    const plan = useMemo(() => {
-        if (!dosisValida) return null;
-        return calcularPlan(dosisNum, velocidad, farmaco.eq5mgDiazepam);
-    }, [dosisNum, velocidad, farmaco, dosisValida]);
-
     const eqDiazepamInicial = useMemo(() => {
         if (!dosisValida) return null;
         return Math.round((dosisNum / farmaco.eq5mgDiazepam) * 5 * 100) / 100;
     }, [dosisNum, farmaco, dosisValida]);
 
+    const plan = useMemo(() => {
+        if (!dosisValida || !eqDiazepamInicial) return null;
+        return calcularPlan(eqDiazepamInicial, tiempoUso, velocidad, farmaco, dosisNum);
+    }, [dosisNum, eqDiazepamInicial, tiempoUso, velocidad, farmaco, dosisValida]);
+
     const duracionTotal = useMemo(() => {
         if (!plan) return null;
         const ultimaSemana = plan[plan.length - 1].semana;
-        const meses = Math.round((ultimaSemana / 4) * 10) / 10;
-        return { semanas: ultimaSemana, meses };
+        return {
+            semanas: ultimaSemana,
+            meses: Math.round((ultimaSemana / 4.3) * 10) / 10,
+        };
     }, [plan]);
 
     const generarTextoInforme = () => {
-        if (!plan || !duracionTotal) return "";
-        const config = VELOCIDAD_CONFIG[velocidad];
+        if (!plan || !duracionTotal || !eqDiazepamInicial) return "";
+        const tiempoConfig = TIEMPO_USO_CONFIG[tiempoUso];
+        const duracion = DURACION_SEMANAS[tiempoUso][velocidad];
+
         const lines: string[] = [
-            `PLAN DE DISCONTINUACIÓN DE ${farmaco.nombre.toUpperCase()} (${farmaco.marcaEspana})`,
-            `Enfoque hiperbólico — Maudsley Deprescribing Guidelines (Horowitz & Taylor, 2024)`,
+            `PLAN DE DISCONTINUACIÓN — ${farmaco.nombre.toUpperCase()} (${farmaco.marcaEspana})`,
+            `Enfoque de reducción hiperbólica — Maudsley Deprescribing Guidelines (Horowitz & Taylor, 2024)`,
             "",
-            `Dosis actual: ${dosisNum} mg/día de ${farmaco.nombre} (equivalente a ${eqDiazepamInicial} mg de diazepam)`,
-            `Velocidad de reducción: ${config.label} — ${config.porcentajePorPaso}% de la dosis actual cada ${config.semanasPorPaso} semanas`,
-            `Duración estimada del plan: ${duracionTotal.semanas} semanas (${duracionTotal.meses} meses)`,
+            `Dosis actual: ${dosisNum} mg/día (equivalente a ${eqDiazepamInicial} mg/día de diazepam)`,
+            `Tiempo de uso: ${tiempoConfig.label}`,
+            `Velocidad: ${VELOCIDAD_LABEL[velocidad]} — duración estimada ${duracion} semanas`,
             "",
-            "PASOS DEL PLAN:",
-            "",
+            "PASOS:",
         ];
 
         plan.forEach((p) => {
-            if (p.dosis === 0) {
-                lines.push(`Paso ${p.paso} (Semana ${p.semana}): Suspensión — 0 mg`);
+            if (p.dosisOriginal === 0 || p.eqDiazepam === 0) {
+                lines.push(`  Semana ${p.semana}: Suspensión`);
             } else if (p.paso === 1) {
-                lines.push(`Paso ${p.paso} (Semana ${p.semana}): ${p.dosis} mg/día de ${farmaco.nombre} — dosis inicial`);
+                lines.push(`  Semana ${p.semana}: ${p.dosisOriginal} mg/día de ${farmaco.nombre} — inicio`);
             } else {
-                lines.push(`Paso ${p.paso} (Semana ${p.semana}): ${p.dosis} mg/día de ${farmaco.nombre} (reducción del ${p.reduccionPorc}%)`);
+                lines.push(`  Semana ${p.semana}: ${p.dosisOriginal} mg/día de ${farmaco.nombre} (${p.eqDiazepam} mg eq. diazepam)`);
             }
         });
 
         lines.push("");
-        lines.push("NOTAS:");
-        lines.push("• Las dosis son aproximadas. Ajustar según tolerancia individual.");
-        lines.push("• Si aparecen síntomas de abstinencia, mantener la dosis actual hasta su resolución.");
-        lines.push("• La reducción puede ralentizarse o pausarse en cualquier momento según respuesta clínica.");
-        lines.push("• Para dosis muy pequeñas puede ser necesaria formulación líquida o compuesta.");
-        lines.push(`• Fuente: Maudsley Deprescribing Guidelines (Horowitz & Taylor, 2024).`);
+        lines.push("CONSIDERACIONES:");
+        lines.push("• Si aparecen síntomas de abstinencia, mantener la dosis actual hasta resolución.");
+        lines.push("• El ritmo puede ajustarse según tolerancia individual.");
+        lines.push("• Para dosis muy pequeñas puede ser necesaria formulación líquida.");
+        lines.push("• Las equivalencias son aproximadas — ajustar según respuesta clínica.");
 
         return lines.join("\n");
     };
@@ -206,12 +214,11 @@ export default function DiscontinuacionBZDPage() {
     const copyTable = () => {
         if (!plan) return;
         const lines = [
-            `Plan de discontinuación — ${farmaco.nombre} ${dosisNum} mg/día`,
-            `Velocidad: ${VELOCIDAD_CONFIG[velocidad].label}`,
-            "",
-            "Paso\tSemana\tDosis (mg)\tEq. Diazepam (mg)",
+            `Paso\tSemana\t${farmaco.nombre} (mg/día)\tEq. Diazepam (mg)`,
             ...plan.map((p) =>
-                `${p.paso}\t${p.semana}\t${p.dosis}\t${p.eqDiazepam}`
+                p.eqDiazepam === 0
+                    ? `${p.paso}\t${p.semana}\tSuspensión\t0`
+                    : `${p.paso}\t${p.semana}\t${p.dosisOriginal}\t${p.eqDiazepam}`
             ),
         ];
         navigator.clipboard.writeText(lines.join("\n"));
@@ -224,6 +231,8 @@ export default function DiscontinuacionBZDPage() {
         setCopiedText(true);
         setTimeout(() => setCopiedText(false), 2000);
     };
+
+    const reset = () => setDosis("");
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-6">
@@ -244,69 +253,74 @@ export default function DiscontinuacionBZDPage() {
                     <div>
                         <h1 className="text-2xl font-semibold">Plan de discontinuación de benzodiacepinas</h1>
                         <p className="text-sm text-slate-600">
-                            Reducción hiperbólica — Maudsley Deprescribing Guidelines
+                            Reducción hiperbólica progresiva — Maudsley Deprescribing Guidelines
                         </p>
                     </div>
                 </div>
 
                 {/* Configuración */}
-                <div className="bg-white border border-slate-200 rounded-lg p-6 space-y-5">
+                <div className="bg-white border border-slate-200 rounded-lg p-6 space-y-6">
 
-                    {/* Fármaco */}
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium text-slate-700">Fármaco actual</label>
-                        <select
-                            value={farmacoId}
-                            onChange={(e) => { setFarmacoId(e.target.value); setDosis(""); }}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                        >
-                            {BENZOS.map((b) => (
-                                <option key={b.id} value={b.id}>
-                                    {b.nombre} ({b.marcaEspana})
-                                </option>
-                            ))}
-                        </select>
+                    {/* Fármaco y dosis */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                            <label className="text-sm font-medium text-slate-700">Fármaco actual</label>
+                            <select
+                                value={farmacoId}
+                                onChange={(e) => { setFarmacoId(e.target.value); setDosis(""); }}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                            >
+                                {BENZOS.map((b) => (
+                                    <option key={b.id} value={b.id}>
+                                        {b.nombre} ({b.marcaEspana})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="text-sm font-medium text-slate-700">
+                                Dosis actual (mg/día)
+                            </label>
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.25"
+                                value={dosis}
+                                onChange={(e) => setDosis(e.target.value)}
+                                placeholder="Ej: 1"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                            />
+                            {dosisValida && eqDiazepamInicial !== null && (
+                                <p className="text-xs text-slate-500">
+                                    Equivalente a{" "}
+                                    <span className="font-semibold">
+                                        {eqDiazepamInicial} mg/día de diazepam
+                                    </span>
+                                </p>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Dosis */}
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium text-slate-700">
-                            Dosis actual (mg/día)
-                        </label>
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.25"
-                            value={dosis}
-                            onChange={(e) => setDosis(e.target.value)}
-                            placeholder="Ej: 1"
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                        />
-                        {dosisValida && eqDiazepamInicial !== null && (
-                            <p className="text-xs text-slate-500">
-                                Equivalente a <span className="font-semibold">{eqDiazepamInicial} mg de diazepam</span>
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Velocidad */}
+                    {/* Tiempo de uso */}
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-700">Velocidad de reducción</label>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                            {(["lenta", "moderada", "rapida"] as Velocidad[]).map((v) => {
-                                const config = VELOCIDAD_CONFIG[v];
-                                const selected = velocidad === v;
+                        <label className="text-sm font-medium text-slate-700">Tiempo de uso</label>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {(["corto", "medio", "prolongado", "cronico"] as TiempoUso[]).map((t) => {
+                                const config = TIEMPO_USO_CONFIG[t];
+                                const selected = tiempoUso === t;
                                 return (
                                     <button
-                                        key={v}
-                                        onClick={() => setVelocidad(v)}
+                                        key={t}
+                                        onClick={() => setTiempoUso(t)}
                                         className={`text-left p-3 rounded-lg border text-sm transition-colors ${selected
-                                            ? "bg-slate-800 text-white border-slate-800"
-                                            : "bg-slate-50 hover:bg-slate-100 border-slate-200"
+                                                ? "bg-slate-800 text-white border-slate-800"
+                                                : "bg-slate-50 hover:bg-slate-100 border-slate-200"
                                             }`}
                                     >
-                                        <div className="font-semibold mb-1">{config.label}</div>
-                                        <div className={`text-xs ${selected ? "text-slate-300" : "text-slate-500"}`}>
+                                        <div className="font-semibold text-xs mb-1">{config.label}</div>
+                                        <div className={`text-xs leading-tight ${selected ? "text-slate-300" : "text-slate-500"
+                                            }`}>
                                             {config.descripcion}
                                         </div>
                                     </button>
@@ -314,6 +328,34 @@ export default function DiscontinuacionBZDPage() {
                             })}
                         </div>
                     </div>
+
+                    {/* Velocidad */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-700">Velocidad de reducción</label>
+                        <div className="grid grid-cols-3 gap-2">
+                            {(["rapida", "moderada", "lenta"] as Velocidad[]).map((v) => {
+                                const selected = velocidad === v;
+                                const semanas = DURACION_SEMANAS[tiempoUso][v];
+                                return (
+                                    <button
+                                        key={v}
+                                        onClick={() => setVelocidad(v)}
+                                        className={`text-left p-3 rounded-lg border text-sm transition-colors ${selected
+                                                ? "bg-slate-800 text-white border-slate-800"
+                                                : "bg-slate-50 hover:bg-slate-100 border-slate-200"
+                                            }`}
+                                    >
+                                        <div className="font-semibold mb-1">{VELOCIDAD_LABEL[v]}</div>
+                                        <div className={`text-xs ${selected ? "text-slate-300" : "text-slate-500"
+                                            }`}>
+                                            ~{semanas} semanas
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
                 </div>
 
                 {/* Resultado */}
@@ -333,29 +375,42 @@ export default function DiscontinuacionBZDPage() {
                                     <p className="text-xs text-slate-400">diazepam</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500 mb-1">Total pasos</p>
+                                    <p className="text-xs text-slate-500 mb-1">Pasos</p>
                                     <p className="text-lg font-bold">{plan.length}</p>
                                     <p className="text-xs text-slate-400">incluyendo suspensión</p>
                                 </div>
                                 <div>
                                     <p className="text-xs text-slate-500 mb-1">Duración estimada</p>
-                                    <p className="text-lg font-bold">{duracionTotal.meses} meses</p>
+                                    <p className="text-lg font-bold">
+                                        {duracionTotal.meses < 1
+                                            ? `${duracionTotal.semanas} sem.`
+                                            : `${duracionTotal.meses} meses`}
+                                    </p>
                                     <p className="text-xs text-slate-400">{duracionTotal.semanas} semanas</p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Tabla de pasos */}
+                        {/* Tabla */}
                         <div className="bg-white border border-slate-200 rounded-lg p-4">
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-sm font-medium text-slate-700">Plan paso a paso</h3>
-                                <button
-                                    onClick={copyTable}
-                                    className="flex items-center gap-2 px-3 py-1.5 text-xs bg-slate-100 hover:bg-slate-200 rounded border border-slate-200 transition-colors"
-                                >
-                                    {copiedTable ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                                    Copiar tabla
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={reset}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-slate-200 hover:bg-slate-100 rounded transition-colors"
+                                    >
+                                        <RotateCcw className="w-3 h-3" />
+                                        Limpiar
+                                    </button>
+                                    <button
+                                        onClick={copyTable}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-slate-100 hover:bg-slate-200 rounded border border-slate-200 transition-colors"
+                                    >
+                                        {copiedTable ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                                        Copiar tabla
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="overflow-x-auto">
@@ -367,46 +422,48 @@ export default function DiscontinuacionBZDPage() {
                                             <th className="text-right py-2 pr-4 text-xs text-slate-500 font-medium">
                                                 {farmaco.nombre} (mg/día)
                                             </th>
-                                            <th className="text-right py-2 pr-4 text-xs text-slate-500 font-medium">
+                                            <th className="text-right py-2 text-xs text-slate-500 font-medium">
                                                 Eq. diazepam (mg)
                                             </th>
-                                            <th className="text-right py-2 text-xs text-slate-500 font-medium">Reducción</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {plan.map((p) => (
-                                            <tr
-                                                key={p.paso}
-                                                className={`border-b border-slate-100 ${p.dosis === 0
-                                                    ? "bg-red-50"
-                                                    : p.paso === 1
-                                                        ? "bg-slate-50"
-                                                        : ""
-                                                    }`}
-                                            >
-                                                <td className="py-2 pr-4 text-slate-600 font-mono text-xs">{p.paso}</td>
-                                                <td className="py-2 pr-4 text-slate-600">S{p.semana}</td>
-                                                <td className="py-2 pr-4 text-right font-semibold text-slate-800 font-mono">
-                                                    {p.dosis === 0 ? (
-                                                        <span className="text-red-600">Suspender</span>
-                                                    ) : (
-                                                        p.dosis
-                                                    )}
-                                                </td>
-                                                <td className="py-2 pr-4 text-right text-slate-500 font-mono text-xs">
-                                                    {p.eqDiazepam === 0 ? "—" : p.eqDiazepam}
-                                                </td>
-                                                <td className="py-2 text-right text-xs">
-                                                    {p.paso === 1 ? (
-                                                        <span className="text-slate-400">inicio</span>
-                                                    ) : p.dosis === 0 ? (
-                                                        <span className="text-red-500">suspensión</span>
-                                                    ) : (
-                                                        <span className="text-slate-500">−{p.reduccionPorc}%</span>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        {plan.map((p) => {
+                                            const esSuspension = p.eqDiazepam === 0;
+                                            const esInicio = p.paso === 1;
+                                            return (
+                                                <tr
+                                                    key={p.paso}
+                                                    className={`border-b border-slate-100 ${esSuspension
+                                                            ? "bg-red-50"
+                                                            : esInicio
+                                                                ? "bg-slate-50"
+                                                                : ""
+                                                        }`}
+                                                >
+                                                    <td className="py-2 pr-4 text-slate-500 font-mono text-xs">
+                                                        {p.paso}
+                                                    </td>
+                                                    <td className="py-2 pr-4 text-slate-600 text-sm">
+                                                        {p.semana === 0 ? "Inicio" : `S${p.semana}`}
+                                                    </td>
+                                                    <td className="py-2 pr-4 text-right font-semibold font-mono">
+                                                        {esSuspension ? (
+                                                            <span className="text-red-600 font-sans font-medium">
+                                                                Suspender
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-slate-800">
+                                                                {p.dosisOriginal}
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td className="py-2 text-right font-mono text-slate-500 text-xs">
+                                                        {esSuspension ? "—" : p.eqDiazepam}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
@@ -417,7 +474,9 @@ export default function DiscontinuacionBZDPage() {
                             <div className="flex justify-between items-center mb-3">
                                 <div className="flex items-center gap-2">
                                     <FileText className="w-4 h-4 text-slate-500" />
-                                    <h3 className="text-sm font-medium text-slate-700">Texto para informe clínico</h3>
+                                    <h3 className="text-sm font-medium text-slate-700">
+                                        Texto para informe clínico
+                                    </h3>
                                 </div>
                                 <button
                                     onClick={copyTexto}
@@ -427,20 +486,21 @@ export default function DiscontinuacionBZDPage() {
                                     Copiar texto
                                 </button>
                             </div>
-                            <pre className="text-xs text-slate-600 whitespace-pre-wrap font-mono bg-slate-50 rounded p-3 leading-relaxed max-h-64 overflow-y-auto">
+                            <pre className="text-xs text-slate-600 whitespace-pre-wrap font-mono bg-slate-50 rounded p-3 leading-relaxed max-h-72 overflow-y-auto">
                                 {generarTextoInforme()}
                             </pre>
                         </div>
                     </>
                 )}
 
-                {/* Nota */}
+                {/* Nota clínica */}
                 <div className="flex items-start gap-2 text-xs text-slate-600">
                     <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                     <span>
-                        Las dosis son <strong>aproximadas</strong>. El plan debe ajustarse individualmente según tolerancia y síntomas.
-                        Si aparece síndrome de abstinencia, mantener la dosis actual hasta resolución antes de continuar.
-                        Para dosis muy pequeñas puede ser necesaria formulación líquida. Fuente: Maudsley Deprescribing Guidelines (Horowitz & Taylor, 2024).
+                        Plan orientativo. Ajustar según tolerancia individual — si aparecen síntomas
+                        de abstinencia, mantener la dosis hasta resolución antes de continuar.
+                        Las equivalencias son aproximadas.
+                        Fuente: Maudsley Deprescribing Guidelines (Horowitz & Taylor, 2024).
                     </span>
                 </div>
 
