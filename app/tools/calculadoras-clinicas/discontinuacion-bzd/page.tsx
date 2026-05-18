@@ -19,6 +19,9 @@ type Benzo = {
     nombre: string;
     marcaEspana: string;
     eq5mgDiazepam: number;
+    // Dosis posibles ordenadas de mayor a menor según presentaciones reales en España
+    // Incluye comprimidos enteros, mitades y combinaciones de presentaciones
+    dosisPosibles: number[];
 };
 
 type TiempoUso = "corto" | "medio" | "prolongado" | "cronico";
@@ -31,26 +34,45 @@ type Paso = {
     dosisOriginal: number;
 };
 
-// ─── DATOS ───────────────────────────────────────────────────────────────────
+// ─── DATOS — solo fármacos con presentaciones manejables ─────────────────────
 
 const BENZOS: Benzo[] = [
-    { id: "diazepam", nombre: "Diazepam", marcaEspana: "Valium®", eq5mgDiazepam: 5 },
-    { id: "lorazepam", nombre: "Lorazepam", marcaEspana: "Orfidal®", eq5mgDiazepam: 0.5 },
-    { id: "alprazolam", nombre: "Alprazolam", marcaEspana: "Trankimazin®", eq5mgDiazepam: 0.25 },
-    { id: "clordiazepoxido", nombre: "Clordiazepóxido", marcaEspana: "Huberplex®", eq5mgDiazepam: 12.5 },
-    { id: "clorazepato", nombre: "Clorazepato dipotásico", marcaEspana: "Tranxilium®", eq5mgDiazepam: 15 },
-    { id: "clobazam", nombre: "Clobazam", marcaEspana: "Noiafren®", eq5mgDiazepam: 10 },
-    { id: "clonazepam", nombre: "Clonazepam", marcaEspana: "Rivotril®", eq5mgDiazepam: 0.25 },
-    { id: "nitrazepam", nombre: "Nitrazepam", marcaEspana: "Mogadon®", eq5mgDiazepam: 5 },
-    { id: "flunitrazepam", nombre: "Flunitrazepam", marcaEspana: "Rohypnol®", eq5mgDiazepam: 1 },
-    { id: "oxazepam", nombre: "Oxazepam", marcaEspana: "Adumbran®", eq5mgDiazepam: 10 },
-    { id: "lormetazepam", nombre: "Lormetazepam", marcaEspana: "Noctamid®", eq5mgDiazepam: 0.5 },
-    { id: "temazepam", nombre: "Temazepam", marcaEspana: "Normison®", eq5mgDiazepam: 10 },
-    { id: "zopiclona", nombre: "Zopiclona", marcaEspana: "Zimovane®", eq5mgDiazepam: 7.5 },
-    { id: "zolpidem", nombre: "Zolpidem", marcaEspana: "Stilnox®", eq5mgDiazepam: 10 },
+    {
+        id: "diazepam",
+        nombre: "Diazepam",
+        marcaEspana: "Valium®",
+        eq5mgDiazepam: 5,
+        // Presentaciones: 2 mg, 2.5 mg, 5 mg, 10 mg
+        // Permite combinaciones: 10, 7.5, 5, 4, 2.5, 2, 1 (mitad de 2)
+        dosisPosibles: [40, 30, 25, 20, 15, 12.5, 10, 7.5, 5, 4, 2.5, 2, 1],
+    },
+    {
+        id: "lorazepam",
+        nombre: "Lorazepam",
+        marcaEspana: "Orfidal®",
+        eq5mgDiazepam: 0.5,
+        // Presentaciones: 1 mg (divisible por la mitad)
+        // Combinaciones posibles: 3, 2.5, 2, 1.5, 1, 0.5
+        dosisPosibles: [4, 3, 2.5, 2, 1.5, 1, 0.5],
+    },
+    {
+        id: "clonazepam",
+        nombre: "Clonazepam",
+        marcaEspana: "Rivotril®",
+        eq5mgDiazepam: 0.25,
+        // Comp 0.5 mg, 2 mg + solución oral 2.5 mg/ml (permite ~0.25 mg)
+        dosisPosibles: [4, 3, 2, 1.5, 1, 0.75, 0.5, 0.25],
+    },
+    {
+        id: "lormetazepam",
+        nombre: "Lormetazepam",
+        marcaEspana: "Noctamid®",
+        eq5mgDiazepam: 0.5,
+        // Comp 1 mg, 2 mg + solución oral 2.5 mg/ml
+        dosisPosibles: [3, 2, 1.5, 1, 0.5, 0.25],
+    },
 ];
 
-// Duración total en semanas según tiempo de uso y velocidad
 const DURACION_SEMANAS: Record<TiempoUso, Record<Velocidad, number>> = {
     corto: { rapida: 1, moderada: 1, lenta: 2 },
     medio: { rapida: 4, moderada: 5, lenta: 6 },
@@ -75,66 +97,84 @@ const VELOCIDAD_LABEL: Record<Velocidad, string> = {
 };
 
 // ─── ALGORITMO ───────────────────────────────────────────────────────────────
-// Calcula el número de pasos óptimo para ajustarse a la duración objetivo,
-// luego divide la dosis en pasos hiperbólicos (reducciones progresivamente
-// más pequeñas) que encajan en ese tiempo.
+// Estrategia: usa solo dosis del array dosisPosibles del fármaco.
+// Selecciona pasos descendentes con reducción hiperbólica (proporcional a la
+// dosis actual), eligiendo la dosis posible más cercana por debajo.
 
 function calcularPlan(
-    eqDiazepamInicial: number,
     tiempoUso: TiempoUso,
     velocidad: Velocidad,
     farmaco: Benzo,
-    dosisOriginalInicial: number
+    dosisInicial: number
 ): Paso[] {
     const duracionTotal = DURACION_SEMANAS[tiempoUso][velocidad];
 
-    // Número de pasos de reducción (sin contar inicio ni suspensión final)
-    // Mínimo 2 pasos, máximo ajustado para no tener intervalos < 1 semana
-    const numPasosReduccion = Math.max(2, Math.min(8, duracionTotal));
+    // Filtrar dosis posibles a las que están por debajo o iguales a la inicial
+    const dosisDisponibles = farmaco.dosisPosibles
+        .filter((d) => d <= dosisInicial)
+        .sort((a, b) => b - a); // descendente
 
-    // Intervalo entre pasos en semanas (redondeado a entero)
-    const semanasPorPaso = Math.max(1, Math.round(duracionTotal / numPasosReduccion));
-
-    // Generar secuencia hiperbólica de dosis en eq. diazepam
-    // La reducción de cada paso es proporcional a la dosis actual (hiperbólico)
-    // Usamos una secuencia geométrica: cada paso es (1 - factor) del anterior
-    // factor = 1 - (dosisMin/dosisInicial)^(1/numPasos)
-    const dosisMinEq = 0.5; // mínimo práctico en eq. diazepam
-    const factor = 1 - Math.pow(dosisMinEq / eqDiazepamInicial, 1 / numPasosReduccion);
-
-    const pasos: Paso[] = [];
-
-    // Paso 0 — dosis inicial
-    pasos.push({
-        paso: 1,
-        semana: 0,
-        eqDiazepam: Math.round(eqDiazepamInicial * 100) / 100,
-        dosisOriginal: dosisOriginalInicial,
-    });
-
-    let eqActual = eqDiazepamInicial;
-
-    for (let i = 1; i <= numPasosReduccion; i++) {
-        eqActual = eqActual * (1 - factor);
-        // Redondear a 0.25 más cercano para que sea farmacéuticamente manejable
-        eqActual = Math.max(dosisMinEq, Math.round(eqActual / 0.25) * 0.25);
-
-        const dosisOriginal = Math.round(
-            (eqActual / 5) * farmaco.eq5mgDiazepam * 100
-        ) / 100;
-
-        pasos.push({
-            paso: pasos.length + 1,
-            semana: i * semanasPorPaso,
-            eqDiazepam: Math.round(eqActual * 100) / 100,
-            dosisOriginal,
-        });
+    // Asegurar que la dosis inicial esté en la lista (puede no estar si el clínico
+    // introduce una dosis no estándar)
+    if (dosisDisponibles[0] !== dosisInicial) {
+        dosisDisponibles.unshift(dosisInicial);
     }
 
-    // Paso final — suspensión
+    // Seleccionar pasos: la idea es reducir aprox. un % de la dosis actual cada vez
+    // Velocidad rápida = menos pasos (~3-4), lenta = más pasos (~6-8)
+    const pasosObjetivo: Record<Velocidad, number> = {
+        rapida: 3,
+        moderada: 5,
+        lenta: 7,
+    };
+    const numPasosDeseados = pasosObjetivo[velocidad];
+
+    // Construir secuencia hiperbólica de dosis objetivo, luego mapear a la dosis
+    // posible más cercana
+    const factor = Math.pow(0.1 / dosisInicial, 1 / numPasosDeseados);
+    const dosisObjetivo: number[] = [dosisInicial];
+    let actual = dosisInicial;
+    for (let i = 1; i <= numPasosDeseados; i++) {
+        actual = actual * factor;
+        dosisObjetivo.push(actual);
+    }
+
+    // Mapear cada dosis objetivo a la más cercana del array de posibles (por debajo)
+    const dosisReales: number[] = [];
+    for (const objetivo of dosisObjetivo) {
+        const masCercana = dosisDisponibles.find((d) => d <= objetivo) ?? null;
+        if (masCercana !== null && !dosisReales.includes(masCercana)) {
+            dosisReales.push(masCercana);
+        }
+    }
+
+    // Asegurar que la primera dosis sea la inicial
+    if (dosisReales[0] !== dosisInicial) {
+        dosisReales.unshift(dosisInicial);
+    }
+
+    // Si no incluye la mínima disponible, añadirla como penúltimo paso
+    const minDisponible = dosisDisponibles[dosisDisponibles.length - 1];
+    if (dosisReales[dosisReales.length - 1] !== minDisponible) {
+        dosisReales.push(minDisponible);
+    }
+
+    // Calcular intervalo entre pasos
+    const numPasosReales = dosisReales.length;
+    const semanasPorPaso = Math.max(1, Math.round(duracionTotal / numPasosReales));
+
+    // Construir array de Paso
+    const pasos: Paso[] = dosisReales.map((dosis, i) => ({
+        paso: i + 1,
+        semana: i * semanasPorPaso,
+        eqDiazepam: Math.round((dosis / farmaco.eq5mgDiazepam) * 5 * 100) / 100,
+        dosisOriginal: dosis,
+    }));
+
+    // Añadir paso final: suspensión
     pasos.push({
         paso: pasos.length + 1,
-        semana: (numPasosReduccion + 1) * semanasPorPaso,
+        semana: pasos.length * semanasPorPaso,
         eqDiazepam: 0,
         dosisOriginal: 0,
     });
@@ -162,9 +202,9 @@ export default function DiscontinuacionBZDPage() {
     }, [dosisNum, farmaco, dosisValida]);
 
     const plan = useMemo(() => {
-        if (!dosisValida || !eqDiazepamInicial) return null;
-        return calcularPlan(eqDiazepamInicial, tiempoUso, velocidad, farmaco, dosisNum);
-    }, [dosisNum, eqDiazepamInicial, tiempoUso, velocidad, farmaco, dosisValida]);
+        if (!dosisValida) return null;
+        return calcularPlan(tiempoUso, velocidad, farmaco, dosisNum);
+    }, [dosisNum, tiempoUso, velocidad, farmaco, dosisValida]);
 
     const duracionTotal = useMemo(() => {
         if (!plan) return null;
@@ -205,7 +245,7 @@ export default function DiscontinuacionBZDPage() {
         lines.push("CONSIDERACIONES:");
         lines.push("• Si aparecen síntomas de abstinencia, mantener la dosis actual hasta resolución.");
         lines.push("• El ritmo puede ajustarse según tolerancia individual.");
-        lines.push("• Para dosis muy pequeñas puede ser necesaria formulación líquida.");
+        lines.push("• Las dosis están adaptadas a las presentaciones disponibles en España.");
         lines.push("• Las equivalencias son aproximadas — ajustar según respuesta clínica.");
 
         return lines.join("\n");
@@ -253,7 +293,7 @@ export default function DiscontinuacionBZDPage() {
                     <div>
                         <h1 className="text-2xl font-semibold">Plan de discontinuación de benzodiacepinas</h1>
                         <p className="text-sm text-slate-600">
-                            Reducción hiperbólica progresiva — Maudsley Deprescribing Guidelines
+                            Reducción hiperbólica con dosis farmacéuticamente posibles
                         </p>
                     </div>
                 </div>
@@ -276,6 +316,9 @@ export default function DiscontinuacionBZDPage() {
                                     </option>
                                 ))}
                             </select>
+                            <p className="text-xs text-slate-400 pt-1">
+                                Dosis manejables: {farmaco.dosisPosibles.join(", ")} mg
+                            </p>
                         </div>
 
                         <div className="space-y-1">
@@ -497,9 +540,8 @@ export default function DiscontinuacionBZDPage() {
                 <div className="flex items-start gap-2 text-xs text-slate-600">
                     <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                     <span>
-                        Plan orientativo. Ajustar según tolerancia individual — si aparecen síntomas
-                        de abstinencia, mantener la dosis hasta resolución antes de continuar.
-                        Las equivalencias son aproximadas.
+                        Plan orientativo basado en presentaciones disponibles en España. Las dosis están adaptadas a comprimidos enteros, mitades y solución oral según corresponda.
+                        Si aparecen síntomas de abstinencia, mantener la dosis hasta resolución antes de continuar.
                         Fuente: Maudsley Deprescribing Guidelines (Horowitz & Taylor, 2024).
                     </span>
                 </div>
