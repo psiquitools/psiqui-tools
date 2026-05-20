@@ -92,11 +92,9 @@ export default function HistoriaClinicaPage() {
         const line = 5;
         const width = 170;
 
-        // Convierte texto a formato oración: Primera letra mayúscula, resto minúscula
         const formatoOracion = (texto: string) =>
             texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
 
-        // Limpia saltos de línea para que el texto pegado en otros sistemas sea continuo
         const limpiarTexto = (texto: string) =>
             texto.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ").trim();
 
@@ -107,20 +105,27 @@ export default function HistoriaClinicaPage() {
             doc.setFont("helvetica", "normal");
         };
 
+        // FIX copy-paste: añade espacio al final de cada línea excepto la última.
+        // Esto evita que los lectores de PDF concatenen palabras sin separador
+        // al copiar el texto. Si el campo está vacío, no imprime nada.
         const parrafo = (texto: string) => {
-            const contenido =
-                texto && texto.trim() !== ""
-                    ? limpiarTexto(texto)
-                    : "No especificado";
+            if (!texto || texto.trim() === "") {
+                y += line;
+                return;
+            }
+            const contenido = limpiarTexto(texto);
             const lineas = doc.splitTextToSize(contenido, width);
             const pageHeight = doc.internal.pageSize.getHeight();
 
-            lineas.forEach((linea: string) => {
+            lineas.forEach((linea: string, index: number) => {
                 if (y > pageHeight - 20) {
                     doc.addPage();
                     y = 20;
                 }
-                doc.text(linea, marginX, y);
+                // Espacio al final de todas las líneas excepto la última
+                const textoLinea =
+                    index < lineas.length - 1 ? linea + " " : linea;
+                doc.text(textoLinea, marginX, y);
                 y += line;
             });
 
@@ -130,7 +135,6 @@ export default function HistoriaClinicaPage() {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(11);
 
-        // Encabezado — este sí va en mayúsculas completas por ser el título principal
         doc.setFont("helvetica", "bold");
         doc.text("HISTORIA CLÍNICA PSIQUIÁTRICA", marginX, y);
         y += line * 2;
@@ -143,7 +147,7 @@ export default function HistoriaClinicaPage() {
         titulo("MOTIVO DE CONSULTA");
         parrafo(historia.motivoConsulta);
 
-        // 3. Antecedentes
+        // 3. Antecedentes médico-quirúrgicos
         doc.setFont("helvetica", "bold");
         doc.text(
             formatoOracion("ANTECEDENTES PERSONALES MÉDICO-QUIRÚRGICOS:"),
@@ -156,6 +160,7 @@ export default function HistoriaClinicaPage() {
         parrafo(`Alergias: ${historia.antecedentes.alergias}`);
         parrafo(historia.antecedentes.medicoQuirurgicos);
 
+        // Antecedentes en salud mental
         doc.setFont("helvetica", "bold");
         doc.text(
             formatoOracion("ANTECEDENTES PERSONALES EN SALUD MENTAL:"),
@@ -680,8 +685,8 @@ export default function HistoriaClinicaPage() {
                                             key={s.id}
                                             onClick={() => setSeccionActual(s.id)}
                                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left ${active
-                                                    ? "bg-slate-700 text-white"
-                                                    : "text-slate-700 hover:bg-slate-100"
+                                                ? "bg-slate-700 text-white"
+                                                : "text-slate-700 hover:bg-slate-100"
                                                 }`}
                                         >
                                             <Icon className="w-4 h-4" />
