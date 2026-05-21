@@ -26,7 +26,7 @@ export default function Home() {
       id: "historia-clinica",
       title: "Historia Clínica Psiquiátrica",
       description:
-        "Formato estructurado para evaluación psiquiátrica básica. Generación de informes en PDF.",
+        "Formato estructurado para evaluación psiquiátrica básica. Generación de informe en PDF.",
       icon: FileText,
       available: true,
       href: "/tools/historia-clinica",
@@ -35,7 +35,7 @@ export default function Home() {
       id: "examen-mental",
       title: "Examen Mental",
       description:
-        "Herramienta tipo checklist para elaborar examen mental de forma estructurada.",
+        "Herramienta de ayuda para elaborar examen mental de forma estructurada.",
       icon: Brain,
       available: true,
       href: "/tools/examen-mental",
@@ -115,7 +115,7 @@ export default function Home() {
                 </h3>
                 <p className="text-sm text-slate-300">
                   Todas las herramientas funcionan localmente en su dispositivo.
-                  No se almacena, transmite ni guarda información clínica. De cualquier forma, evite
+                  No se almacena, transmite ni guarda información clínica. Evite
                   introducir datos identificativos de pacientes.
                 </p>
               </div>
@@ -155,7 +155,7 @@ export default function Home() {
         {/* Footer */}
         <div className="mt-16 text-center">
           <p className="text-sm text-slate-500">
-            Herramienta de apoyo clínico • No sustituye el criterio médico
+            Herramienta con fines formativos • No sustituye el criterio médico
             profesional
           </p>
         </div>

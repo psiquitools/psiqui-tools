@@ -11,6 +11,7 @@ import {
     Download,
     AlertCircle,
     ArrowLeft,
+    ExternalLink,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import Link from "next/link";
@@ -576,9 +577,19 @@ export default function HistoriaClinicaPage() {
             case 3:
                 return (
                     <>
-                        <h2 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">
-                            Examen Mental
-                        </h2>
+                        <div className="flex items-center justify-between mb-4 border-b border-slate-200 pb-2">
+                            <h2 className="text-xl font-bold text-slate-800">
+                                Examen Mental
+                            </h2>
+                            <Link
+                                href="/tools/examen-mental"
+                                target="_blank"
+                                className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50"
+                            >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                                Abrir herramienta
+                            </Link>
+                        </div>
                         <textarea
                             className={`${textarea} min-h-[200px]`}
                             placeholder="Apariencia, conducta, conciencia, orientación, atención, memoria, lenguaje, pensamiento, percepción, afecto, juicio e insight..."
@@ -610,9 +621,19 @@ export default function HistoriaClinicaPage() {
             case 5:
                 return (
                     <>
-                        <h2 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">
-                            Plan de Manejo
-                        </h2>
+                        <div className="flex items-center justify-between mb-4 border-b border-slate-200 pb-2">
+                            <h2 className="text-xl font-bold text-slate-800">
+                                Plan de Manejo
+                            </h2>
+                            <Link
+                                href="/tools/generador-pauta"
+                                target="_blank"
+                                className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50"
+                            >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                                Abrir generador de pauta
+                            </Link>
+                        </div>
                         <textarea
                             className={textarea}
                             placeholder="Conducta, tratamiento farmacológico, contención, interconsultas, seguimiento..."
@@ -710,13 +731,22 @@ export default function HistoriaClinicaPage() {
                                 >
                                     Anterior
                                 </button>
-                                <button
-                                    onClick={() => setSeccionActual(seccionActual + 1)}
-                                    disabled={seccionActual >= secciones.length - 1}
-                                    className="px-6 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
-                                >
-                                    Siguiente
-                                </button>
+                                {seccionActual === secciones.length - 1 ? (
+                                    <button
+                                        onClick={generarPDF}
+                                        className="flex items-center gap-2 px-6 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-800"
+                                    >
+                                        <Download className="w-4 h-4" />
+                                        Generar PDF
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => setSeccionActual(seccionActual + 1)}
+                                        className="px-6 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-800"
+                                    >
+                                        Siguiente
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </main>
