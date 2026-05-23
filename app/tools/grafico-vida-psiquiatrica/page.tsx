@@ -1,17 +1,26 @@
 "use client";
 
 import React, { useState, useRef, useMemo, useCallback } from 'react';
-import { Plus, FileDown, Shield, Trash2, X, ArrowLeft } from 'lucide-react';
+import { Plus, FileDown, Shield, Trash2, X, ArrowLeft, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import jsPDF from 'jspdf';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-type EpisodeType   = 'mania' | 'hipomania' | 'depresion' | 'mixto';
+type EpisodeType   = 'mania' | 'hipomania' | 'depresion' | 'mixto' | 'psicosis' | 'negativos';
+
+const EP_LABELS: Record<EpisodeType, string> = {
+  mania:     'Manía',
+  hipomania: 'Hipomanía',
+  depresion: 'Depresión',
+  mixto:     'Mixto',
+  psicosis:  'Psicosis',
+  negativos: 'Sínt. negativos',
+};
 type Severity      = 'leve' | 'moderada' | 'grave';
 type TreatmentType =
   | 'psicoterapia' | 'antidepresivos' | 'litio'
-  | 'antipsicóticos' | 'carbamazepina' | 'otro';
+  | 'antipsicóticos' | 'tec' | 'otro';
 
 type Compliance = 'si' | 'no' | 'erratico' | 'dudoso';
 
@@ -73,19 +82,25 @@ const TDEFS: Record<TreatmentType, { label: string; style: string }> = {
   antidepresivos:   { label: 'Antidepresivos', style: 'solid'   },
   litio:            { label: 'Litio',           style: 'dashed'  },
   'antipsicóticos': { label: 'Antipsicóticos',  style: 'dotted'  },
-  carbamazepina:    { label: 'Carbamazepina',   style: 'dashdot' },
+  tec:              { label: 'TEC',              style: 'dashdot' },
   otro:             { label: 'Otro',            style: 'thin'    },
 };
 
 const TORDER: TreatmentType[] = [
-  'psicoterapia', 'antidepresivos', 'litio', 'antipsicóticos', 'carbamazepina', 'otro',
+  'psicoterapia', 'antidepresivos', 'litio', 'antipsicóticos', 'tec', 'otro',
 ];
 
 // ─── Utilities ──────────────────────────────────────────────────────────────────
 
-function ym2dec(ym: string): number {
-  const [y, m] = ym.split('-').map(Number);
-  return y + (m - 0.5) / 12;
+function dateToDec(d: string): number {
+  const parts = d.split('-').map(Number);
+  const y = parts[0], m = parts[1] ?? 1, day = parts[2] ?? 15;
+  return y + (m - 1) / 12 + (day - 0.5) / 365;
+}
+
+function fmtDate(d: string): string {
+  const [y, m, day] = d.split('-');
+  return day ? `${day}/${m}/${y}` : `${m}/${y}`;
 }
 
 function wavyPath(x1: number, x2: number, cy: number, amp = 3, wl = 10): string {
@@ -123,33 +138,33 @@ function treatLine(type: TreatmentType, x1: number, x2: number, cy: number, key:
 // ─── Sample data (basado en Kaplan & Sadock Fig. 6-1) ──────────────────────────
 
 const SAMPLE_EPISODES: MoodEpisode[] = [
-  { id: 's1', type: 'depresion', startDate: '1974-04', endDate: '1974-10', severity: 'moderada', hospitalized: false, notes: 'Inicio de la depresión tras la muerte del padre' },
-  { id: 's2', type: 'mania',     startDate: '1975-07', endDate: '1976-02', severity: 'grave',    hospitalized: true,  notes: 'Cambio rápido de ciclo inducido por antidepresivos' },
-  { id: 's3', type: 'depresion', startDate: '1976-05', endDate: '1977-01', severity: 'leve',     hospitalized: false },
-  { id: 's4', type: 'depresion', startDate: '1977-04', endDate: '1977-10', severity: 'leve',     hospitalized: false },
-  { id: 's5', type: 'depresion', startDate: '1977-11', endDate: '1978-04', severity: 'leve',     hospitalized: false },
-  { id: 's6', type: 'depresion', startDate: '1978-07', endDate: '1978-12', severity: 'leve',     hospitalized: false },
-  { id: 's7', type: 'mania',     startDate: '1979-03', endDate: '1979-09', severity: 'moderada', hospitalized: false, notes: 'Inicio del episodio en el 1er aniversario de la muerte del padre' },
-  { id: 's8', type: 'mania',     startDate: '1980-02', endDate: '1980-07', severity: 'grave',    hospitalized: true,  notes: 'Manía subsecuente a la interrupción del litio' },
-  { id: 's9', type: 'depresion', startDate: '1981-04', endDate: '1982-01', severity: 'moderada', hospitalized: false, notes: 'Tratamiento de la depresión con carbamazepina' },
+  { id: 's1', type: 'depresion', startDate: '1974-04-01', endDate: '1974-10-01', severity: 'moderada', hospitalized: false, notes: 'Inicio de la depresión tras la muerte del padre' },
+  { id: 's2', type: 'mania',     startDate: '1975-07-01', endDate: '1976-02-01', severity: 'grave',    hospitalized: true,  notes: 'Cambio rápido de ciclo inducido por antidepresivos' },
+  { id: 's3', type: 'depresion', startDate: '1976-05-01', endDate: '1977-01-01', severity: 'leve',     hospitalized: false },
+  { id: 's4', type: 'depresion', startDate: '1977-04-01', endDate: '1977-10-01', severity: 'leve',     hospitalized: false },
+  { id: 's5', type: 'depresion', startDate: '1977-11-01', endDate: '1978-04-01', severity: 'leve',     hospitalized: false },
+  { id: 's6', type: 'depresion', startDate: '1978-07-01', endDate: '1978-12-01', severity: 'leve',     hospitalized: false },
+  { id: 's7', type: 'mania',     startDate: '1979-03-01', endDate: '1979-09-01', severity: 'moderada', hospitalized: false, notes: 'Inicio del episodio en el 1er aniversario de la muerte del padre' },
+  { id: 's8', type: 'mania',     startDate: '1980-02-01', endDate: '1980-07-01', severity: 'grave',    hospitalized: true,  notes: 'Manía subsecuente a la interrupción del litio' },
+  { id: 's9', type: 'depresion', startDate: '1981-04-01', endDate: '1982-01-01', severity: 'moderada', hospitalized: false, notes: 'Episodio depresivo mayor' },
 ];
 
 const SAMPLE_TREATMENTS: TreatmentPeriod[] = [
-  { id: 'st1', type: 'psicoterapia',   startDate: '1974-02', endDate: '1976-07' },
-  { id: 'st2', type: 'psicoterapia',   startDate: '1978-02', endDate: '1978-11' },
-  { id: 'st3', type: 'antidepresivos',  startDate: '1974-04', endDate: '1975-06' },
-  { id: 'st4', type: 'litio',          startDate: '1975-09', endDate: null },
-  { id: 'st5', type: 'antipsicóticos', startDate: '1975-08', endDate: '1976-05' },
-  { id: 'st6', type: 'antipsicóticos', startDate: '1979-03', endDate: null },
-  { id: 'st7', type: 'carbamazepina',  startDate: '1981-02', endDate: null },
+  { id: 'st1', type: 'psicoterapia',   startDate: '1974-02-01', endDate: '1976-07-01' },
+  { id: 'st2', type: 'psicoterapia',   startDate: '1978-02-01', endDate: '1978-11-01' },
+  { id: 'st3', type: 'antidepresivos', startDate: '1974-04-01', endDate: '1975-06-01' },
+  { id: 'st4', type: 'litio',          startDate: '1975-09-01', endDate: null },
+  { id: 'st5', type: 'antipsicóticos', startDate: '1975-08-01', endDate: '1976-05-01' },
+  { id: 'st6', type: 'antipsicóticos', startDate: '1979-03-01', endDate: null },
+  { id: 'st7', type: 'tec',            startDate: '1981-02-01', endDate: '1981-05-01' },
 ];
 
 const SAMPLE_EVENTS: LifeEvent[] = [
-  { id: 'se1', date: '1974-01', description: '20 de enero: Fallecimiento del padre' },
-  { id: 'se2', date: '1975-05', description: 'Intento de suicidio' },
-  { id: 'se3', date: '1977-07', description: 'Resolución de la distimia en psicoterapia' },
-  { id: 'se4', date: '1979-03', description: 'Inicio del episodio en el primer aniversario de la muerte del padre' },
-  { id: 'se5', date: '1980-02', description: 'Manía subsecuente a la interrupción del litio' },
+  { id: 'se1', date: '1974-01-20', description: 'Fallecimiento del padre' },
+  { id: 'se2', date: '1975-05-01', description: 'Intento de suicidio' },
+  { id: 'se3', date: '1977-07-01', description: 'Resolución de la distimia en psicoterapia' },
+  { id: 'se4', date: '1979-03-01', description: 'Inicio del episodio en el primer aniversario de la muerte del padre' },
+  { id: 'se5', date: '1980-02-01', description: 'Manía subsecuente a la interrupción del litio' },
 ];
 
 // ─── Shared input classes ───────────────────────────────────────────────────────
@@ -174,6 +189,7 @@ export default function GraficoVidaPsiquiatricaPage() {
 
   const [isOpen,    setIsOpen]    = useState(false);
   const [activeTab, setActiveTab] = useState<'episodio' | 'tratamiento' | 'evento'>('episodio');
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [epForm, setEpForm] = useState({
     type: 'depresion' as EpisodeType,
@@ -197,14 +213,14 @@ export default function GraficoVidaPsiquiatricaPage() {
   const { startYear, endYear } = useMemo(() => {
     const all: number[] = [];
     episodes.forEach(e => {
-      all.push(Math.floor(ym2dec(e.startDate)));
-      all.push(Math.floor(ym2dec(e.endDate)));
+      all.push(Math.floor(dateToDec(e.startDate)));
+      all.push(Math.floor(dateToDec(e.endDate)));
     });
     treatments.forEach(t => {
-      all.push(Math.floor(ym2dec(t.startDate)));
-      if (t.endDate) all.push(Math.floor(ym2dec(t.endDate)));
+      all.push(Math.floor(dateToDec(t.startDate)));
+      if (t.endDate) all.push(Math.floor(dateToDec(t.endDate)));
     });
-    lifeEvents.forEach(e => all.push(Math.floor(ym2dec(e.date))));
+    lifeEvents.forEach(e => all.push(Math.floor(dateToDec(e.date))));
     if (!all.length) {
       const cy = new Date().getFullYear();
       return { startYear: cy - 5, endYear: cy + 2 };
@@ -227,7 +243,7 @@ export default function GraficoVidaPsiquiatricaPage() {
   );
 
   const dateToX = useCallback(
-    (ym: string) => LP + (ym2dec(ym) - startYear) * UW,
+    (d: string) => LP + (dateToDec(d) - startYear) * UW,
     [startYear]
   );
 
@@ -238,33 +254,71 @@ export default function GraficoVidaPsiquiatricaPage() {
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 
+  const closeModal = () => {
+    setIsOpen(false);
+    setEditingId(null);
+  };
+
   const addEpisode = () => {
     if (!epForm.startDate || !epForm.endDate) return;
-    setEpisodes(p => [...p, { id: crypto.randomUUID(), ...epForm }]);
+    if (editingId) {
+      setEpisodes(p => p.map(e => e.id === editingId ? { id: editingId, ...epForm } : e));
+    } else {
+      setEpisodes(p => [...p, { id: crypto.randomUUID(), ...epForm }]);
+    }
     setEpForm({ type: 'depresion', startDate: '', endDate: '', severity: 'moderada', hospitalized: false, notes: '' });
-    setIsOpen(false);
+    closeModal();
   };
 
   const addTreatment = () => {
     if (!txForm.startDate) return;
-    setTreatments(p => [...p, {
-      id: crypto.randomUUID(),
+    const txData = {
       type: txForm.type,
       customName: txForm.customName || undefined,
       specificDrugs: txForm.specificDrugs || undefined,
       compliance: txForm.compliance || undefined,
       startDate: txForm.startDate,
       endDate: txForm.ongoing ? null : (txForm.endDate || null),
-    }]);
+    };
+    if (editingId) {
+      setTreatments(p => p.map(t => t.id === editingId ? { id: editingId, ...txData } : t));
+    } else {
+      setTreatments(p => [...p, { id: crypto.randomUUID(), ...txData }]);
+    }
     setTxForm({ type: 'litio', customName: '', specificDrugs: '', compliance: '', startDate: '', endDate: '', ongoing: false });
-    setIsOpen(false);
+    closeModal();
   };
 
   const addEvent = () => {
     if (!evForm.date || !evForm.description) return;
-    setLifeEvents(p => [...p, { id: crypto.randomUUID(), ...evForm }]);
+    if (editingId) {
+      setLifeEvents(p => p.map(e => e.id === editingId ? { id: editingId, ...evForm } : e));
+    } else {
+      setLifeEvents(p => [...p, { id: crypto.randomUUID(), ...evForm }]);
+    }
     setEvForm({ date: '', description: '' });
-    setIsOpen(false);
+    closeModal();
+  };
+
+  const startEditEpisode = (ep: MoodEpisode) => {
+    setEpForm({ type: ep.type, startDate: ep.startDate, endDate: ep.endDate, severity: ep.severity, hospitalized: ep.hospitalized, notes: ep.notes ?? '' });
+    setActiveTab('episodio');
+    setEditingId(ep.id);
+    setIsOpen(true);
+  };
+
+  const startEditTreatment = (tx: TreatmentPeriod) => {
+    setTxForm({ type: tx.type, customName: tx.customName ?? '', specificDrugs: tx.specificDrugs ?? '', compliance: tx.compliance ?? '', startDate: tx.startDate, endDate: tx.endDate ?? '', ongoing: tx.endDate === null });
+    setActiveTab('tratamiento');
+    setEditingId(tx.id);
+    setIsOpen(true);
+  };
+
+  const startEditEvent = (ev: LifeEvent) => {
+    setEvForm({ date: ev.date, description: ev.description });
+    setActiveTab('evento');
+    setEditingId(ev.id);
+    setIsOpen(true);
   };
 
   const clearAll = () => {
@@ -317,7 +371,7 @@ export default function GraficoVidaPsiquiatricaPage() {
         pdf.setFont('helvetica', 'normal');
         sortedEvents.forEach((ev, i) => {
           const lbl = String.fromCharCode(97 + i);
-          pdf.text(`${lbl}. ${ev.date}: ${ev.description}`, 12, y);
+          pdf.text(`${lbl}. ${fmtDate(ev.date)}: ${ev.description}`, 12, y);
           y += 4.5;
         });
       }
@@ -341,6 +395,10 @@ export default function GraficoVidaPsiquiatricaPage() {
       <defs>
         <pattern id="lc-hatch" patternUnits="userSpaceOnUse" width="6" height="6">
           <line x1="0" y1="6" x2="6" y2="0" stroke="#475569" strokeWidth="1.5" />
+        </pattern>
+        <pattern id="lc-psych" patternUnits="userSpaceOnUse" width="5" height="5">
+          <rect width="5" height="5" fill="#e2e8f0" />
+          <line x1="0" y1="2.5" x2="5" y2="2.5" stroke="#334155" strokeWidth="1.8" />
         </pattern>
       </defs>
 
@@ -401,9 +459,9 @@ export default function GraficoVidaPsiquiatricaPage() {
       )}
       <rect x={LP} y={Y.treatTop} width={totalYears * UW} height={numTxRows * TH} fill="none" stroke="#cbd5e1" strokeWidth="0.8" />
 
-      {/* Manía */}
+      {/* Manía / Psicosis */}
       <text transform={`translate(7, ${Y.maniaTop + 3 * SH / 2}) rotate(-90)`}
-        textAnchor="middle" fontSize="8" fontWeight="600" fill="#334155">Manía</text>
+        textAnchor="middle" fontSize="7" fontWeight="600" fill="#334155">Manía / Psicosis</text>
       <text x={LP - 5} y={Y.maniaTop + SH * 0.5 + 3.5} textAnchor="end" fontSize="7.5" fill="#64748b">Grave</text>
       <text x={LP - 5} y={Y.maniaTop + SH * 1.5 + 3.5} textAnchor="end" fontSize="7.5" fill="#64748b">Moder.</text>
       <text x={LP - 5} y={Y.maniaTop + SH * 2.5 + 3.5} textAnchor="end" fontSize="7.5" fill="#64748b">Leve</text>
@@ -411,17 +469,18 @@ export default function GraficoVidaPsiquiatricaPage() {
       <line x1={LP} y1={Y.maniaTop + 2 * SH} x2={LP + totalYears * UW} y2={Y.maniaTop + 2 * SH} stroke="#e2e8f0" strokeWidth="0.5" strokeDasharray="3 3" />
 
       {episodes
-        .filter(e => e.type === 'mania' || e.type === 'hipomania' || e.type === 'mixto')
+        .filter(e => e.type === 'mania' || e.type === 'hipomania' || e.type === 'mixto' || e.type === 'psicosis')
         .map(ep => {
           const x1 = dateToX(ep.startDate);
           const x2 = dateToX(ep.endDate);
           if (x2 <= x1 + 0.5) return null;
           const offsets: Record<Severity, number> = { grave: 0, moderada: SH, leve: 2 * SH };
           const barTop = Y.maniaTop + offsets[ep.severity];
+          const fill = ep.hospitalized ? 'url(#lc-hatch)'
+            : ep.type === 'psicosis' ? 'url(#lc-psych)' : '#94a3b8';
           return (
             <rect key={ep.id} x={x1} y={barTop} width={x2 - x1} height={Y.baseline - barTop}
-              fill={ep.hospitalized ? 'url(#lc-hatch)' : '#94a3b8'}
-              stroke="#475569" strokeWidth="0.8" opacity={0.88} />
+              fill={fill} stroke="#475569" strokeWidth="0.8" opacity={0.88} />
           );
         })}
       <rect x={LP} y={Y.maniaTop} width={totalYears * UW} height={3 * SH} fill="none" stroke="#cbd5e1" strokeWidth="0.8" />
@@ -429,24 +488,25 @@ export default function GraficoVidaPsiquiatricaPage() {
       {/* Eutimia baseline */}
       <line x1={LP} y1={Y.baseline} x2={LP + totalYears * UW} y2={Y.baseline} stroke="#1e293b" strokeWidth="1.8" />
 
-      {/* Depresión */}
+      {/* Depresión / Síntomas negativos */}
       <text transform={`translate(7, ${Y.baseline + 3 * SH / 2}) rotate(-90)`}
-        textAnchor="middle" fontSize="8" fontWeight="600" fill="#334155">Depresión</text>
+        textAnchor="middle" fontSize="7" fontWeight="600" fill="#334155">Depresión / Neg.</text>
       <text x={LP - 5} y={Y.baseline + SH * 0.5 + 3.5} textAnchor="end" fontSize="7.5" fill="#64748b">Leve</text>
       <text x={LP - 5} y={Y.baseline + SH * 1.5 + 3.5} textAnchor="end" fontSize="7.5" fill="#64748b">Moder.</text>
       <text x={LP - 5} y={Y.baseline + SH * 2.5 + 3.5} textAnchor="end" fontSize="7.5" fill="#64748b">Grave</text>
       <line x1={LP} y1={Y.baseline + SH}     x2={LP + totalYears * UW} y2={Y.baseline + SH}     stroke="#e2e8f0" strokeWidth="0.5" strokeDasharray="3 3" />
       <line x1={LP} y1={Y.baseline + 2 * SH} x2={LP + totalYears * UW} y2={Y.baseline + 2 * SH} stroke="#e2e8f0" strokeWidth="0.5" strokeDasharray="3 3" />
 
-      {episodes.filter(e => e.type === 'depresion').map(ep => {
+      {episodes.filter(e => e.type === 'depresion' || e.type === 'negativos').map(ep => {
         const x1 = dateToX(ep.startDate);
         const x2 = dateToX(ep.endDate);
         if (x2 <= x1 + 0.5) return null;
         const heights: Record<Severity, number> = { leve: SH, moderada: 2 * SH, grave: 3 * SH };
+        const fill = ep.hospitalized ? 'url(#lc-hatch)'
+          : ep.type === 'negativos' ? 'url(#lc-psych)' : '#94a3b8';
         return (
           <rect key={ep.id} x={x1} y={Y.baseline} width={x2 - x1} height={heights[ep.severity]}
-            fill={ep.hospitalized ? 'url(#lc-hatch)' : '#94a3b8'}
-            stroke="#475569" strokeWidth="0.8" opacity={0.88} />
+            fill={fill} stroke="#475569" strokeWidth="0.8" opacity={0.88} />
         );
       })}
       <rect x={LP} y={Y.baseline} width={totalYears * UW} height={3 * SH} fill="none" stroke="#cbd5e1" strokeWidth="0.8" />
@@ -470,8 +530,12 @@ export default function GraficoVidaPsiquiatricaPage() {
       })}
 
       {/* Leyenda */}
-      <rect x={LP} y={Y.evBot + 6} width={11} height={8} fill="url(#lc-hatch)" stroke="#475569" strokeWidth="0.5" />
-      <text x={LP + 15} y={Y.evBot + 13} fontSize="7.5" fill="#64748b">El sombreado indica hospitalización</text>
+      <rect x={LP}      y={Y.evBot + 6} width={11} height={8} fill="#94a3b8" stroke="#475569" strokeWidth="0.5" />
+      <text x={LP + 15} y={Y.evBot + 13} fontSize="7.5" fill="#64748b">Episodio de ánimo</text>
+      <rect x={LP + 90} y={Y.evBot + 6} width={11} height={8} fill="url(#lc-psych)" stroke="#475569" strokeWidth="0.5" />
+      <text x={LP + 105} y={Y.evBot + 13} fontSize="7.5" fill="#64748b">Psicosis / Sint. negativos</text>
+      <rect x={LP + 235} y={Y.evBot + 6} width={11} height={8} fill="url(#lc-hatch)" stroke="#475569" strokeWidth="0.5" />
+      <text x={LP + 250} y={Y.evBot + 13} fontSize="7.5" fill="#64748b">Hospitalización</text>
     </svg>
   );
 
@@ -559,9 +623,13 @@ export default function GraficoVidaPsiquiatricaPage() {
                     {String.fromCharCode(97 + i)}.
                   </span>
                   <div className="flex-1 min-w-0">
-                    <span className="text-xs text-slate-400">{ev.date} — </span>
+                    <span className="text-xs text-slate-400">{fmtDate(ev.date)} — </span>
                     <span className="text-xs text-slate-700">{ev.description}</span>
                   </div>
+                  <button onClick={() => startEditEvent(ev)}
+                    className="text-slate-300 hover:text-slate-600 shrink-0">
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
                   <button onClick={() => setLifeEvents(p => p.filter(e => e.id !== ev.id))}
                     className="text-slate-300 hover:text-red-500 shrink-0">
                     <X className="w-3.5 h-3.5" />
@@ -577,20 +645,30 @@ export default function GraficoVidaPsiquiatricaPage() {
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
             <h3 className="text-sm font-semibold text-slate-700 mb-3">Episodios registrados</h3>
             <div className="divide-y divide-slate-50">
-              {[...episodes].sort((a, b) => a.startDate.localeCompare(b.startDate)).map(ep => (
-                <div key={ep.id} className="flex items-center gap-3 py-1.5 text-xs">
-                  <div className={`w-2 h-2 rounded-sm shrink-0 ${ep.type === 'depresion' ? 'bg-slate-400' : 'bg-slate-700'}`} />
-                  <span className="text-slate-400 font-mono tabular-nums">{ep.startDate} → {ep.endDate}</span>
-                  <span className="font-medium text-slate-700 capitalize">{ep.type}</span>
-                  <span className="text-slate-400">({ep.severity})</span>
-                  {ep.hospitalized && <span className="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">Hosp.</span>}
-                  {ep.notes && <span className="text-slate-400 truncate max-w-xs">{ep.notes}</span>}
-                  <button className="ml-auto text-slate-300 hover:text-red-500 shrink-0"
-                    onClick={() => setEpisodes(p => p.filter(e => e.id !== ep.id))}>
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
+              {[...episodes].sort((a, b) => a.startDate.localeCompare(b.startDate)).map(ep => {
+                const isPsychotic = ep.type === 'psicosis' || ep.type === 'negativos';
+                const isDownward  = ep.type === 'depresion' || ep.type === 'negativos';
+                const dotCls = isPsychotic ? 'bg-slate-500'
+                  : isDownward ? 'bg-slate-400' : 'bg-slate-700';
+                return (
+                  <div key={ep.id} className="flex items-center gap-3 py-1.5 text-xs">
+                    <div className={`w-2 h-2 rounded-sm shrink-0 ${dotCls}`} />
+                    <span className="text-slate-400 font-mono tabular-nums">{fmtDate(ep.startDate)} → {fmtDate(ep.endDate)}</span>
+                    <span className="font-medium text-slate-700">{EP_LABELS[ep.type]}</span>
+                    <span className="text-slate-400">({ep.severity})</span>
+                    {ep.hospitalized && <span className="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">Hosp.</span>}
+                    {ep.notes && <span className="text-slate-400 truncate max-w-xs">{ep.notes}</span>}
+                    <button className="ml-auto text-slate-300 hover:text-slate-600 shrink-0"
+                      onClick={() => startEditEpisode(ep)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button className="text-slate-300 hover:text-red-500 shrink-0"
+                      onClick={() => setEpisodes(p => p.filter(e => e.id !== ep.id))}>
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -615,14 +693,18 @@ export default function GraficoVidaPsiquiatricaPage() {
                     {tx.customName && <span className="text-slate-500">({tx.customName})</span>}
                     {tx.specificDrugs && <span className="text-slate-500 italic">{tx.specificDrugs}</span>}
                     <span className="text-slate-400 font-mono tabular-nums">
-                      {tx.startDate} → {tx.endDate ?? 'actual'}
+                      {fmtDate(tx.startDate)} → {tx.endDate ? fmtDate(tx.endDate) : 'actual'}
                     </span>
                     {tx.compliance && (
                       <span className={`px-1.5 py-0.5 rounded font-medium ${complianceCls[tx.compliance]}`}>
                         Cumplimiento: {complianceLabel[tx.compliance]}
                       </span>
                     )}
-                    <button className="ml-auto text-slate-300 hover:text-red-500 shrink-0"
+                    <button className="ml-auto text-slate-300 hover:text-slate-600 shrink-0"
+                      onClick={() => startEditTreatment(tx)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button className="text-slate-300 hover:text-red-500 shrink-0"
                       onClick={() => setTreatments(p => p.filter(t => t.id !== tx.id))}>
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -639,8 +721,10 @@ export default function GraficoVidaPsiquiatricaPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-              <h2 className="text-base font-semibold text-slate-800">Añadir al gráfico</h2>
-              <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <h2 className="text-base font-semibold text-slate-800">
+                {editingId ? 'Editar registro' : 'Añadir al gráfico'}
+              </h2>
+              <button onClick={closeModal} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -650,11 +734,14 @@ export default function GraficoVidaPsiquiatricaPage() {
               {(['episodio', 'tratamiento', 'evento'] as const).map(tab => (
                 <button
                   key={tab}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => !editingId && setActiveTab(tab)}
+                  disabled={!!editingId && activeTab !== tab}
                   className={`flex-1 py-2.5 text-xs font-medium transition-colors capitalize ${
                     activeTab === tab
                       ? 'border-b-2 border-slate-800 text-slate-800'
-                      : 'text-slate-400 hover:text-slate-600'
+                      : editingId
+                        ? 'text-slate-200 cursor-not-allowed'
+                        : 'text-slate-400 hover:text-slate-600'
                   }`}
                 >
                   {tab === 'evento' ? 'Evento vital' : tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -672,10 +759,16 @@ export default function GraficoVidaPsiquiatricaPage() {
                       <label className="block text-xs font-medium text-slate-700">Tipo</label>
                       <select className={selectCls} value={epForm.type}
                         onChange={e => setEpForm({ ...epForm, type: e.target.value as EpisodeType })}>
-                        <option value="depresion">Depresión</option>
-                        <option value="mania">Manía</option>
-                        <option value="hipomania">Hipomanía</option>
-                        <option value="mixto">Mixto</option>
+                        <optgroup label="Ánimo">
+                          <option value="depresion">Depresión</option>
+                          <option value="mania">Manía</option>
+                          <option value="hipomania">Hipomanía</option>
+                          <option value="mixto">Mixto</option>
+                        </optgroup>
+                        <optgroup label="Psicótico">
+                          <option value="psicosis">Psicosis</option>
+                          <option value="negativos">Sínt. negativos</option>
+                        </optgroup>
                       </select>
                     </div>
                     <div className="space-y-1.5">
@@ -691,12 +784,12 @@ export default function GraficoVidaPsiquiatricaPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <label className="block text-xs font-medium text-slate-700">Inicio (mes)</label>
-                      <input type="month" className={inputCls} value={epForm.startDate}
+                      <input type="date" className={inputCls} value={epForm.startDate}
                         onChange={e => setEpForm({ ...epForm, startDate: e.target.value })} />
                     </div>
                     <div className="space-y-1.5">
                       <label className="block text-xs font-medium text-slate-700">Fin (mes)</label>
-                      <input type="month" className={inputCls} value={epForm.endDate}
+                      <input type="date" className={inputCls} value={epForm.endDate}
                         onChange={e => setEpForm({ ...epForm, endDate: e.target.value })} />
                     </div>
                   </div>
@@ -712,13 +805,13 @@ export default function GraficoVidaPsiquiatricaPage() {
                       value={epForm.notes} onChange={e => setEpForm({ ...epForm, notes: e.target.value })} />
                   </div>
                   <div className="flex justify-end gap-2 pt-1">
-                    <button onClick={() => setIsOpen(false)}
+                    <button onClick={closeModal}
                       className="px-4 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 hover:bg-slate-50">
                       Cancelar
                     </button>
                     <button onClick={addEpisode} disabled={!epForm.startDate || !epForm.endDate}
                       className="px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">
-                      Añadir
+                      {editingId ? 'Guardar' : 'Añadir'}
                     </button>
                   </div>
                 </>
@@ -779,12 +872,12 @@ export default function GraficoVidaPsiquiatricaPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <label className="block text-xs font-medium text-slate-700">Inicio</label>
-                      <input type="month" className={inputCls} value={txForm.startDate}
+                      <input type="date" className={inputCls} value={txForm.startDate}
                         onChange={e => setTxForm({ ...txForm, startDate: e.target.value })} />
                     </div>
                     <div className="space-y-1.5">
                       <label className="block text-xs font-medium text-slate-700">Fin</label>
-                      <input type="month" className={inputCls} value={txForm.endDate}
+                      <input type="date" className={inputCls} value={txForm.endDate}
                         disabled={txForm.ongoing}
                         onChange={e => setTxForm({ ...txForm, endDate: e.target.value })} />
                     </div>
@@ -796,13 +889,13 @@ export default function GraficoVidaPsiquiatricaPage() {
                     <span className="text-xs text-slate-700">Actualmente vigente</span>
                   </label>
                   <div className="flex justify-end gap-2 pt-1">
-                    <button onClick={() => setIsOpen(false)}
+                    <button onClick={closeModal}
                       className="px-4 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 hover:bg-slate-50">
                       Cancelar
                     </button>
                     <button onClick={addTreatment} disabled={!txForm.startDate}
                       className="px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">
-                      Añadir
+                      {editingId ? 'Guardar' : 'Añadir'}
                     </button>
                   </div>
                 </>
@@ -813,7 +906,7 @@ export default function GraficoVidaPsiquiatricaPage() {
                 <>
                   <div className="space-y-1.5">
                     <label className="block text-xs font-medium text-slate-700">Fecha</label>
-                    <input type="month" className={inputCls} value={evForm.date}
+                    <input type="date" className={inputCls} value={evForm.date}
                       onChange={e => setEvForm({ ...evForm, date: e.target.value })} />
                   </div>
                   <div className="space-y-1.5">
@@ -823,13 +916,13 @@ export default function GraficoVidaPsiquiatricaPage() {
                       onChange={e => setEvForm({ ...evForm, description: e.target.value })} />
                   </div>
                   <div className="flex justify-end gap-2 pt-1">
-                    <button onClick={() => setIsOpen(false)}
+                    <button onClick={closeModal}
                       className="px-4 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 hover:bg-slate-50">
                       Cancelar
                     </button>
                     <button onClick={addEvent} disabled={!evForm.date || !evForm.description}
                       className="px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">
-                      Añadir
+                      {editingId ? 'Guardar' : 'Añadir'}
                     </button>
                   </div>
                 </>
