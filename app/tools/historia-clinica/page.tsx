@@ -584,7 +584,7 @@ export default function HistoriaClinicaPage() {
                             <Link
                                 href="/tools/examen-mental"
                                 target="_blank"
-                                className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50"
+                                className="inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-800 border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 rounded-lg px-3 py-1.5 transition-colors"
                             >
                                 <ExternalLink className="w-3.5 h-3.5" />
                                 Abrir herramienta
@@ -628,7 +628,7 @@ export default function HistoriaClinicaPage() {
                             <Link
                                 href="/tools/generador-pauta"
                                 target="_blank"
-                                className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50"
+                                className="inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-800 border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 rounded-lg px-3 py-1.5 transition-colors"
                             >
                                 <ExternalLink className="w-3.5 h-3.5" />
                                 Abrir generador de pauta
@@ -716,6 +716,7 @@ export default function HistoriaClinicaPage() {
                                     );
                                 })}
                             </nav>
+
                         </div>
                     </aside>
 
