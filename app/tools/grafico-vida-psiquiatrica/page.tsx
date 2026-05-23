@@ -10,8 +10,10 @@ import jsPDF from 'jspdf';
 type EpisodeType   = 'mania' | 'hipomania' | 'depresion' | 'mixto';
 type Severity      = 'leve' | 'moderada' | 'grave';
 type TreatmentType =
-  | 'psicoterapia' | 'triciclicos' | 'litio'
+  | 'psicoterapia' | 'antidepresivos' | 'litio'
   | 'antipsicóticos' | 'carbamazepina' | 'otro';
+
+type Compliance = 'si' | 'no' | 'erratico' | 'dudoso';
 
 interface MoodEpisode {
   id: string;
@@ -27,6 +29,8 @@ interface TreatmentPeriod {
   id: string;
   type: TreatmentType;
   customName?: string;
+  specificDrugs?: string;
+  compliance?: Compliance;
   startDate: string;
   endDate: string | null;
 }
@@ -66,7 +70,7 @@ function computeY(numTx: number) {
 
 const TDEFS: Record<TreatmentType, { label: string; style: string }> = {
   psicoterapia:     { label: 'Psicoterapia',   style: 'wavy'    },
-  triciclicos:      { label: 'Tricíclicos',     style: 'solid'   },
+  antidepresivos:   { label: 'Antidepresivos', style: 'solid'   },
   litio:            { label: 'Litio',           style: 'dashed'  },
   'antipsicóticos': { label: 'Antipsicóticos',  style: 'dotted'  },
   carbamazepina:    { label: 'Carbamazepina',   style: 'dashdot' },
@@ -74,7 +78,7 @@ const TDEFS: Record<TreatmentType, { label: string; style: string }> = {
 };
 
 const TORDER: TreatmentType[] = [
-  'psicoterapia', 'triciclicos', 'litio', 'antipsicóticos', 'carbamazepina', 'otro',
+  'psicoterapia', 'antidepresivos', 'litio', 'antipsicóticos', 'carbamazepina', 'otro',
 ];
 
 // ─── Utilities ──────────────────────────────────────────────────────────────────
@@ -99,20 +103,20 @@ function wavyPath(x1: number, x2: number, cy: number, amp = 3, wl = 10): string 
 
 function treatLine(type: TreatmentType, x1: number, x2: number, cy: number, key: string) {
   if (x2 <= x1) return null;
-  const base = { key, stroke: '#1e293b' };
+  const s = '#1e293b';
   switch (TDEFS[type].style) {
     case 'wavy':
-      return <path d={wavyPath(x1, x2, cy)} fill="none" strokeWidth="1.8" {...base} />;
+      return <path key={key} d={wavyPath(x1, x2, cy)} fill="none" strokeWidth="1.8" stroke={s} />;
     case 'solid':
-      return <line x1={x1} y1={cy} x2={x2} y2={cy} strokeWidth="4" {...base} />;
+      return <line key={key} x1={x1} y1={cy} x2={x2} y2={cy} strokeWidth="4" stroke={s} />;
     case 'dashed':
-      return <line x1={x1} y1={cy} x2={x2} y2={cy} strokeWidth="2" strokeDasharray="7 4" {...base} />;
+      return <line key={key} x1={x1} y1={cy} x2={x2} y2={cy} strokeWidth="2" strokeDasharray="7 4" stroke={s} />;
     case 'dotted':
-      return <line x1={x1} y1={cy} x2={x2} y2={cy} strokeWidth="3" strokeDasharray="1.5 5" strokeLinecap="round" {...base} />;
+      return <line key={key} x1={x1} y1={cy} x2={x2} y2={cy} strokeWidth="3" strokeDasharray="1.5 5" strokeLinecap="round" stroke={s} />;
     case 'dashdot':
-      return <line x1={x1} y1={cy} x2={x2} y2={cy} strokeWidth="2" strokeDasharray="9 3 2 3" {...base} />;
+      return <line key={key} x1={x1} y1={cy} x2={x2} y2={cy} strokeWidth="2" strokeDasharray="9 3 2 3" stroke={s} />;
     default:
-      return <line x1={x1} y1={cy} x2={x2} y2={cy} strokeWidth="1.2" strokeDasharray="4 3" {...base} />;
+      return <line key={key} x1={x1} y1={cy} x2={x2} y2={cy} strokeWidth="1.2" strokeDasharray="4 3" stroke={s} />;
   }
 }
 
@@ -133,7 +137,7 @@ const SAMPLE_EPISODES: MoodEpisode[] = [
 const SAMPLE_TREATMENTS: TreatmentPeriod[] = [
   { id: 'st1', type: 'psicoterapia',   startDate: '1974-02', endDate: '1976-07' },
   { id: 'st2', type: 'psicoterapia',   startDate: '1978-02', endDate: '1978-11' },
-  { id: 'st3', type: 'triciclicos',    startDate: '1974-04', endDate: '1975-06' },
+  { id: 'st3', type: 'antidepresivos',  startDate: '1974-04', endDate: '1975-06' },
   { id: 'st4', type: 'litio',          startDate: '1975-09', endDate: null },
   { id: 'st5', type: 'antipsicóticos', startDate: '1975-08', endDate: '1976-05' },
   { id: 'st6', type: 'antipsicóticos', startDate: '1979-03', endDate: null },
@@ -181,6 +185,8 @@ export default function GraficoVidaPsiquiatricaPage() {
   const [txForm, setTxForm] = useState({
     type: 'litio' as TreatmentType,
     customName: '',
+    specificDrugs: '',
+    compliance: '' as '' | Compliance,
     startDate: '', endDate: '',
     ongoing: false,
   });
@@ -245,10 +251,12 @@ export default function GraficoVidaPsiquiatricaPage() {
       id: crypto.randomUUID(),
       type: txForm.type,
       customName: txForm.customName || undefined,
+      specificDrugs: txForm.specificDrugs || undefined,
+      compliance: txForm.compliance || undefined,
       startDate: txForm.startDate,
       endDate: txForm.ongoing ? null : (txForm.endDate || null),
     }]);
-    setTxForm({ type: 'litio', customName: '', startDate: '', endDate: '', ongoing: false });
+    setTxForm({ type: 'litio', customName: '', specificDrugs: '', compliance: '', startDate: '', endDate: '', ongoing: false });
     setIsOpen(false);
   };
 
@@ -592,20 +600,35 @@ export default function GraficoVidaPsiquiatricaPage() {
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
             <h3 className="text-sm font-semibold text-slate-700 mb-3">Tratamientos registrados</h3>
             <div className="divide-y divide-slate-50">
-              {[...treatments].sort((a, b) => a.startDate.localeCompare(b.startDate)).map(tx => (
-                <div key={tx.id} className="flex items-center gap-3 py-1.5 text-xs">
-                  <div className="w-2 h-2 rounded-sm shrink-0 bg-slate-500" />
-                  <span className="font-medium text-slate-700">{TDEFS[tx.type].label}</span>
-                  {tx.customName && <span className="text-slate-500">({tx.customName})</span>}
-                  <span className="text-slate-400 font-mono tabular-nums">
-                    {tx.startDate} → {tx.endDate ?? 'actual'}
-                  </span>
-                  <button className="ml-auto text-slate-300 hover:text-red-500 shrink-0"
-                    onClick={() => setTreatments(p => p.filter(t => t.id !== tx.id))}>
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
+              {[...treatments].sort((a, b) => a.startDate.localeCompare(b.startDate)).map(tx => {
+                const complianceLabel: Record<Compliance, string> = { si: 'Sí', no: 'No', erratico: 'Errático', dudoso: 'Dudoso' };
+                const complianceCls: Record<Compliance, string> = {
+                  si:       'bg-emerald-50 text-emerald-700',
+                  no:       'bg-red-50 text-red-700',
+                  erratico: 'bg-amber-50 text-amber-700',
+                  dudoso:   'bg-slate-100 text-slate-600',
+                };
+                return (
+                  <div key={tx.id} className="flex flex-wrap items-center gap-2 py-1.5 text-xs border-b border-slate-50 last:border-0">
+                    <div className="w-2 h-2 rounded-sm shrink-0 bg-slate-500" />
+                    <span className="font-medium text-slate-700">{TDEFS[tx.type].label}</span>
+                    {tx.customName && <span className="text-slate-500">({tx.customName})</span>}
+                    {tx.specificDrugs && <span className="text-slate-500 italic">{tx.specificDrugs}</span>}
+                    <span className="text-slate-400 font-mono tabular-nums">
+                      {tx.startDate} → {tx.endDate ?? 'actual'}
+                    </span>
+                    {tx.compliance && (
+                      <span className={`px-1.5 py-0.5 rounded font-medium ${complianceCls[tx.compliance]}`}>
+                        Cumplimiento: {complianceLabel[tx.compliance]}
+                      </span>
+                    )}
+                    <button className="ml-auto text-slate-300 hover:text-red-500 shrink-0"
+                      onClick={() => setTreatments(p => p.filter(t => t.id !== tx.id))}>
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -718,6 +741,41 @@ export default function GraficoVidaPsiquiatricaPage() {
                         onChange={e => setTxForm({ ...txForm, customName: e.target.value })} />
                     </div>
                   )}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-medium text-slate-700">
+                      {txForm.type === 'psicoterapia' ? 'Modalidad / técnica' : 'Fármaco(s) específico(s)'}
+                      <span className="ml-1 text-slate-400 font-normal">(opcional)</span>
+                    </label>
+                    <input
+                      className={inputCls}
+                      placeholder={txForm.type === 'psicoterapia' ? 'Ej: TCC, Psicodinámica' : 'Ej: Sertralina 50 mg'}
+                      value={txForm.specificDrugs}
+                      onChange={e => setTxForm({ ...txForm, specificDrugs: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-medium text-slate-700">Cumplimiento terapéutico</label>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {(['si', 'no', 'erratico', 'dudoso'] as const).map(val => {
+                        const labels: Record<Compliance, string> = { si: 'Sí', no: 'No', erratico: 'Errático', dudoso: 'Dudoso' };
+                        const active = txForm.compliance === val;
+                        return (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() => setTxForm({ ...txForm, compliance: active ? '' : val })}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                              active
+                                ? 'bg-slate-800 text-white'
+                                : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                            }`}
+                          >
+                            {labels[val]}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <label className="block text-xs font-medium text-slate-700">Inicio</label>
