@@ -33,17 +33,18 @@ export default function FeedbackSection() {
 
   async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
-    if (!categoria || !mensaje.trim()) return;
+    if (!categoria) return;
     if (esNuevaHerramienta && !tituloHerramienta.trim()) return;
+    if (!esNuevaHerramienta && !mensaje.trim()) return;
     setEstado("enviando");
     try {
-      const body = esNuevaHerramienta
-        ? { categoria, tituloHerramienta, descripcionHerramienta, mensaje }
-        : { categoria, mensaje };
+      const mensajeFinal = esNuevaHerramienta
+        ? `Herramienta sugerida: ${tituloHerramienta.trim()}${descripcionHerramienta.trim() ? `\n\nDescripción: ${descripcionHerramienta.trim()}` : ""}`
+        : mensaje.trim();
       const res = await fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ categoria, mensaje: mensajeFinal }),
       });
       setEstado(res.ok ? "exito" : "error");
     } catch {
@@ -129,19 +130,21 @@ export default function FeedbackSection() {
               </>
             )}
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                Mensaje
-              </label>
-              <textarea
-                value={mensaje}
-                onChange={(e) => setMensaje(e.target.value)}
-                required
-                rows={4}
-                placeholder="Describe tu comentario, sugerencia o el problema encontrado..."
-                className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
-              />
-            </div>
+            {!esNuevaHerramienta && (
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Mensaje
+                </label>
+                <textarea
+                  value={mensaje}
+                  onChange={(e) => setMensaje(e.target.value)}
+                  required
+                  rows={4}
+                  placeholder="Describe tu comentario, sugerencia o el problema encontrado..."
+                  className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                />
+              </div>
+            )}
 
             {estado === "error" && (
               <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-3 py-2.5 text-sm text-red-700">
@@ -156,7 +159,7 @@ export default function FeedbackSection() {
               </p>
               <button
                 type="submit"
-                disabled={estado === "enviando" || !categoria || !mensaje.trim() || (esNuevaHerramienta && !tituloHerramienta.trim())}
+                disabled={estado === "enviando" || !categoria || (esNuevaHerramienta ? !tituloHerramienta.trim() : !mensaje.trim())}
                 className="flex shrink-0 items-center gap-2 rounded-lg bg-slate-800 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Send className="h-4 w-4" />
