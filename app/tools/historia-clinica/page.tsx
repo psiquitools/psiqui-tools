@@ -12,6 +12,9 @@ import {
     AlertCircle,
     ArrowLeft,
     ExternalLink,
+    Sparkles,
+    Check,
+    X,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import Link from "next/link";
@@ -60,6 +63,44 @@ const secciones = [
 
 export default function HistoriaClinicaPage() {
     const [seccionActual, setSeccionActual] = useState(0);
+
+    const [iaLoading, setIaLoading]       = useState(false);
+    const [iaError, setIaError]           = useState<string | null>(null);
+    const [iaPropuesta, setIaPropuesta]   = useState("");
+    const [iaPanel, setIaPanel]           = useState(false);
+
+    const estructurarEpisodio = async () => {
+        if (!historia.enfermedadActual.trim()) return;
+        setIaLoading(true);
+        setIaError(null);
+        try {
+            const res = await fetch("/api/estructurar-episodio", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ texto: historia.enfermedadActual }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? "Error desconocido");
+            setIaPropuesta(data.estructurado);
+            setIaPanel(true);
+        } catch (err) {
+            setIaError(err instanceof Error ? err.message : "Error al conectar con la IA");
+        } finally {
+            setIaLoading(false);
+        }
+    };
+
+    const aceptarPropuesta = () => {
+        setHistoria({ ...historia, enfermedadActual: iaPropuesta });
+        setIaPanel(false);
+        setIaPropuesta("");
+    };
+
+    const descartarPropuesta = () => {
+        setIaPanel(false);
+        setIaPropuesta("");
+        setIaError(null);
+    };
 
     const [historia, setHistoria] = useState<HistoriaClinica>({
         datosIdentificacion: {
@@ -291,7 +332,7 @@ export default function HistoriaClinicaPage() {
                             Motivo de Consulta
                         </h3>
                         <textarea
-                            className={textarea}
+                            className={`${textarea} min-h-[38px]`}
                             value={historia.motivoConsulta}
                             onChange={(e) =>
                                 setHistoria({
@@ -305,7 +346,7 @@ export default function HistoriaClinicaPage() {
                             Episodio Actual
                         </h3>
                         <textarea
-                            className={`${textarea} min-h-[180px]`}
+                            className={`${textarea} min-h-[280px]`}
                             value={historia.enfermedadActual}
                             onChange={(e) =>
                                 setHistoria({
@@ -314,6 +355,64 @@ export default function HistoriaClinicaPage() {
                                 })
                             }
                         />
+
+                        {/* Botón IA */}
+                        <div className="mt-2 flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={estructurarEpisodio}
+                                disabled={iaLoading || !historia.enfermedadActual.trim()}
+                                className="inline-flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700 transition-colors hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                <Sparkles className="h-3.5 w-3.5" />
+                                {iaLoading ? "Estructurando..." : "Estructurar con IA"}
+                            </button>
+                            {iaError && (
+                                <p className="text-xs text-red-500">{iaError}</p>
+                            )}
+                        </div>
+
+                        {/* Panel propuesta IA */}
+                        {iaPanel && (
+                            <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50 p-4">
+                                <div className="mb-3 flex items-center justify-between">
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">
+                                        Propuesta de IA
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={descartarPropuesta}
+                                        className="rounded-md p-1 text-violet-400 hover:bg-violet-100 hover:text-violet-700"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                </div>
+
+                                <textarea
+                                    className="min-h-[160px] w-full rounded-lg border border-violet-300 bg-white p-3 text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-300"
+                                    value={iaPropuesta}
+                                    onChange={(e) => setIaPropuesta(e.target.value)}
+                                />
+
+                                <div className="mt-3 flex justify-end gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={descartarPropuesta}
+                                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                                    >
+                                        Descartar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={aceptarPropuesta}
+                                        className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-xs font-medium text-white hover:bg-violet-700"
+                                    >
+                                        <Check className="h-3.5 w-3.5" />
+                                        Aceptar propuesta
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </>
                 );
 

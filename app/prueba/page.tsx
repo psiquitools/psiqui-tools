@@ -12,9 +12,9 @@ import {
   ClipboardList,
   LineChart,
 } from "lucide-react";
-import FeedbackSection from "./components/FeedbackSection";
+import FeedbackSection from "../components/FeedbackSection";
 
-export default function Home() {
+export default function Prueba() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
 
@@ -30,7 +30,6 @@ export default function Home() {
                 width={85}
                 height={85}
                 className="object-contain"
-                priority
               />
             </div>
           </div>
@@ -63,7 +62,7 @@ export default function Home() {
         {/* Grid de herramientas */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 
-          {/* Historia Clínica — tamaño normal */}
+          {/* Historia Clínica */}
           <Link
             href="/tools/historia-clinica"
             className="group relative rounded-lg border-2 border-slate-200 bg-white p-6 text-left transition-all duration-200 hover:-translate-y-1 hover:border-slate-400 hover:shadow-xl"
@@ -80,7 +79,7 @@ export default function Home() {
             </p>
           </Link>
 
-          {/* Examen Mental + Generador de Pauta — apilados, mismo ancho que una tarjeta normal */}
+          {/* Examen Mental + Generador de Pauta */}
           <div className="flex flex-col gap-3">
             <Link
               href="/tools/examen-mental"
@@ -210,6 +209,7 @@ export default function Home() {
             Herramienta con fines formativos • No sustituye el criterio médico profesional
           </p>
         </div>
+
       </div>
     </div>
   );

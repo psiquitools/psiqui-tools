@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Pill, TrendingDown } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pill, TrendingDown, ClipboardList, Repeat2 } from "lucide-react";
 
 interface Calculadora {
     id: string;
@@ -27,6 +27,22 @@ export default function CalculadorasPage() {
             icon: TrendingDown,
             href: "/tools/calculadoras-clinicas/discontinuacion-bzd",
         },
+        {
+            id: "generador-pauta",
+            title: "Generador de Pauta",
+            description:
+                "Genera la pauta farmacológica para el plan de manejo del paciente, lista para copiar en el informe clínico.",
+            icon: ClipboardList,
+            href: "/tools/generador-pauta",
+        },
+        {
+            id: "cambio-antidepresivo",
+            title: "Cambio de antidepresivo",
+            description:
+                "Consulta rápida y tabla completa de cambio entre antidepresivos según la Tabla 3.7 del Maudsley Prescribing Guidelines.",
+            icon: Repeat2,
+            href: "/tools/calculadoras-clinicas/cambio-antidepresivo",
+        },
     ];
 
     return (
@@ -45,10 +61,10 @@ export default function CalculadorasPage() {
                 {/* Header */}
                 <div>
                     <h1 className="text-2xl font-semibold text-slate-900">
-                        Calculadoras Clínicas
+                        Herramientas Farmacológicas
                     </h1>
                     <p className="text-sm text-slate-600 mt-1">
-                        Conversiones y cálculos de uso frecuente en psiquiatría
+                        Conversiones, cálculos y pautas de uso frecuente en psiquiatría
                     </p>
                 </div>
 

@@ -284,7 +284,7 @@ export default function DiscontinuacionBZDPage() {
                     className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
                 >
                     <ArrowLeft className="w-4 h-4" />
-                    Volver a Calculadoras Clínicas
+                    Volver a Herramientas Farmacológicas
                 </Link>
 
                 {/* Header */}

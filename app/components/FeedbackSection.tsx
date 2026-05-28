@@ -53,17 +53,17 @@ export default function FeedbackSection() {
   }
 
   return (
-    <section className="mx-auto mt-16 max-w-2xl">
-      <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="rounded-lg bg-slate-100 p-2.5">
-            <MessageSquare className="h-5 w-5 text-slate-600" />
+    <section className="mx-auto mt-20 max-w-2xl">
+      <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-100">
+        <div className="mb-7 flex items-center gap-3">
+          <div className="rounded-xl bg-slate-50 p-2.5">
+            <MessageSquare className="h-5 w-5 text-slate-500" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-slate-800">
+            <h2 className="text-base font-semibold tracking-tight text-slate-900">
               Comentarios y sugerencias
             </h2>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-400">
               Ayúdanos a mejorar estas herramientas
             </p>
           </div>
@@ -72,11 +72,11 @@ export default function FeedbackSection() {
         {estado === "exito" ? (
           <div className="flex flex-col items-center gap-3 py-8 text-center">
             <CheckCircle className="h-10 w-10 text-emerald-500" />
-            <p className="font-medium text-slate-800">¡Gracias por tu comentario!</p>
-            <p className="text-sm text-slate-500">Lo revisaremos pronto.</p>
+            <p className="font-semibold tracking-tight text-slate-900">¡Gracias por tu comentario!</p>
+            <p className="text-sm text-slate-400">Lo revisaremos pronto.</p>
             <button
               onClick={() => { setCategoria(""); setMensaje(""); setEstado("idle"); }}
-              className="mt-2 text-sm text-slate-500 underline hover:text-slate-700"
+              className="mt-2 text-sm text-slate-400 underline hover:text-slate-600"
             >
               Enviar otro comentario
             </button>
@@ -91,7 +91,7 @@ export default function FeedbackSection() {
                 value={categoria}
                 onChange={(e) => handleCategoria(e.target.value)}
                 required
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                className="w-full rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
               >
                 <option value="">Selecciona una categoría</option>
                 {CATEGORIAS.map((c) => (
@@ -112,7 +112,7 @@ export default function FeedbackSection() {
                     onChange={(e) => setTituloHerramienta(e.target.value)}
                     required
                     placeholder="Ej: Calculadora de dosis pediátricas"
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                    className="w-full rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 placeholder-slate-300 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
                   />
                 </div>
                 <div>
@@ -124,7 +124,7 @@ export default function FeedbackSection() {
                     onChange={(e) => setDescripcionHerramienta(e.target.value)}
                     rows={3}
                     placeholder="¿Para qué serviría? ¿Qué problema resolvería?"
-                    className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                    className="w-full resize-none rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 placeholder-slate-300 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
                   />
                 </div>
               </>
@@ -141,7 +141,7 @@ export default function FeedbackSection() {
                   required
                   rows={4}
                   placeholder="Describe tu comentario, sugerencia o el problema encontrado..."
-                  className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                  className="w-full resize-none rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 placeholder-slate-300 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
                 />
               </div>
             )}
@@ -160,7 +160,7 @@ export default function FeedbackSection() {
               <button
                 type="submit"
                 disabled={estado === "enviando" || !categoria || (esNuevaHerramienta ? !tituloHerramienta.trim() : !mensaje.trim())}
-                className="flex shrink-0 items-center gap-2 rounded-lg bg-slate-800 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex shrink-0 items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <Send className="h-4 w-4" />
                 {estado === "enviando" ? "Enviando..." : "Enviar"}
