@@ -16,7 +16,6 @@ import {
     Check,
     X,
 } from "lucide-react";
-import jsPDF from "jspdf";
 import Link from "next/link";
 
 /* ===================== TIPOS ===================== */
@@ -127,160 +126,114 @@ export default function HistoriaClinicaPage() {
 
     /* ===================== PDF ===================== */
 
-    const generarPDF = () => {
-        const doc = new jsPDF();
-        const marginX = 20;
-        let y = 20;
-        const line = 5;
-        const width = 170;
+    const generarPDF = async () => {
+        const { default: pdfMake } = await import("pdfmake/build/pdfmake");
 
-        const formatoOracion = (texto: string) =>
-            texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
-
-        const limpiarTexto = (texto: string) =>
-            texto.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ").trim();
-
-        const titulo = (texto: string) => {
-            doc.setFont("helvetica", "bold");
-            doc.text(formatoOracion(texto), marginX, y);
-            y += line;
-            doc.setFont("helvetica", "normal");
+        // Helvetica es una fuente estándar PDF — no requiere cargar vfs_fonts
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (pdfMake as any).vfs = {};
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (pdfMake as any).fonts = {
+            Helvetica: {
+                normal: "Helvetica",
+                bold: "Helvetica-Bold",
+                italics: "Helvetica-Oblique",
+                bolditalics: "Helvetica-BoldOblique",
+            },
         };
 
-        // FIX copy-paste: añade espacio al final de cada línea excepto la última.
-        // Esto evita que los lectores de PDF concatenen palabras sin separador
-        // al copiar el texto. Si el campo está vacío, no imprime nada.
-        const parrafo = (texto: string) => {
-            if (!texto || texto.trim() === "") {
-                y += line;
-                return;
-            }
-            const contenido = limpiarTexto(texto);
-            const lineas = doc.splitTextToSize(contenido, width);
-            const pageHeight = doc.internal.pageSize.getHeight();
+        const fs = 11;
+        type Margin4 = [number, number, number, number];
 
-            lineas.forEach((linea: string, index: number) => {
-                if (y > pageHeight - 20) {
-                    doc.addPage();
-                    y = 20;
-                }
-                // Espacio al final de todas las líneas excepto la última
-                const textoLinea =
-                    index < lineas.length - 1 ? linea + " " : linea;
-                doc.text(textoLinea, marginX, y);
-                y += line;
-            });
+        const encabezado = (texto: string) => ({
+            text: texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase(),
+            bold: true,
+            fontSize: fs,
+            margin: [0, 8, 0, 2] as Margin4,
+        });
 
-            y += line;
+        // Preserva saltos de párrafo dobles (\n\n); colapsa saltos simples dentro del párrafo
+        const parrafos = (texto: string) => {
+            if (!texto.trim()) return [{ text: " ", fontSize: fs, margin: [0, 0, 0, 6] as Margin4 }];
+            return texto
+                .split(/\n{2,}/)
+                .map((p) => p.replace(/\n/g, " ").replace(/\s+/g, " ").trim())
+                .filter((p) => p.length > 0)
+                .map((p) => ({ text: p, fontSize: fs, margin: [0, 0, 0, 6] as Margin4 }));
         };
 
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(11);
+        const { antecedentes } = historia;
 
-        doc.setFont("helvetica", "bold");
-        doc.text("HISTORIA CLÍNICA PSIQUIÁTRICA", marginX, y);
-        y += line * 2;
+        const ingresoTexto =
+            antecedentes.ingresosPsiq.estado === "no"
+                ? "No antecedentes de ingresos psiquiátricos previos."
+                : "Antecedentes de ingresos psiquiátricos previos: " +
+                  antecedentes.ingresosPsiq.descripcion.replace(/\n/g, " ").trim();
 
-        // 1. Datos de identificación
-        titulo("DATOS DE IDENTIFICACIÓN");
-        parrafo(`Identificador: ${historia.datosIdentificacion.identificador}`);
+        const autoliticosTexto =
+            antecedentes.intentosAutoliticos.estado === "no"
+                ? "No antecedentes de intentos autolíticos previos."
+                : "Antecedentes de intentos autolíticos previos: " +
+                  antecedentes.intentosAutoliticos.descripcion.replace(/\n/g, " ").trim();
 
-        // 2. Motivo de consulta
-        titulo("MOTIVO DE CONSULTA");
-        parrafo(historia.motivoConsulta);
+        const content = [
+            { text: "HISTORIA CLÍNICA PSIQUIÁTRICA", bold: true, fontSize: fs, margin: [0, 0, 0, 12] as Margin4 },
 
-        // 3. Antecedentes médico-quirúrgicos
-        doc.setFont("helvetica", "bold");
-        doc.text(
-            formatoOracion("ANTECEDENTES PERSONALES MÉDICO-QUIRÚRGICOS:"),
-            marginX,
-            y
-        );
-        y += line;
-        doc.setFont("helvetica", "normal");
+            encabezado("DATOS DE IDENTIFICACIÓN"),
+            ...parrafos(`Identificador: ${historia.datosIdentificacion.identificador}`),
 
-        parrafo(`Alergias: ${historia.antecedentes.alergias}`);
-        parrafo(historia.antecedentes.medicoQuirurgicos);
+            encabezado("MOTIVO DE CONSULTA"),
+            ...parrafos(historia.motivoConsulta),
 
-        // Antecedentes en salud mental
-        doc.setFont("helvetica", "bold");
-        doc.text(
-            formatoOracion("ANTECEDENTES PERSONALES EN SALUD MENTAL:"),
-            marginX,
-            y
-        );
-        y += line;
-        doc.setFont("helvetica", "normal");
-        parrafo(historia.antecedentes.saludMental);
+            encabezado("ANTECEDENTES PERSONALES MÉDICO-QUIRÚRGICOS:"),
+            ...parrafos(`Alergias: ${antecedentes.alergias}`),
+            ...parrafos(antecedentes.medicoQuirurgicos),
 
-        if (historia.antecedentes.ingresosPsiq.estado === "no") {
-            parrafo("No antecedentes de ingresos psiquiátricos previos.");
-        } else {
-            parrafo(
-                "Antecedentes de ingresos psiquiátricos previos: " +
-                limpiarTexto(historia.antecedentes.ingresosPsiq.descripcion)
-            );
-        }
+            encabezado("ANTECEDENTES PERSONALES EN SALUD MENTAL:"),
+            ...parrafos(antecedentes.saludMental),
+            { text: ingresoTexto, fontSize: fs, margin: [0, 0, 0, 6] as Margin4 },
+            { text: autoliticosTexto, fontSize: fs, margin: [0, 0, 0, 6] as Margin4 },
 
-        if (historia.antecedentes.intentosAutoliticos.estado === "no") {
-            parrafo("No antecedentes de intentos autolíticos previos.");
-        } else {
-            parrafo(
-                "Antecedentes de intentos autolíticos previos: " +
-                limpiarTexto(historia.antecedentes.intentosAutoliticos.descripcion)
-            );
-        }
+            {
+                text: [{ text: "Tratamiento habitual:", bold: true, decoration: "underline" as const }],
+                fontSize: fs,
+                margin: [0, 8, 0, 2] as Margin4,
+            },
+            ...parrafos(antecedentes.tratamientoHabitual),
 
-        doc.setFont("helvetica", "bold");
-        const textoTratamiento = "Tratamiento habitual:";
-        doc.text(textoTratamiento, marginX, y);
-        const anchoTratamiento = doc.getTextWidth(textoTratamiento);
-        doc.line(marginX, y + 1, marginX + anchoTratamiento, y + 1);
-        y += line;
-        doc.setFont("helvetica", "normal");
-        parrafo(historia.antecedentes.tratamientoHabitual);
+            encabezado("ANTECEDENTES FAMILIARES EN SALUD MENTAL:"),
+            ...parrafos(antecedentes.familiaresSaludMental),
 
-        doc.setFont("helvetica", "bold");
-        doc.text(
-            formatoOracion("ANTECEDENTES FAMILIARES EN SALUD MENTAL:"),
-            marginX,
-            y
-        );
-        y += line;
-        doc.setFont("helvetica", "normal");
-        parrafo(historia.antecedentes.familiaresSaludMental);
+            {
+                text: [{ text: "Hábitos tóxicos:", bold: true, decoration: "underline" as const }],
+                fontSize: fs,
+                margin: [0, 8, 0, 2] as Margin4,
+            },
+            ...parrafos(antecedentes.habitosToxicos),
 
-        doc.setFont("helvetica", "bold");
-        const textoHabitos = "Hábitos tóxicos:";
-        doc.text(textoHabitos, marginX, y);
-        const anchoHabitos = doc.getTextWidth(textoHabitos);
-        doc.line(marginX, y + 1, marginX + anchoHabitos, y + 1);
-        y += line;
-        doc.setFont("helvetica", "normal");
-        parrafo(historia.antecedentes.habitosToxicos);
+            encabezado("PSICOBIOGRAFÍA"),
+            ...parrafos(historia.psicobiografia),
 
-        // 4. Psicobiografía
-        titulo("PSICOBIOGRAFÍA");
-        parrafo(historia.psicobiografia);
+            encabezado("ENFERMEDAD ACTUAL"),
+            ...parrafos(historia.enfermedadActual),
 
-        // 5. Enfermedad actual
-        titulo("ENFERMEDAD ACTUAL");
-        parrafo(historia.enfermedadActual);
+            encabezado("EXAMEN MENTAL"),
+            ...parrafos(historia.examenMental),
 
-        // 6. Examen mental
-        titulo("EXAMEN MENTAL");
-        parrafo(historia.examenMental);
+            encabezado("JUICIO CLÍNICO"),
+            ...parrafos(historia.juicioClinico),
 
-        // 7. Juicio clínico
-        titulo("JUICIO CLÍNICO");
-        parrafo(historia.juicioClinico);
+            encabezado("PLAN DE MANEJO"),
+            ...parrafos(historia.planManejo),
+        ];
 
-        // 8. Plan de manejo
-        titulo("PLAN DE MANEJO");
-        parrafo(historia.planManejo);
-
-        const blob = doc.output("blob");
-        window.open(URL.createObjectURL(blob), "_blank");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (pdfMake as any).createPdf({
+            pageSize: "A4",
+            pageMargins: [57, 45, 57, 45] as Margin4,
+            defaultStyle: { font: "Helvetica", fontSize: fs },
+            content,
+        }).open();
     };
 
     /* ===================== CLASES ===================== */
