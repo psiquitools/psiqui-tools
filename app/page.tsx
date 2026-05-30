@@ -94,7 +94,7 @@ export default function Home() {
               </div>
               <h3 className="mb-1 text-sm font-semibold text-indigo-900">Examen Mental</h3>
               <p className="text-xs leading-relaxed text-indigo-500">
-                Elaborar examen mental de forma estructurada.
+                Herramienta de ayuda para elaborar el examen mental de forma estructurada.
               </p>
             </Link>
 
@@ -128,7 +128,7 @@ export default function Home() {
             </div>
             <h3 className="mb-2 text-lg font-semibold text-slate-800">Escalas Clínicas</h3>
             <p className="text-sm leading-relaxed text-slate-600">
-              Escalas de evaluación de uso frecuente en psiquiatría: CIWA-Ar, GAD-7 y más.
+              Escalas de evaluación de uso frecuente en psiquiatría.
             </p>
           </Link>
 
@@ -145,7 +145,7 @@ export default function Home() {
             </div>
             <h3 className="mb-2 text-lg font-semibold text-slate-800">Herramientas Farmacológicas</h3>
             <p className="text-sm leading-relaxed text-slate-600">
-              Equivalencias de benzodiacepinas, antipsicóticos y otras conversiones de uso frecuente en guardia.
+              Dosis, equivalencias, planes de discontinuación y más.
             </p>
           </Link>
 
@@ -179,7 +179,7 @@ export default function Home() {
             </div>
             <h3 className="mb-2 text-lg font-semibold text-slate-800">Organizador de Antecedentes</h3>
             <p className="text-sm leading-relaxed text-slate-600">
-              Introduce los eventos de los antecedentes psiquiátricos del paciente y esta herramienta los organizará cronológicamente.
+              Organiza de forma cornológica los antecedentes psiquiátricos del paciente.
             </p>
           </Link>
 
