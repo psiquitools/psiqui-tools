@@ -126,40 +126,24 @@ export default function HistoriaClinicaPage() {
 
     /* ===================== PDF ===================== */
 
-    const generarPDF = async () => {
-        const { default: pdfMake } = await import("pdfmake/build/pdfmake");
+    const generarPDF = () => {
+        const w = window.open("", "_blank");
+        if (!w) return;
 
-        // Helvetica es una fuente estándar PDF — no requiere cargar vfs_fonts
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (pdfMake as any).vfs = {};
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (pdfMake as any).fonts = {
-            Helvetica: {
-                normal: "Helvetica",
-                bold: "Helvetica-Bold",
-                italics: "Helvetica-Oblique",
-                bolditalics: "Helvetica-BoldOblique",
-            },
-        };
+        const esc = (s: string) =>
+            s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-        const fs = 11;
-        type Margin4 = [number, number, number, number];
+        const seccion = (titulo: string) =>
+            `<h2>${esc(titulo)}</h2>`;
 
-        const encabezado = (texto: string) => ({
-            text: texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase(),
-            bold: true,
-            fontSize: fs,
-            margin: [0, 8, 0, 2] as Margin4,
-        });
-
-        // Preserva saltos de párrafo dobles (\n\n); colapsa saltos simples dentro del párrafo
         const parrafos = (texto: string) => {
-            if (!texto.trim()) return [{ text: " ", fontSize: fs, margin: [0, 0, 0, 6] as Margin4 }];
+            if (!texto.trim()) return "<p>&nbsp;</p>";
             return texto
                 .split(/\n{2,}/)
                 .map((p) => p.replace(/\n/g, " ").replace(/\s+/g, " ").trim())
                 .filter((p) => p.length > 0)
-                .map((p) => ({ text: p, fontSize: fs, margin: [0, 0, 0, 6] as Margin4 }));
+                .map((p) => `<p>${esc(p)}</p>`)
+                .join("");
         };
 
         const { antecedentes } = historia;
@@ -176,64 +160,92 @@ export default function HistoriaClinicaPage() {
                 : "Antecedentes de intentos autolíticos previos: " +
                   antecedentes.intentosAutoliticos.descripcion.replace(/\n/g, " ").trim();
 
-        const content = [
-            { text: "HISTORIA CLÍNICA PSIQUIÁTRICA", bold: true, fontSize: fs, margin: [0, 0, 0, 12] as Margin4 },
+        const contenido = `
+  <h1>HISTORIA CLÍNICA PSIQUIÁTRICA</h1>
 
-            encabezado("DATOS DE IDENTIFICACIÓN"),
-            ...parrafos(`Identificador: ${historia.datosIdentificacion.identificador}`),
+  ${seccion("DATOS DE IDENTIFICACIÓN")}
+  <p>Identificador: ${esc(historia.datosIdentificacion.identificador)}</p>
 
-            encabezado("MOTIVO DE CONSULTA"),
-            ...parrafos(historia.motivoConsulta),
+  ${seccion("MOTIVO DE CONSULTA")}
+  ${parrafos(historia.motivoConsulta)}
 
-            encabezado("ANTECEDENTES PERSONALES MÉDICO-QUIRÚRGICOS:"),
-            ...parrafos(`Alergias: ${antecedentes.alergias}`),
-            ...parrafos(antecedentes.medicoQuirurgicos),
+  ${seccion("ANTECEDENTES PERSONALES MÉDICO-QUIRÚRGICOS")}
+  <p>Alergias: ${esc(antecedentes.alergias)}</p>
+  ${parrafos(antecedentes.medicoQuirurgicos)}
 
-            encabezado("ANTECEDENTES PERSONALES EN SALUD MENTAL:"),
-            ...parrafos(antecedentes.saludMental),
-            { text: ingresoTexto, fontSize: fs, margin: [0, 0, 0, 6] as Margin4 },
-            { text: autoliticosTexto, fontSize: fs, margin: [0, 0, 0, 6] as Margin4 },
+  ${seccion("ANTECEDENTES PERSONALES EN SALUD MENTAL")}
+  ${parrafos(antecedentes.saludMental)}
+  <p>${esc(ingresoTexto)}</p>
+  <p>${esc(autoliticosTexto)}</p>
+  <p class="sub">Tratamiento habitual:</p>
+  ${parrafos(antecedentes.tratamientoHabitual)}
 
-            {
-                text: [{ text: "Tratamiento habitual:", bold: true, decoration: "underline" as const }],
-                fontSize: fs,
-                margin: [0, 8, 0, 2] as Margin4,
-            },
-            ...parrafos(antecedentes.tratamientoHabitual),
+  ${seccion("ANTECEDENTES FAMILIARES EN SALUD MENTAL")}
+  ${parrafos(antecedentes.familiaresSaludMental)}
+  <p class="sub">Hábitos tóxicos:</p>
+  ${parrafos(antecedentes.habitosToxicos)}
 
-            encabezado("ANTECEDENTES FAMILIARES EN SALUD MENTAL:"),
-            ...parrafos(antecedentes.familiaresSaludMental),
+  ${seccion("PSICOBIOGRAFÍA")}
+  ${parrafos(historia.psicobiografia)}
 
-            {
-                text: [{ text: "Hábitos tóxicos:", bold: true, decoration: "underline" as const }],
-                fontSize: fs,
-                margin: [0, 8, 0, 2] as Margin4,
-            },
-            ...parrafos(antecedentes.habitosToxicos),
+  ${seccion("ENFERMEDAD ACTUAL")}
+  ${parrafos(historia.enfermedadActual)}
 
-            encabezado("PSICOBIOGRAFÍA"),
-            ...parrafos(historia.psicobiografia),
+  ${seccion("EXAMEN MENTAL")}
+  ${parrafos(historia.examenMental)}
 
-            encabezado("ENFERMEDAD ACTUAL"),
-            ...parrafos(historia.enfermedadActual),
+  ${seccion("JUICIO CLÍNICO")}
+  ${parrafos(historia.juicioClinico)}
 
-            encabezado("EXAMEN MENTAL"),
-            ...parrafos(historia.examenMental),
+  ${seccion("PLAN DE MANEJO")}
+  ${parrafos(historia.planManejo)}`;
 
-            encabezado("JUICIO CLÍNICO"),
-            ...parrafos(historia.juicioClinico),
+        const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Historia Clínica</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.6; color: #111; margin: 0; }
+    h1  { font-size: 11pt; font-weight: bold; margin: 0 0 20px; }
+    h2  { font-size: 11pt; font-weight: bold; margin: 20px 0 4px; }
+    p   { margin: 0 0 8px; }
+    .sub { font-weight: bold; text-decoration: underline; margin: 16px 0 4px; }
+    .btn { position: fixed; top: 16px; right: 16px; padding: 8px 18px;
+           background: #1e293b; color: #fff; border: none; border-radius: 6px;
+           font-size: 13px; cursor: pointer; }
+    /* Tabla que envuelve el contenido — thead/tfoot se repiten en cada página impresa */
+    .wrap { width: 100%; border-collapse: collapse; }
+    .wrap thead td, .wrap tfoot td { padding: 0; }
+    .wrap tbody td { padding: 0 2.8cm; vertical-align: top; }
+    @media screen {
+      .wrap { max-width: 760px; margin: 0 auto; }
+      .wrap thead td { height: 48px; }
+      .wrap tfoot td { height: 32px; }
+    }
+    @media print {
+      @page { size: A4; margin: 0; }
+      .btn { display: none; }
+      .wrap thead td { height: 2.2cm; }
+      .wrap tfoot td { height: 1cm; }
+      h2 { page-break-after: avoid; }
+      p  { orphans: 3; widows: 3; }
+    }
+  </style>
+</head>
+<body>
+  <button class="btn" onclick="window.print()">Imprimir / PDF</button>
+  <table class="wrap">
+    <thead><tr><td></td></tr></thead>
+    <tfoot><tr><td></td></tr></tfoot>
+    <tbody><tr><td>${contenido}</td></tr></tbody>
+  </table>
+</body>
+</html>`;
 
-            encabezado("PLAN DE MANEJO"),
-            ...parrafos(historia.planManejo),
-        ];
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (pdfMake as any).createPdf({
-            pageSize: "A4",
-            pageMargins: [57, 45, 57, 45] as Margin4,
-            defaultStyle: { font: "Helvetica", fontSize: fs },
-            content,
-        }).open();
+        w.document.write(html);
+        w.document.close();
     };
 
     /* ===================== CLASES ===================== */

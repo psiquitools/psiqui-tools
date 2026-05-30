@@ -151,10 +151,10 @@ const LAIs: LAI[] = [
         inicioAlternativo: {
             titulo: "Opción 2 — Doble inyección (sin solapamiento oral)",
             pasos: [
-                "Día 1: 400 mg IM (1.ª inyección, deltoides o glúteo).",
-                "Día 8 (±3 días): 400 mg IM (2.ª inyección).",
-                "A partir del día 36: inyección mensual de mantenimiento.",
-                "No requiere solapamiento con aripiprazol oral.",
+                "Día 1: dos inyecciones separadas de 400 mg IM en dos sitios distintos (total 800 mg).",
+                "Día 1 (misma visita): aripiprazol oral 20 mg dosis única.",
+                "A partir del día 29: inyección mensual de mantenimiento (400 mg).",
+                "No requiere solapamiento oral adicional.",
             ],
         },
         solapamientoOral: "14 días con aripiprazol oral (solo Opción 1)",
@@ -207,10 +207,10 @@ const LAIs: LAI[] = [
         inicioAlternativo: {
             titulo: "Opción 2 — Doble inyección (sin solapamiento oral)",
             pasos: [
-                "Día 1: 400 mg IM glúteo (1.ª inyección).",
-                "Día 8 (±3 días): 400 mg IM glúteo (2.ª inyección).",
-                "A partir del día 36: inyección mensual de mantenimiento.",
-                "No requiere solapamiento con aripiprazol oral.",
+                "Día 1: dos inyecciones separadas de 400 mg IM glúteo en cuadrantes distintos (total 800 mg).",
+                "Día 1 (misma visita): aripiprazol oral 20 mg dosis única.",
+                "A partir del día 29: inyección mensual de mantenimiento (400 mg).",
+                "Verificar protocolo exacto en ficha técnica de Okedi, puede diferir de Abilify Maintena.",
             ],
         },
         solapamientoOral: "14 días con aripiprazol oral (solo Opción 1)",
