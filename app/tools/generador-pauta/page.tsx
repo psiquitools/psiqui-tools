@@ -504,6 +504,58 @@ function formatDosis(d: number): string {
     return d % 1 === 0 ? d.toString() : d.toFixed(1);
 }
 
+// Describe una dosis en términos de comprimidos concretos
+function describeDosisTablets(dosis: number, presentaciones: number[]): string {
+    const fd = formatDosis;
+    const desc = [...presentaciones].sort((a, b) => b - a); // descendente
+    const asc  = [...presentaciones].sort((a, b) => a - b); // ascendente
+
+    // 1 comprimido entero
+    for (const p of desc)
+        if (Math.abs(dosis - p) < 0.01) return `UN comprimido entero de ${fd(p)} mg`;
+    // 2 comprimidos enteros
+    for (const p of desc)
+        if (Math.abs(dosis - 2 * p) < 0.01) return `DOS comprimidos enteros de ${fd(p)} mg`;
+    // medio comprimido
+    for (const p of asc)
+        if (Math.abs(dosis - p / 2) < 0.01) return `MEDIO comprimido de ${fd(p)} mg`;
+    // 1 comprimido y medio
+    for (const p of asc)
+        if (Math.abs(dosis - p * 1.5) < 0.01) return `UN comprimido y MEDIO de ${fd(p)} mg`;
+    // 3 comprimidos
+    for (const p of desc)
+        if (Math.abs(dosis - 3 * p) < 0.01) return `TRES comprimidos enteros de ${fd(p)} mg`;
+    // 4 comprimidos
+    for (const p of desc)
+        if (Math.abs(dosis - 4 * p) < 0.01) return `CUATRO comprimidos enteros de ${fd(p)} mg`;
+
+    return `${fd(dosis)} mg`;
+}
+
+// Extrae el momento de toma de forma breve
+function extractMomento(momentoToma: string): string {
+    const t = momentoToma.toLowerCase();
+    const manana = t.includes("mañana");
+    const noche  = t.includes("noche");
+    const conAlimentos = t.includes("con alimentos") && !t.includes("con o sin");
+
+    let cuando = "";
+    if (manana && noche)  cuando = "por la mañana o por la noche";
+    else if (manana)      cuando = "por la mañana";
+    else if (noche)       cuando = "por la noche";
+    else                  cuando = "una vez al día";
+
+    if (conAlimentos) cuando += ", con alimentos";
+    return cuando;
+}
+
+// Formatea la duración de un paso en lenguaje natural
+function formatDuracion(dias: number): string {
+    if (dias === 7)       return "durante una semana";
+    if (dias % 7 === 0)  return `durante ${dias / 7} semanas`;
+    return `durante ${dias} días`;
+}
+
 // ─── COMPONENTE ───────────────────────────────────────────────────────────────
 
 export default function GeneradorPautaPage() {
@@ -530,26 +582,35 @@ export default function GeneradorPautaPage() {
     );
 
     const textoInforme = useMemo(() => {
-        const lines: string[] = [
-            `Se inicia tratamiento con ${farmaco.nombre.toLowerCase()} con la siguiente pauta de titulación:`,
-            "",
-            ...pasos.map((p) => `• ${p.descripcion}`),
-            "",
-            `Dosis objetivo de mantenimiento: ${formatDosis(indicacion.dosisObjetivo)} mg/día (máxima recomendada: ${formatDosis(indicacion.dosisMaxima)} mg/día).`,
-            `Posología: ${farmaco.momentoToma}.`,
-            "",
-            `Se informa al paciente de que el efecto terapéutico esperado se inicia a las 2-4 semanas de alcanzar la dosis diana, con respuesta clínica máxima a las 6-8 semanas. Posibles efectos adversos al inicio: ${farmaco.efectosAdversosInicio.slice(0, 3).join(", ").toLowerCase()} — habitualmente transitorios en los primeros 7-14 días.`,
-            "",
-            `Se cita en consulta en 2-4 semanas para reevaluación de tolerancia y respuesta clínica.`,
-        ];
+        const momento = extractMomento(farmaco.momentoToma);
+
+        // Genera una frase por cada paso de la pauta
+        const frases = pasos.map((paso, i) => {
+            const tablet = describeDosisTablets(paso.dosis, farmaco.presentaciones);
+            const esMantenimiento = paso.hasta === null;
+            const duracion = esMantenimiento
+                ? ""
+                : formatDuracion(paso.hasta! - paso.desde + 1);
+
+            if (i === 0) {
+                return esMantenimiento
+                    ? `Tomará ${tablet} ${momento} y mantener.`
+                    : `Tomará ${tablet} ${momento} ${duracion}.`;
+            }
+            return esMantenimiento
+                ? `Posteriormente, ${tablet} ${momento} y mantener.`
+                : `Posteriormente, ${tablet} ${momento} ${duracion}.`;
+        });
+
+        const pauta = `${farmaco.nombre}. ${frases.join(" ")}`;
+
+        const lines: string[] = [pauta];
 
         if (indicacion.notas) {
-            lines.push("");
-            lines.push(`Nota: ${indicacion.notas}.`);
+            lines.push("", `Nota: ${indicacion.notas}.`);
         }
         if (farmaco.notasGenerales) {
-            lines.push("");
-            lines.push(`Consideraciones: ${farmaco.notasGenerales}`);
+            lines.push("", `Consideraciones: ${farmaco.notasGenerales}`);
         }
 
         return lines.join("\n");
