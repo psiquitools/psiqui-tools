@@ -18,7 +18,7 @@ type Benzo = {
     id: string;
     nombre: string;
     marcaEspana: string;
-    eq5mgDiazepam: number;
+    eq10mgDiazepam: number;
     // Dosis posibles ordenadas de mayor a menor según presentaciones reales en España
     // Incluye comprimidos enteros, mitades y combinaciones de presentaciones
     dosisPosibles: number[];
@@ -41,7 +41,7 @@ const BENZOS: Benzo[] = [
         id: "diazepam",
         nombre: "Diazepam",
         marcaEspana: "Valium®",
-        eq5mgDiazepam: 5,
+        eq10mgDiazepam: 10,
         // Presentaciones: 2 mg, 2.5 mg, 5 mg, 10 mg
         // Permite combinaciones: 10, 7.5, 5, 4, 2.5, 2, 1 (mitad de 2)
         dosisPosibles: [40, 30, 25, 20, 15, 12.5, 10, 7.5, 5, 4, 2.5, 2, 1],
@@ -50,7 +50,7 @@ const BENZOS: Benzo[] = [
         id: "lorazepam",
         nombre: "Lorazepam",
         marcaEspana: "Orfidal®",
-        eq5mgDiazepam: 0.5,
+        eq10mgDiazepam: 1,
         // Presentaciones: 1 mg (divisible por la mitad)
         // Combinaciones posibles: 3, 2.5, 2, 1.5, 1, 0.5
         dosisPosibles: [4, 3, 2.5, 2, 1.5, 1, 0.5],
@@ -59,7 +59,7 @@ const BENZOS: Benzo[] = [
         id: "clonazepam",
         nombre: "Clonazepam",
         marcaEspana: "Rivotril®",
-        eq5mgDiazepam: 0.25,
+        eq10mgDiazepam: 0.5,
         // Comp 0.5 mg, 2 mg + solución oral 2.5 mg/ml (permite ~0.25 mg)
         dosisPosibles: [4, 3, 2, 1.5, 1, 0.75, 0.5, 0.25],
     },
@@ -67,7 +67,7 @@ const BENZOS: Benzo[] = [
         id: "lormetazepam",
         nombre: "Lormetazepam",
         marcaEspana: "Noctamid®",
-        eq5mgDiazepam: 0.5,
+        eq10mgDiazepam: 1,
         // Comp 1 mg, 2 mg + solución oral 2.5 mg/ml
         dosisPosibles: [3, 2, 1.5, 1, 0.5, 0.25],
     },
@@ -167,7 +167,7 @@ function calcularPlan(
     const pasos: Paso[] = dosisReales.map((dosis, i) => ({
         paso: i + 1,
         semana: i * semanasPorPaso,
-        eqDiazepam: Math.round((dosis / farmaco.eq5mgDiazepam) * 5 * 100) / 100,
+        eqDiazepam: Math.round((dosis / farmaco.eq10mgDiazepam) * 10 * 100) / 100,
         dosisOriginal: dosis,
     }));
 
@@ -198,7 +198,7 @@ export default function DiscontinuacionBZDPage() {
 
     const eqDiazepamInicial = useMemo(() => {
         if (!dosisValida) return null;
-        return Math.round((dosisNum / farmaco.eq5mgDiazepam) * 5 * 100) / 100;
+        return Math.round((dosisNum / farmaco.eq10mgDiazepam) * 10 * 100) / 100;
     }, [dosisNum, farmaco, dosisValida]);
 
     const plan = useMemo(() => {

@@ -16,7 +16,7 @@ type Benzo = {
     id: string;
     nombre: string;
     marcaEspana: string;
-    eq5mgDiazepam: number; // mg de este fármaco equivalentes a 5mg diazepam
+    eq10mgDiazepam: number; // mg de este fármaco equivalentes a 10 mg diazepam
     duracion: "muy-corta" | "corta" | "intermedia" | "larga";
     presentaciones: number[]; // mg disponibles en España
     notas?: string;
@@ -28,7 +28,7 @@ const BENZOS: Benzo[] = [
         id: "diazepam",
         nombre: "Diazepam",
         marcaEspana: "Valium®",
-        eq5mgDiazepam: 5,
+        eq10mgDiazepam: 10,
         duracion: "larga",
         presentaciones: [2, 5, 10],
     },
@@ -36,7 +36,7 @@ const BENZOS: Benzo[] = [
         id: "clordiazepoxido",
         nombre: "Clordiazepóxido",
         marcaEspana: "Huberplex®",
-        eq5mgDiazepam: 12.5,
+        eq10mgDiazepam: 25,
         duracion: "larga",
         presentaciones: [5, 10, 25],
     },
@@ -44,7 +44,7 @@ const BENZOS: Benzo[] = [
         id: "clorazepato",
         nombre: "Clorazepato dipotásico",
         marcaEspana: "Tranxilium®",
-        eq5mgDiazepam: 15,
+        eq10mgDiazepam: 30,
         duracion: "larga",
         presentaciones: [5, 10, 15, 50],
     },
@@ -52,7 +52,7 @@ const BENZOS: Benzo[] = [
         id: "clobazam",
         nombre: "Clobazam",
         marcaEspana: "Noiafren®",
-        eq5mgDiazepam: 10,
+        eq10mgDiazepam: 20,
         duracion: "larga",
         presentaciones: [10, 20],
     },
@@ -60,17 +60,17 @@ const BENZOS: Benzo[] = [
         id: "clonazepam",
         nombre: "Clonazepam",
         marcaEspana: "Rivotril®",
-        eq5mgDiazepam: 0.25,
+        eq10mgDiazepam: 0.5,
         duracion: "larga",
         presentaciones: [0.5, 2],
-        notas: "250 mcg ≈ 5 mg diazepam",
+        notas: "0.5 mg ≈ 10 mg diazepam",
     },
     // Acción intermedia
     {
         id: "nitrazepam",
         nombre: "Nitrazepam",
         marcaEspana: "Mogadon®",
-        eq5mgDiazepam: 5,
+        eq10mgDiazepam: 10,
         duracion: "intermedia",
         presentaciones: [5],
     },
@@ -78,7 +78,7 @@ const BENZOS: Benzo[] = [
         id: "flunitrazepam",
         nombre: "Flunitrazepam",
         marcaEspana: "Rohypnol®",
-        eq5mgDiazepam: 1,
+        eq10mgDiazepam: 2,
         duracion: "intermedia",
         presentaciones: [1],
     },
@@ -87,25 +87,25 @@ const BENZOS: Benzo[] = [
         id: "lorazepam",
         nombre: "Lorazepam",
         marcaEspana: "Orfidal®",
-        eq5mgDiazepam: 0.5,
+        eq10mgDiazepam: 1,
         duracion: "corta",
         presentaciones: [1],
-        notas: "500 mcg ≈ 5 mg diazepam",
+        notas: "1 mg ≈ 10 mg diazepam",
     },
     {
         id: "alprazolam",
         nombre: "Alprazolam",
         marcaEspana: "Trankimazin®",
-        eq5mgDiazepam: 0.25,
+        eq10mgDiazepam: 0.5,
         duracion: "corta",
         presentaciones: [0.25, 0.5, 1, 2],
-        notas: "250 mcg ≈ 5 mg diazepam",
+        notas: "0.5 mg ≈ 10 mg diazepam",
     },
     {
         id: "oxazepam",
         nombre: "Oxazepam",
         marcaEspana: "Adumbran®",
-        eq5mgDiazepam: 10,
+        eq10mgDiazepam: 20,
         duracion: "corta",
         presentaciones: [10, 15],
     },
@@ -113,16 +113,16 @@ const BENZOS: Benzo[] = [
         id: "lormetazepam",
         nombre: "Lormetazepam",
         marcaEspana: "Noctamid®",
-        eq5mgDiazepam: 0.5,
+        eq10mgDiazepam: 1,
         duracion: "corta",
         presentaciones: [0.5, 1, 2],
-        notas: "500 mcg ≈ 5 mg diazepam",
+        notas: "1 mg ≈ 10 mg diazepam",
     },
     {
         id: "temazepam",
         nombre: "Temazepam",
         marcaEspana: "Normison®",
-        eq5mgDiazepam: 10,
+        eq10mgDiazepam: 20,
         duracion: "corta",
         presentaciones: [10, 20],
     },
@@ -131,7 +131,7 @@ const BENZOS: Benzo[] = [
         id: "midazolam",
         nombre: "Midazolam",
         marcaEspana: "Dormicum®",
-        eq5mgDiazepam: 2.5,
+        eq10mgDiazepam: 5,
         duracion: "muy-corta",
         presentaciones: [5, 15],
         notas: "Uso principalmente hospitalario IV/IM",
@@ -141,7 +141,7 @@ const BENZOS: Benzo[] = [
         id: "zopiclona",
         nombre: "Zopiclona",
         marcaEspana: "Zimovane®",
-        eq5mgDiazepam: 7.5,
+        eq10mgDiazepam: 15,
         duracion: "corta",
         presentaciones: [3.75, 7.5],
         notas: "Fármaco Z — uso en insomnio",
@@ -150,7 +150,7 @@ const BENZOS: Benzo[] = [
         id: "zolpidem",
         nombre: "Zolpidem",
         marcaEspana: "Stilnox®",
-        eq5mgDiazepam: 10,
+        eq10mgDiazepam: 20,
         duracion: "muy-corta",
         presentaciones: [5, 10],
         notas: "Fármaco Z — uso en insomnio",
@@ -176,10 +176,9 @@ function calcularEquivalencia(
     benzoA: Benzo,
     dosis: number
 ): number {
-    // Convertir primero a equivalente de diazepam, luego al fármaco destino
-    const eqDiazepam = (dosis / benzoDe.eq5mgDiazepam) * 5;
-    const eqDestino = (eqDiazepam / 5) * benzoA.eq5mgDiazepam;
-    return Math.round(eqDestino * 1000) / 1000; // redondear a 3 decimales
+    const eqDiazepam = (dosis / benzoDe.eq10mgDiazepam) * 10;
+    const eqDestino = (eqDiazepam / 10) * benzoA.eq10mgDiazepam;
+    return Math.round(eqDestino * 1000) / 1000;
 }
 
 export default function EquivalenciasBZDPage() {
@@ -200,7 +199,7 @@ export default function EquivalenciasBZDPage() {
 
     const eqDiazepam = useMemo(() => {
         if (!dosisValida) return null;
-        return Math.round((dosisNum / farmacoDe.eq5mgDiazepam) * 5 * 1000) / 1000;
+        return Math.round((dosisNum / farmacoDe.eq10mgDiazepam) * 10 * 1000) / 1000;
     }, [farmacoDe, dosisNum, dosisValida]);
 
     const intercambiar = () => {
@@ -394,7 +393,7 @@ export default function EquivalenciasBZDPage() {
                 {/* Tabla de referencia */}
                 <div className="bg-white border border-slate-200 rounded-lg p-4">
                     <h3 className="text-sm font-medium text-slate-700 mb-3">
-                        Tabla de equivalencias (referencia a 5 mg de diazepam)
+                        Tabla de equivalencias (referencia a 10 mg de diazepam)
                     </h3>
                     <div className="overflow-x-auto">
                         <table className="w-full text-xs">
@@ -402,7 +401,7 @@ export default function EquivalenciasBZDPage() {
                                 <tr className="border-b border-slate-200">
                                     <th className="text-left py-2 pr-4 text-slate-600 font-medium">Fármaco</th>
                                     <th className="text-left py-2 pr-4 text-slate-600 font-medium">Marca</th>
-                                    <th className="text-right py-2 pr-4 text-slate-600 font-medium">Eq. a 5 mg diazepam</th>
+                                    <th className="text-right py-2 pr-4 text-slate-600 font-medium">Eq. a 10 mg diazepam</th>
                                     <th className="text-left py-2 text-slate-600 font-medium">Duración</th>
                                 </tr>
                             </thead>
@@ -412,9 +411,7 @@ export default function EquivalenciasBZDPage() {
                                         <td className="py-2 pr-4 font-medium text-slate-800">{b.nombre}</td>
                                         <td className="py-2 pr-4 text-slate-500">{b.marcaEspana}</td>
                                         <td className="py-2 pr-4 text-right font-mono text-slate-800">
-                                            {b.eq5mgDiazepam < 1
-                                                ? `${b.eq5mgDiazepam * 1000} mcg`
-                                                : `${b.eq5mgDiazepam} mg`}
+                                            {b.eq10mgDiazepam} mg
                                         </td>
                                         <td className="py-2">
                                             <span className={`px-2 py-0.5 rounded border text-xs ${DURACION_COLOR[b.duracion]}`}>
