@@ -66,6 +66,7 @@ export default function HistoriaClinicaPage() {
     const [iaLoading, setIaLoading]       = useState(false);
     const [iaError, setIaError]           = useState<string | null>(null);
     const [iaPropuesta, setIaPropuesta]   = useState("");
+    const [iaOmisiones, setIaOmisiones]   = useState<string[]>([]);
     const [iaPanel, setIaPanel]           = useState(false);
 
     const estructurarEpisodio = async () => {
@@ -81,6 +82,7 @@ export default function HistoriaClinicaPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error ?? "Error desconocido");
             setIaPropuesta(data.estructurado);
+            setIaOmisiones(data.omisiones ?? []);
             setIaPanel(true);
         } catch (err) {
             setIaError(err instanceof Error ? err.message : "Error al conectar con la IA");
@@ -93,11 +95,13 @@ export default function HistoriaClinicaPage() {
         setHistoria({ ...historia, enfermedadActual: iaPropuesta });
         setIaPanel(false);
         setIaPropuesta("");
+        setIaOmisiones([]);
     };
 
     const descartarPropuesta = () => {
         setIaPanel(false);
         setIaPropuesta("");
+        setIaOmisiones([]);
         setIaError(null);
     };
 
@@ -352,6 +356,24 @@ export default function HistoriaClinicaPage() {
                                         <X className="h-4 w-4" />
                                     </button>
                                 </div>
+
+                                {iaOmisiones.length > 0 && (
+                                    <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                                        <div className="flex items-start gap-2">
+                                            <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                                            <div>
+                                                <p className="text-xs font-semibold text-amber-800 mb-1.5">
+                                                    Elementos no documentados a evaluar
+                                                </p>
+                                                <ul className="space-y-1">
+                                                    {iaOmisiones.map((o, i) => (
+                                                        <li key={i} className="text-xs text-amber-700">• {o}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <textarea
                                     className="min-h-[160px] w-full rounded-lg border border-violet-300 bg-white p-3 text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-300"
