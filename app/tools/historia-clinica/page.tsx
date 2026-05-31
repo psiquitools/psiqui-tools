@@ -340,6 +340,9 @@ export default function HistoriaClinicaPage() {
                                 <p className="text-xs text-red-500">{iaError}</p>
                             )}
                         </div>
+                        <p className="mt-1.5 text-xs text-slate-400">
+                            Esta función envía únicamente el contenido del apartado &quot;Episodio Actual&quot; a un proveedor de IA para generar una propuesta de redacción. No introduzca datos identificativos de pacientes.
+                        </p>
 
                         {/* Panel propuesta IA */}
                         {iaPanel && (
