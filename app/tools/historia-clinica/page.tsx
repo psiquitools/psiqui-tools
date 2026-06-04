@@ -6,8 +6,6 @@ import {
     FileText,
     ClipboardList,
     Brain,
-    Eye,
-    Pill,
     Download,
     AlertCircle,
     ArrowLeft,
@@ -55,9 +53,7 @@ const secciones = [
     { id: 0, titulo: "Identificación y Episodio Actual", icon: FileText },
     { id: 1, titulo: "Antecedentes Personales", icon: ClipboardList },
     { id: 2, titulo: "Psicobiografía", icon: User },
-    { id: 3, titulo: "Examen Mental", icon: Brain },
-    { id: 4, titulo: "Juicio Clínico", icon: Eye },
-    { id: 5, titulo: "Plan de Manejo", icon: Pill },
+    { id: 3, titulo: "Evaluación y Plan", icon: Brain },
 ];
 
 export default function HistoriaClinicaPage() {
@@ -68,6 +64,44 @@ export default function HistoriaClinicaPage() {
     const [iaPropuesta, setIaPropuesta]   = useState("");
     const [iaOmisiones, setIaOmisiones]   = useState<string[]>([]);
     const [iaPanel, setIaPanel]           = useState(false);
+
+    const [iaAntecLoading, setIaAntecLoading]   = useState(false);
+    const [iaAntecError, setIaAntecError]       = useState<string | null>(null);
+    const [iaAntecPropuesta, setIaAntecPropuesta] = useState("");
+    const [iaAntecPanel, setIaAntecPanel]       = useState(false);
+
+    const estructurarAntecedentes = async () => {
+        if (!historia.antecedentes.saludMental.trim()) return;
+        setIaAntecLoading(true);
+        setIaAntecError(null);
+        try {
+            const res = await fetch("/api/estructurar-antecedentes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ texto: historia.antecedentes.saludMental }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? "Error desconocido");
+            setIaAntecPropuesta(data.estructurado);
+            setIaAntecPanel(true);
+        } catch (err) {
+            setIaAntecError(err instanceof Error ? err.message : "Error al conectar con la IA");
+        } finally {
+            setIaAntecLoading(false);
+        }
+    };
+
+    const aceptarAntecedentes = () => {
+        setHistoria({ ...historia, antecedentes: { ...historia.antecedentes, saludMental: iaAntecPropuesta } });
+        setIaAntecPanel(false);
+        setIaAntecPropuesta("");
+    };
+
+    const descartarAntecedentes = () => {
+        setIaAntecPanel(false);
+        setIaAntecPropuesta("");
+        setIaAntecError(null);
+    };
 
     const estructurarEpisodio = async () => {
         if (!historia.enfermedadActual.trim()) return;
@@ -467,6 +501,67 @@ export default function HistoriaClinicaPage() {
                             }
                         />
 
+                        {/* Botón IA antecedentes */}
+                        <div className="mt-2 flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={estructurarAntecedentes}
+                                disabled={iaAntecLoading || !historia.antecedentes.saludMental.trim()}
+                                className="inline-flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700 transition-colors hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                <Sparkles className="h-3.5 w-3.5" />
+                                {iaAntecLoading ? "Organizando..." : "Organizar con IA"}
+                            </button>
+                            {iaAntecError && (
+                                <p className="text-xs text-red-500">{iaAntecError}</p>
+                            )}
+                        </div>
+                        <p className="mt-1.5 text-xs text-slate-400">
+                            Esta función envía únicamente el contenido de antecedentes en salud mental a un proveedor de IA para reorganizarlo. No introduzca datos identificativos de pacientes.
+                        </p>
+
+                        {/* Panel propuesta IA antecedentes */}
+                        {iaAntecPanel && (
+                            <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50 p-4">
+                                <div className="mb-3 flex items-center justify-between">
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">
+                                        Propuesta de IA
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={descartarAntecedentes}
+                                        className="rounded-md p-1 text-violet-400 hover:bg-violet-100 hover:text-violet-700"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                </div>
+
+                                <textarea
+                                    className="min-h-[160px] w-full rounded-lg border border-violet-300 bg-white p-3 text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-300"
+                                    value={iaAntecPropuesta}
+                                    onChange={(e) => setIaAntecPropuesta(e.target.value)}
+                                />
+
+                                <div className="mt-3 flex justify-end gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={descartarAntecedentes}
+                                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                                    >
+                                        Descartar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={aceptarAntecedentes}
+                                        className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-xs font-medium text-white hover:bg-violet-700"
+                                    >
+                                        <Check className="h-3.5 w-3.5" />
+                                        Aceptar propuesta
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         <label className="block text-sm font-medium text-slate-800 mt-3 mb-1">
                             Ingresos psiquiátricos
                         </label>
@@ -687,13 +782,8 @@ export default function HistoriaClinicaPage() {
                                 setHistoria({ ...historia, examenMental: e.target.value })
                             }
                         />
-                    </>
-                );
 
-            case 4:
-                return (
-                    <>
-                        <h2 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">
+                        <h2 className="text-xl font-bold text-slate-800 mt-8 mb-4 border-b border-slate-200 pb-2">
                             Juicio Clínico
                         </h2>
                         <textarea
@@ -704,13 +794,8 @@ export default function HistoriaClinicaPage() {
                                 setHistoria({ ...historia, juicioClinico: e.target.value })
                             }
                         />
-                    </>
-                );
 
-            case 5:
-                return (
-                    <>
-                        <div className="flex items-center justify-between mb-4 border-b border-slate-200 pb-2">
+                        <div className="flex items-center justify-between mt-8 mb-4 border-b border-slate-200 pb-2">
                             <h2 className="text-xl font-bold text-slate-800">
                                 Plan de Manejo
                             </h2>
