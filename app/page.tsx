@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import {
   Brain,
   FileText,
@@ -24,14 +23,17 @@ export default function Home() {
         <div className="mb-12 text-center">
           <div className="mb-6 flex items-center justify-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-slate-800 shadow-lg">
-              <Image
-                src="/logo1.png"
-                alt="psiqui.tools"
-                width={85}
-                height={85}
-                className="object-contain"
-                priority
-              />
+              <svg viewBox="0 0 48 48" fill="none" className="w-full h-full" aria-hidden="true">
+                <circle cx="24" cy="24" r="3.5" stroke="white" strokeWidth="1.5"/>
+                <circle cx="14" cy="16" r="2.5" stroke="white" strokeWidth="1.5"/>
+                <circle cx="34" cy="16" r="2.5" stroke="white" strokeWidth="1.5"/>
+                <circle cx="14" cy="32" r="2.5" stroke="white" strokeWidth="1.5"/>
+                <circle cx="34" cy="32" r="2.5" stroke="white" strokeWidth="1.5"/>
+                <line x1="21" y1="22.5" x2="16.5" y2="18" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
+                <line x1="27" y1="22.5" x2="31.5" y2="18" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
+                <line x1="21" y1="25.5" x2="16.5" y2="30" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
+                <line x1="27" y1="25.5" x2="31.5" y2="30" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
+              </svg>
             </div>
           </div>
 

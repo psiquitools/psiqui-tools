@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Image from "next/image";
 import Link from "next/link";
 import "./globals.css";
 
@@ -31,14 +30,17 @@ export default function RootLayout({
           <div className="mx-auto flex max-w-6xl items-center gap-3 px-6 py-3.5 md:px-12">
             <Link href="/" className="flex items-center gap-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800">
-                <Image
-                  src="/logo1.png"
-                  alt="psiqui.tools"
-                  width={32}
-                  height={32}
-                  className="object-contain"
-                  priority
-                />
+                <svg viewBox="0 0 48 48" fill="none" className="w-full h-full" aria-hidden="true">
+                  <circle cx="24" cy="24" r="3.5" stroke="white" strokeWidth="1.5"/>
+                  <circle cx="14" cy="16" r="2.5" stroke="white" strokeWidth="1.5"/>
+                  <circle cx="34" cy="16" r="2.5" stroke="white" strokeWidth="1.5"/>
+                  <circle cx="14" cy="32" r="2.5" stroke="white" strokeWidth="1.5"/>
+                  <circle cx="34" cy="32" r="2.5" stroke="white" strokeWidth="1.5"/>
+                  <line x1="21" y1="22.5" x2="16.5" y2="18" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
+                  <line x1="27" y1="22.5" x2="31.5" y2="18" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
+                  <line x1="21" y1="25.5" x2="16.5" y2="30" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
+                  <line x1="27" y1="25.5" x2="31.5" y2="30" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
+                </svg>
               </div>
               <span className="text-sm tracking-wide text-slate-500">
                 psiqui<span className="font-semibold text-slate-800">.tools</span>
