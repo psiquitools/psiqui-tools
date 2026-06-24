@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Pill, TrendingDown, ClipboardList, Repeat2, Droplets, Syringe } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pill, TrendingDown, ClipboardList, Repeat2, Droplets, Syringe, TableProperties } from "lucide-react";
 
 type Categoria = "General" | "Antidepresivos" | "Antipsicóticos" | "Benzodiacepinas";
 
@@ -38,6 +38,14 @@ const HERRAMIENTAS: Herramienta[] = [
         description: "Consulta rápida y tabla completa de cambio entre antidepresivos según la Tabla 3.7 del Maudsley Prescribing Guidelines.",
         icon: Repeat2,
         href: "/tools/calculadoras-clinicas/cambio-antidepresivo",
+        categoria: "Antidepresivos",
+    },
+    {
+        id: "efectos-adversos-antidepresivos",
+        title: "Efectos adversos de antidepresivos",
+        description: "Tabla comparativa de efectos adversos de antidepresivos por clase farmacológica. Basada en UpToDate.",
+        icon: TableProperties,
+        href: "/tools/calculadoras-clinicas/efectos-adversos-antidepresivos",
         categoria: "Antidepresivos",
     },
     {

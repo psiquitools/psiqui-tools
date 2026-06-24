@@ -705,6 +705,7 @@ function formatDuracion(dias: number): string {
 // ─── COMPONENTE ───────────────────────────────────────────────────────────────
 
 export default function GeneradorPautaPage() {
+    const [aviso, setAviso] = useState(true);
     const [farmacoId, setFarmacoId] = useState<string>("sertralina");
     const [indicacionId, setIndicacionId] = useState<string>("depresion");
     const [velocidad, setVelocidad] = useState<Velocidad>("estandar");
@@ -784,6 +785,47 @@ export default function GeneradorPautaPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-6">
+
+            {/* Aviso legal */}
+            {aviso && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                    <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+                        <div className="flex items-start gap-3">
+                            <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                            <h2 className="text-base font-semibold text-slate-800">Aviso importante</h2>
+                        </div>
+                        <p className="text-sm text-slate-600 leading-relaxed">
+                            Esta herramienta tiene <strong>fines orientativos y educativos</strong>.
+                            La información proporcionada puede contener errores o no reflejar
+                            las particularidades clínicas de cada paciente.
+                        </p>
+                        <p className="text-sm text-slate-600 leading-relaxed">
+                            <strong>No sustituye en ningún caso el criterio clínico del profesional sanitario.</strong>{" "}
+                            La responsabilidad de cualquier decisión terapéutica recae
+                            exclusivamente en el médico prescriptor.
+                        </p>
+                        <p className="text-sm text-slate-600 leading-relaxed">
+                            Verifique siempre la información con fuentes oficiales y la ficha
+                            técnica del medicamento antes de prescribir.
+                        </p>
+                        <div className="flex flex-col gap-2 pt-1">
+                            <button
+                                onClick={() => setAviso(false)}
+                                className="w-full rounded-lg bg-slate-800 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-700 transition-colors"
+                            >
+                                Entendido, continuar
+                            </button>
+                            <Link
+                                href="/tools/calculadoras-clinicas"
+                                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors text-center"
+                            >
+                                Salir de la herramienta
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="max-w-4xl mx-auto space-y-6">
 
                 {/* Volver */}
