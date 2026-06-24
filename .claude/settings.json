@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /Users/Juanma/Documents/proyectos/psiqui-tools/app/tools/escalas-clinicas/c-ssrs)"
+    ],
+    "additionalDirectories": [
+      "/Users/Juanma/Documents/proyectos/psiqui-tools/app/tools/escalas-clinicas"
+    ]
+  }
+}

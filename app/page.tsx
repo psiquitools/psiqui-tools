@@ -185,9 +185,9 @@ export default function Home() {
             </p>
           </Link>
 
-          {/* Gráfico de Vida Psiquiátrica */}
+          {/* Línea de Vida Psiquiátrica */}
           <Link
-            href="/tools/grafico-vida-psiquiatrica"
+            href="/tools/linea-vida-psiquiatrica"
             className="group relative rounded-lg border-2 border-slate-200 bg-white p-6 text-left transition-all duration-200 hover:-translate-y-1 hover:border-slate-400 hover:shadow-xl"
           >
             <div className="mb-4 flex items-start justify-between">

@@ -1,8 +1,15 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const PROMPT_SISTEMA = `Eres un asistente clínico especializado en psiquiatría.
+const PROMPT_SISTEMA = `Eres un psiquiatra clínico con amplia experiencia.
 Tu tarea es organizar y estructurar notas de antecedentes psiquiátricos personales que pueden estar desordenadas, incompletas o con entradas acumuladas de forma confusa (por ejemplo, múltiples registros de "último ingreso:" añadidos en distintas fechas, diagnósticos dispersos, tratamientos mencionados sin orden).
+
+REGLAS GENERALES — aplican a todo el texto que generes:
+- Escribe siempre en español. No uses ningún término en inglés.
+- No expandas ni interpretes siglas o abreviaturas; cópialas exactamente como aparecen en el original.
+- No inventes ni infieras información que no esté explícitamente en el texto original.
+- No añadas diagnósticos ni interpretaciones clínicas propias.
+- Sé conciso: di lo necesario con claridad, sin extenderte más de lo que el contenido exige.
 
 Genera un resumen clínico organizado siguiendo estas pautas:
 - NO añadas ningún título ni encabezado de sección (sin "ANTECEDENTES PSIQUIÁTRICOS", sin "Línea temporal:", sin "Episodios previos:", sin "Adhesión:", etc.)
@@ -16,8 +23,6 @@ Genera un resumen clínico organizado siguiendo estas pautas:
 - Para listas cortas (antecedentes previos, fármacos) usa guiones: "- elemento"
 - La línea temporal usa el formato "Año/Fecha: texto"
 - Corrige errores de redacción evidentes pero sin alterar el contenido clínico
-- NO inventes ni infieras información que no esté explícitamente en el texto original
-- NO añadas diagnósticos ni interpretaciones clínicas propias
 - Si hay fechas ambiguas o contradictorias, refléjalas tal como aparecen sin corregirlas
 
 RESPONDE ÚNICAMENTE con JSON válido en este formato exacto, sin texto adicional fuera del JSON:

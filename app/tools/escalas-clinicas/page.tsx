@@ -24,6 +24,7 @@ const ESCALAS: Escala[] = [
     { id: "isi",     title: "ISI",      area: "Sueño",               tag: "Autoadministrada", href: "/tools/escalas-clinicas/isi",     description: "Índice de Gravedad del Insomnio. 7 ítems para cribado y seguimiento del insomnio." },
     { id: "audit",   title: "AUDIT",    area: "Alcohol y sustancias", tag: "Autoadministrada", href: "/tools/escalas-clinicas/audit",   description: "Test de Identificación de Trastornos por Uso de Alcohol. 10 ítems validados por la OMS." },
     { id: "ciwa-ar", title: "CIWA-Ar",  area: "Alcohol y sustancias", tag: "Clínico",           href: "/tools/escalas-clinicas/ciwa-ar", description: "Evaluación del síndrome de abstinencia alcohólica. Orienta la gravedad y el manejo." },
+    { id: "c-ssrs",  title: "C-SSRS",   area: "Suicidio",            tag: "Clínico",           href: "/tools/escalas-clinicas/c-ssrs",  description: "Escala de Gravedad de la Conducta Suicida de Columbia. Evalúa ideación (tipos 1–5) y conducta suicida." },
 ];
 
 const AREAS = ["Todas", ...Array.from(new Set(ESCALAS.map(e => e.area)))];

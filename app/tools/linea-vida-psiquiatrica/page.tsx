@@ -359,7 +359,7 @@ export default function GraficoVidaPsiquiatricaPage() {
       if (dH > pH - 30) { dH = pH - 30; dW = dH / ratio; }
 
       pdf.setFontSize(13); pdf.setTextColor(30, 41, 59); pdf.setFont('helvetica', 'bold');
-      pdf.text('Gráfico de Vida Psiquiátrica', 10, 10);
+      pdf.text('Línea de Vida Psiquiátrica', 10, 10);
       pdf.setFontSize(7); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(120);
       pdf.text(`Generado: ${new Date().toLocaleDateString('es-MX')} — psiqui.tools`, 10, 15);
       pdf.addImage(imgData, 'PNG', 10, 18, dW, dH);
@@ -568,7 +568,7 @@ export default function GraficoVidaPsiquiatricaPage() {
         {/* Encabezado */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-800">Gráfico de Vida Psiquiátrica</h1>
+            <h1 className="text-xl font-bold text-slate-800">Línea de Vida Psiquiátrica</h1>
             <p className="text-sm text-slate-500 mt-0.5">
               Registro cronológico de episodios, tratamientos y acontecimientos vitales
             </p>
@@ -598,7 +598,7 @@ export default function GraficoVidaPsiquiatricaPage() {
         {/* Gráfico */}
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
           <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
-            <span className="text-sm font-semibold text-slate-700">Life Chart — Gráfico de Vida Psiquiátrica</span>
+            <span className="text-sm font-semibold text-slate-700">Línea de Vida Psiquiátrica</span>
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <span>Año de nacimiento:</span>
               <input
