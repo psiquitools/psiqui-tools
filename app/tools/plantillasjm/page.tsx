@@ -14,73 +14,214 @@ const PLANTILLAS: Plantilla[] = [
     id: "normal",
     titulo: "Exploración normal",
     texto:
-      "Paciente consciente y orientado en las tres esferas. Abordable y colaborador. Atento. Conductualmente adecuado. Sin alteraciones de la psicomotricidad. No signos ni síntomas de intoxicación ni abstinencia. Eutimia. Afecto reactivo, congruente y de rango amplio. Discurso espontáneo, fluido, coherente, bien estructurado y articulado. Sin alteraciones en el curso ni forma del pensamiento. Contenido sin ideas delirantes ni obsesivas. Sin alteraciones de la sensopercepción. No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. Apetito y sueño conservados. Juicio de realidad conservado. Insight presente.",
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable y colaborador. " +
+      "Atento. " +
+      "Conductualmente adecuado. Sin alteraciones de la psicomotricidad. " +
+      "No signos ni síntomas de intoxicación ni abstinencia. " +
+      "Eutimia. " +
+      "Afecto reactivo, congruente y de rango amplio. " +
+      "Discurso espontáneo, fluido, coherente, bien estructurado y articulado. " +
+      "Sin alteraciones en el curso ni forma del pensamiento. " +
+      "Contenido sin ideas delirantes ni obsesivas. " +
+      "Sin alteraciones de la sensopercepción. " +
+      "No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. " +
+      "Apetito y sueño conservados. " +
+      "Juicio de realidad conservado. Insight presente.",
   },
   {
     id: "depresiva",
     titulo: "Sint. depresiva",
     texto:
-      "Paciente consciente y orientado en las tres esferas. Abordable y colaborador. Atento. Conductualmente adecuado. Sin alteraciones de la psicomotricidad. Hipotimia referida con reducción de la capacidad hedónica. Afecto reactivo, congruente y de rango restringido. Discurso espontáneo, fluido, coherente y bien estructurado. Sin alteraciones en el curso ni forma del pensamiento. Contenido centrado en ideas rumiativas de carácter negativo. Sin alteraciones de la sensopercepción. No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. Hiporexia e insomnio de mantenimiento referidos. Juicio de realidad conservado. Insight presente.",
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable y colaborador. " +
+      "Atento. " +
+      "Conductualmente adecuado. Sin alteraciones de la psicomotricidad. " +
+      "Hipotimia referida con reducción de la capacidad hedónica. " +
+      "Afecto reactivo, congruente y de rango restringido. " +
+      "Discurso espontáneo, fluido, coherente y bien estructurado. " +
+      "Sin alteraciones en el curso ni forma del pensamiento. " +
+      "Contenido centrado en ideas rumiativas de carácter negativo. " +
+      "Sin alteraciones de la sensopercepción. " +
+      "No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. " +
+      "Hiporexia e insomnio de mantenimiento referidos. " +
+      "Juicio de realidad conservado. Insight presente.",
   },
   {
     id: "dm",
     titulo: "Depresión mayor",
     texto:
-      "Paciente consciente y orientado en las tres esferas. Abordable y colaborador, con escasa espontaneidad. Enlentecimiento psicomotriz objetivado. Hipotimia marcada referida con anhedonia para actividades previamente placenteras. Afecto aplanado, congruente y de rango restringido. Discurso con latencia aumentada, fluido, coherente pero con escasa producción espontánea. Sin alteraciones formales del pensamiento. Contenido centrado en ideas rumiativas de culpa e inutilidad. Sin alteraciones de la sensopercepción. Ideación de muerte pasiva referida, sin ideación autolítica activa ni plan estructurado. No ideas ni conductas heteroagresivas. Importante hiporexia con pérdida de peso referida. Insomnio de mantenimiento con despertar precoz. Fatigabilidad marcada referida. Juicio de realidad conservado. Insight presente.",
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable y colaborador, con escasa espontaneidad. " +
+      "Enlentecimiento psicomotriz objetivado. " +
+      "Hipotimia marcada referida con anhedonia para actividades previamente placenteras. " +
+      "Afecto aplanado, congruente y de rango restringido. " +
+      "Discurso con latencia aumentada, fluido, coherente pero con escasa producción espontánea. " +
+      "Sin alteraciones formales del pensamiento. " +
+      "Contenido centrado en ideas rumiativas de culpa e inutilidad. " +
+      "Sin alteraciones de la sensopercepción. " +
+      "Ideación de muerte pasiva referida, sin ideación autolítica activa ni plan estructurado. No ideas ni conductas heteroagresivas. " +
+      "Importante hiporexia con pérdida de peso referida. Insomnio de mantenimiento con despertar precoz. Fatigabilidad marcada referida. " +
+      "Juicio de realidad conservado. Insight presente.",
   },
   {
     id: "ansiosa",
     titulo: "Sint. ansiosa",
     texto:
-      "Paciente consciente y orientado en las tres esferas. Abordable y colaborador. Atento aunque con dificultad para la concentración. Inquietud psicomotriz leve. Ansiedad referida con sintomatología somática acompañante. Eutimia. Afecto ansioso, reactivo y de rango variable. Discurso espontáneo, algo acelerado, coherente y bien estructurado. Sin alteraciones en el curso ni forma del pensamiento. Contenido centrado en preocupaciones de difícil control con anticipación catastrófica. Sin alteraciones de la sensopercepción. No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. Insomnio de conciliación referido. Apetito conservado. Juicio de realidad conservado. Insight presente.",
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable y colaborador. " +
+      "Atento aunque con dificultad para la concentración. " +
+      "Inquietud psicomotriz leve. " +
+      "Ansiedad referida con sintomatología somática acompañante. Eutimia. " +
+      "Afecto ansioso, reactivo y de rango variable. " +
+      "Discurso espontáneo, algo acelerado, coherente y bien estructurado. " +
+      "Sin alteraciones en el curso ni forma del pensamiento. " +
+      "Contenido centrado en preocupaciones de difícil control con anticipación catastrófica. " +
+      "Sin alteraciones de la sensopercepción. " +
+      "No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. " +
+      "Insomnio de conciliación referido. Apetito conservado. " +
+      "Juicio de realidad conservado. Insight presente.",
   },
   {
     id: "ansiosa-depresiva",
     titulo: "Ansioso-depresivo",
     texto:
-      "Paciente consciente y orientado en las tres esferas. Abordable y colaborador. Atento. Inquietud psicomotriz leve. Hipotimia referida con reducción parcial de la capacidad hedónica y ansiedad concomitante referida. Afecto reactivo, congruente y de rango restringido. Discurso espontáneo, fluido, coherente y bien estructurado. Sin alteraciones en el curso ni forma del pensamiento. Contenido centrado en ideas rumiativas y preocupaciones recurrentes de difícil control. Sin alteraciones de la sensopercepción. No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. Hiporexia e insomnio mixto referidos. Juicio de realidad conservado. Insight presente.",
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable y colaborador. " +
+      "Atento. " +
+      "Inquietud psicomotriz leve. " +
+      "Hipotimia referida con reducción parcial de la capacidad hedónica y ansiedad concomitante referida. " +
+      "Afecto reactivo, congruente y de rango restringido. " +
+      "Discurso espontáneo, fluido, coherente y bien estructurado. " +
+      "Sin alteraciones en el curso ni forma del pensamiento. " +
+      "Contenido centrado en ideas rumiativas y preocupaciones recurrentes de difícil control. " +
+      "Sin alteraciones de la sensopercepción. " +
+      "No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. " +
+      "Hiporexia e insomnio mixto referidos. " +
+      "Juicio de realidad conservado. Insight presente.",
   },
   {
     id: "mania",
     titulo: "Manía",
     texto:
-      "Paciente consciente y orientado en las tres esferas. Abordable con límites difusos y marcada desinhibición, escasamente colaborador cuando se le interrumpe. Agitación psicomotriz objetivada. Euforia referida y objetivada. Afecto expansivo, congruente con el estado de ánimo, de rango amplio con labilidad. Discurso verborréico, acelerado, con saltos temáticos y tendencia a la fuga de ideas. Aceleración del pensamiento objetivada. Contenido con ideas de grandiosidad y proyectos expansivos múltiples. Sin alucinaciones en el momento de la entrevista. No ideación autolítica. Sin ideación heteroagresiva estructurada aunque con irritabilidad reactiva marcada. Reducción de las necesidades de sueño sin sensación de cansancio referida. Apetito variable. Juicio de realidad comprometido. Insight ausente.",
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable con límites difusos y marcada desinhibición, escasamente colaborador cuando se le interrumpe. " +
+      "Agitación psicomotriz objetivada. " +
+      "Euforia referida y objetivada. " +
+      "Afecto expansivo, congruente con el estado de ánimo, de rango amplio con labilidad. " +
+      "Discurso verborréico, acelerado, con saltos temáticos y tendencia a la fuga de ideas. " +
+      "Aceleración del pensamiento objetivada. " +
+      "Contenido con ideas de grandiosidad y proyectos expansivos múltiples. " +
+      "Sin alucinaciones en el momento de la entrevista. " +
+      "No ideación autolítica. Sin ideación heteroagresiva estructurada aunque con irritabilidad reactiva marcada. " +
+      "Reducción de las necesidades de sueño sin sensación de cansancio referida. Apetito variable. " +
+      "Juicio de realidad comprometido. Insight ausente.",
   },
   {
     id: "toc",
     titulo: "TOC",
     texto:
-      "Paciente consciente y orientado en las tres esferas. Abordable y colaborador aunque con notoria tensión interna. Conductualmente adecuado durante la entrevista. Sin alteraciones relevantes de la psicomotricidad. Eutimia de base con ansiedad secundaria a las obsesiones. Afecto reactivo, congruente y de rango variable. Discurso espontáneo, fluido y coherente, con tendencia a la descripción detallada y la duda. Sin alteraciones en el curso del pensamiento. Ideas obsesivas presentes de carácter ego-distónico, reconocidas como propias, con rituales compulsivos asociados. Sin fenómenos alucinatorios. No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. Apetito conservado. Insomnio de conciliación relacionado con la activación obsesiva referido. Juicio de realidad conservado. Insight presente.",
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable y colaborador aunque con notoria tensión interna. " +
+      "Conductualmente adecuado durante la entrevista. Sin alteraciones relevantes de la psicomotricidad. " +
+      "Eutimia de base con ansiedad secundaria a las obsesiones. " +
+      "Afecto reactivo, congruente y de rango variable. " +
+      "Discurso espontáneo, fluido y coherente, con tendencia a la descripción detallada y la duda. " +
+      "Sin alteraciones en el curso del pensamiento. " +
+      "Ideas obsesivas presentes de carácter ego-distónico, reconocidas como propias, con rituales compulsivos asociados. " +
+      "Sin fenómenos alucinatorios. " +
+      "No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. " +
+      "Apetito conservado. Insomnio de conciliación relacionado con la activación obsesiva referido. " +
+      "Juicio de realidad conservado. Insight presente.",
   },
   {
     id: "tp",
     titulo: "T. personalidad",
     texto:
-      "Paciente consciente y orientado en las tres esferas. Abordable y colaborador. Atento. Conductualmente adecuado durante la entrevista. Sin alteraciones de la psicomotricidad. Labilidad emocional referida con baja tolerancia a la frustración de forma egosintónica. Afecto reactivo e intenso, congruente con la narrativa referida, de rango amplio. Discurso espontáneo, fluido y coherente aunque con marcada carga afectiva. Sin alteraciones formales del pensamiento. Contenido centrado en conflictos interpersonales con patrón relacional rígido. Sin alteraciones de la sensopercepción. No ideación autolítica activa en el momento de la entrevista. No ideas heteroagresivas. Biorritmos variables según el estado emocional. Juicio de realidad conservado. Insight parcial respecto a los patrones propios de funcionamiento.",
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable y colaborador. " +
+      "Atento. " +
+      "Conductualmente adecuado durante la entrevista. Sin alteraciones de la psicomotricidad. " +
+      "Labilidad emocional referida con baja tolerancia a la frustración de forma egosintónica. " +
+      "Afecto reactivo e intenso, congruente con la narrativa referida, de rango amplio. " +
+      "Discurso espontáneo, fluido y coherente aunque con marcada carga afectiva. " +
+      "Sin alteraciones formales del pensamiento. " +
+      "Contenido centrado en conflictos interpersonales con patrón relacional rígido. " +
+      "Sin alteraciones de la sensopercepción. " +
+      "No ideación autolítica activa en el momento de la entrevista. No ideas heteroagresivas. " +
+      "Biorritmos variables según el estado emocional. " +
+      "Juicio de realidad conservado. Insight parcial respecto a los patrones propios de funcionamiento.",
   },
   {
     id: "adaptativo",
     titulo: "T. adaptativo",
     texto:
-      "Paciente consciente y orientado en las tres esferas. Abordable y colaborador. Atento. Conductualmente adecuado. Sin alteraciones de la psicomotricidad. Hipotimia reactiva referida contextualizada en el marco de estresores identificables recientes, sin anhedonia significativa. Afecto reactivo, congruente y de rango restringido en relación al estresor. Discurso espontáneo, fluido, coherente y bien estructurado. Sin alteraciones en el curso ni forma del pensamiento. Contenido centrado en el estresor actual sin alcanzar nivel delirante ni obsesivo. Sin alteraciones de la sensopercepción. No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. Leve afectación del apetito y el sueño en relación al contexto referida. Juicio de realidad conservado. Insight presente.",
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable y colaborador. " +
+      "Atento. " +
+      "Conductualmente adecuado. Sin alteraciones de la psicomotricidad. " +
+      "Hipotimia reactiva referida contextualizada en el marco de estresores identificables recientes, sin anhedonia significativa. " +
+      "Afecto reactivo, congruente y de rango restringido en relación al estresor. " +
+      "Discurso espontáneo, fluido, coherente y bien estructurado. " +
+      "Sin alteraciones en el curso ni forma del pensamiento. " +
+      "Contenido centrado en el estresor actual sin alcanzar nivel delirante ni obsesivo. " +
+      "Sin alteraciones de la sensopercepción. " +
+      "No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. " +
+      "Leve afectación del apetito y el sueño en relación al contexto referida. " +
+      "Juicio de realidad conservado. Insight presente.",
   },
   {
     id: "insomnio",
     titulo: "Insomnio",
     texto:
-      "Paciente consciente y orientado en las tres esferas. Abordable y colaborador. Atento aunque con referencia de somnolencia y fatigabilidad diurnas. Conductualmente adecuado. Sin alteraciones de la psicomotricidad. Eutimia, con irritabilidad secundaria referida. Afecto reactivo, congruente y de rango amplio. Discurso espontáneo, fluido, coherente y bien estructurado. Sin alteraciones en el curso ni forma del pensamiento. Contenido centrado en preocupaciones relacionadas con el sueño y su repercusión funcional diurna. Sin alteraciones de la sensopercepción. No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. Insomnio de conciliación referido con repercusión funcional diurna significativa. Apetito conservado. Juicio de realidad conservado. Insight presente.",
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable y colaborador. " +
+      "Atento aunque con referencia de somnolencia y fatigabilidad diurnas. " +
+      "Conductualmente adecuado. Sin alteraciones de la psicomotricidad. " +
+      "Eutimia, con irritabilidad secundaria referida. " +
+      "Afecto reactivo, congruente y de rango amplio. " +
+      "Discurso espontáneo, fluido, coherente y bien estructurado. " +
+      "Sin alteraciones en el curso ni forma del pensamiento. " +
+      "Contenido centrado en preocupaciones relacionadas con el sueño y su repercusión funcional diurna. " +
+      "Sin alteraciones de la sensopercepción. " +
+      "No ideas ni conductas autolesivas ni heteroagresivas. No ideación autolítica. " +
+      "Insomnio de conciliación referido con repercusión funcional diurna significativa. Apetito conservado. " +
+      "Juicio de realidad conservado. Insight presente.",
   },
   {
     id: "iai",
     titulo: "Ideación autolítica",
     texto:
-      "Paciente consciente y orientado en las tres esferas. Abordable y colaborador, con notable carga emocional. Enlentecimiento psicomotriz leve. Hipotimia marcada referida con anhedonia importante. Afecto tenso, congruente y de rango restringido. Discurso espontáneo con latencia aumentada, fluido y coherente. Sin alteraciones formales del pensamiento. Contenido centrado en ideas de desesperanza y anticipación negativa del futuro. Sin alteraciones de la sensopercepción. Ideación autolítica activa presente: ideación frecuente y persistente, con plan parcialmente estructurado, sin intención declarada de llevarlo a cabo en el momento actual. Niega acceso a medios letales. No ideas ni conductas heteroagresivas. Hiporexia e insomnio de mantenimiento referidos. Juicio de realidad conservado. Insight parcial.",
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable y colaborador, con notable carga emocional. " +
+      "Enlentecimiento psicomotriz leve. " +
+      "Hipotimia marcada referida con anhedonia importante. " +
+      "Afecto tenso, congruente y de rango restringido. " +
+      "Discurso espontáneo con latencia aumentada, fluido y coherente. " +
+      "Sin alteraciones formales del pensamiento. " +
+      "Contenido centrado en ideas de desesperanza y anticipación negativa del futuro. " +
+      "Sin alteraciones de la sensopercepción. " +
+      "Ideación autolítica activa presente: ideación frecuente y persistente, con plan parcialmente estructurado, sin intención declarada de llevarlo a cabo en el momento actual. Niega acceso a medios letales. No ideas ni conductas heteroagresivas. " +
+      "Hiporexia e insomnio de mantenimiento referidos. " +
+      "Juicio de realidad conservado. Insight parcial.",
   },
   {
     id: "tlp",
     titulo: "TLP en crisis",
     texto:
-      "Paciente consciente y orientado en las tres esferas. Abordable aunque con escasa colaboración inicial y marcada tensión emocional. Conductualmente agitado, con gesticulación aumentada. Sin signos ni síntomas de intoxicación ni abstinencia. Disforia intensa referida con labilidad afectiva marcada. Afecto tenso y lábil, congruente con el estado de crisis, de rango amplio. Discurso espontáneo, acelerado, coherente aunque con dificultad para la linealidad por la activación emocional. Sin alteraciones formales del pensamiento. Contenido centrado en el conflicto interpersonal desencadenante con vivencia de abandono. Fenómenos disociativos leves referidos de forma puntual previos a la conducta autolesiva. Autolesiones no suicidas presentes: incisiones superficiales en cara interna de antebrazo. No ideación autolítica con intención de muerte. No ideación heteroagresiva activa. Biorritmos alterados en el contexto de la crisis. Juicio de realidad conservado. Insight limitado por la activación emocional.",
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable aunque con escasa colaboración inicial y marcada tensión emocional. " +
+      "Conductualmente agitado, con gesticulación aumentada. " +
+      "Sin signos ni síntomas de intoxicación ni abstinencia. " +
+      "Disforia intensa referida con labilidad afectiva marcada. " +
+      "Afecto tenso y lábil, congruente con el estado de crisis, de rango amplio. " +
+      "Discurso espontáneo, acelerado, coherente aunque con dificultad para la linealidad por la activación emocional. " +
+      "Sin alteraciones formales del pensamiento. " +
+      "Contenido centrado en el conflicto interpersonal desencadenante con vivencia de abandono. " +
+      "Fenómenos disociativos leves referidos de forma puntual previos a la conducta autolesiva. " +
+      "Autolesiones no suicidas presentes: incisiones superficiales en cara interna de antebrazo. No ideación autolítica con intención de muerte. No ideación heteroagresiva activa. " +
+      "Biorritmos alterados en el contexto de la crisis. " +
+      "Juicio de realidad conservado. Insight limitado por la activación emocional.",
   },
 ];
 
