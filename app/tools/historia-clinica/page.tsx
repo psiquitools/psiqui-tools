@@ -39,6 +39,7 @@ interface HistoriaClinica {
         };
         tratamientoHabitual: string;
         familiaresSaludMental: string;
+        suicidioFamiliar: { estado: "no" | "si"; descripcion: string };
         habitosToxicos: string;
     };
     psicobiografia: string;
@@ -154,6 +155,7 @@ export default function HistoriaClinicaPage() {
             intentosAutoliticos: { estado: "no", descripcion: "" },
             tratamientoHabitual: "",
             familiaresSaludMental: "",
+            suicidioFamiliar: { estado: "no", descripcion: "" },
             habitosToxicos: "",
         },
         psicobiografia: "",
@@ -220,6 +222,10 @@ export default function HistoriaClinicaPage() {
 
   ${seccion("ANTECEDENTES FAMILIARES EN SALUD MENTAL")}
   ${parrafos(antecedentes.familiaresSaludMental)}
+  <p>${antecedentes.suicidioFamiliar.estado === "no"
+    ? "Niega antecedentes familiares de suicidio consumado."
+    : "Antecedentes familiares de suicidio consumado" + (antecedentes.suicidioFamiliar.descripcion.trim() ? ": " + antecedentes.suicidioFamiliar.descripcion.trim() : "") + "."
+  }</p>
   <p class="sub">Hábitos tóxicos:</p>
   ${parrafos(antecedentes.habitosToxicos)}
 
@@ -721,6 +727,69 @@ export default function HistoriaClinicaPage() {
                                 })
                             }
                         />
+
+                        <label className="block text-sm font-medium text-slate-800 mt-4 mb-1">
+                            Suicidio consumado en familia
+                        </label>
+
+                        <label className="flex items-center gap-2 text-sm text-slate-800">
+                            <input
+                                type="radio"
+                                name="suicidioFamiliar"
+                                checked={historia.antecedentes.suicidioFamiliar.estado === "no"}
+                                onChange={() =>
+                                    setHistoria({
+                                        ...historia,
+                                        antecedentes: {
+                                            ...historia.antecedentes,
+                                            suicidioFamiliar: { estado: "no", descripcion: "" },
+                                        },
+                                    })
+                                }
+                            />
+                            Niega antecedentes familiares de suicidio consumado
+                        </label>
+
+                        <label className="flex items-center gap-2 mt-1 text-sm text-slate-800">
+                            <input
+                                type="radio"
+                                name="suicidioFamiliar"
+                                checked={historia.antecedentes.suicidioFamiliar.estado === "si"}
+                                onChange={() =>
+                                    setHistoria({
+                                        ...historia,
+                                        antecedentes: {
+                                            ...historia.antecedentes,
+                                            suicidioFamiliar: {
+                                                ...historia.antecedentes.suicidioFamiliar,
+                                                estado: "si",
+                                            },
+                                        },
+                                    })
+                                }
+                            />
+                            Antecedentes familiares de suicidio consumado
+                        </label>
+
+                        {historia.antecedentes.suicidioFamiliar.estado === "si" && (
+                            <textarea
+                                className={`${textarea} mt-2`}
+                                placeholder="Describa los antecedentes familiares de suicidio consumado..."
+                                value={historia.antecedentes.suicidioFamiliar.descripcion}
+                                onChange={(e) =>
+                                    setHistoria({
+                                        ...historia,
+                                        antecedentes: {
+                                            ...historia.antecedentes,
+                                            suicidioFamiliar: {
+                                                ...historia.antecedentes.suicidioFamiliar,
+                                                descripcion: e.target.value,
+                                            },
+                                        },
+                                    })
+                                }
+                            />
+                        )}
 
                         <h3 className="text-slate-800 font-semibold mt-6 mb-2">
                             Hábitos Tóxicos
