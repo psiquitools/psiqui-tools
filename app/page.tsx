@@ -24,15 +24,15 @@ export default function Home() {
           <div className="mb-6 flex items-center justify-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-slate-800 shadow-lg">
               <svg viewBox="0 0 48 48" fill="none" className="w-full h-full" aria-hidden="true">
-                <circle cx="24" cy="24" r="3.5" stroke="white" strokeWidth="1.5"/>
-                <circle cx="14" cy="16" r="2.5" stroke="white" strokeWidth="1.5"/>
-                <circle cx="34" cy="16" r="2.5" stroke="white" strokeWidth="1.5"/>
-                <circle cx="14" cy="32" r="2.5" stroke="white" strokeWidth="1.5"/>
-                <circle cx="34" cy="32" r="2.5" stroke="white" strokeWidth="1.5"/>
-                <line x1="21" y1="22.5" x2="16.5" y2="18" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
-                <line x1="27" y1="22.5" x2="31.5" y2="18" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
-                <line x1="21" y1="25.5" x2="16.5" y2="30" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
-                <line x1="27" y1="25.5" x2="31.5" y2="30" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
+                <circle cx="24" cy="24" r="3.5" stroke="white" strokeWidth="1.5" />
+                <circle cx="14" cy="16" r="2.5" stroke="white" strokeWidth="1.5" />
+                <circle cx="34" cy="16" r="2.5" stroke="white" strokeWidth="1.5" />
+                <circle cx="14" cy="32" r="2.5" stroke="white" strokeWidth="1.5" />
+                <circle cx="34" cy="32" r="2.5" stroke="white" strokeWidth="1.5" />
+                <line x1="21" y1="22.5" x2="16.5" y2="18" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
+                <line x1="27" y1="22.5" x2="31.5" y2="18" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
+                <line x1="21" y1="25.5" x2="16.5" y2="30" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
+                <line x1="27" y1="25.5" x2="31.5" y2="30" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
               </svg>
             </div>
           </div>
@@ -196,7 +196,7 @@ export default function Home() {
               </div>
               <ArrowRight className="h-5 w-5 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-slate-800" />
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-slate-800">Gráfico de Vida Psiquiátrica</h3>
+            <h3 className="mb-2 text-lg font-semibold text-slate-800">Línea de Vida Psiquiátrica</h3>
             <p className="text-sm leading-relaxed text-slate-600">
               Representa visualmente la evolución clínica del paciente a lo largo del tiempo.
             </p>
