@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import {
   Brain, Download, ArrowLeft, ChevronLeft, ChevronRight, Check, AlertTriangle,
-  Loader2, Clipboard, ClipboardCheck,
+  Loader2, Clipboard, ClipboardCheck, GripVertical,
 } from "lucide-react";
 import jsPDF from "jspdf";
 
@@ -541,6 +541,12 @@ export default function ExamenMentalPage() {
   const [iaPanel, setIaPanel] = useState(false);
   const [iaIncongruencias, setIaIncongruencias] = useState<string[]>([]);
   const [copiado, setCopiado] = useState(false);
+  const [ordenSecciones, setOrdenSecciones] = useState<(keyof ExamenMentalData)[]>(
+    secciones.map(s => s.key)
+  );
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+  const dragItem = useRef<number | null>(null);
+  const dragOverItem = useRef<number | null>(null);
 
   const enResumen = paso === TOTAL;
 
@@ -572,7 +578,7 @@ export default function ExamenMentalPage() {
     setExamen(prev => ({ ...prev, [key]: { ...prev[key], texto } }));
 
   const generarTexto = () => {
-    const fragmentos = secciones
+    const fragmentos = seccionesOrdenadas
       .map(({ key }) => generarFragmento(key, examen[key].opciones, examen[key].texto))
       .filter(Boolean);
     return fragmentos.length ? fragmentos.join(". ") + "." : "";
@@ -591,7 +597,7 @@ export default function ExamenMentalPage() {
     doc.text("EXAMEN MENTAL", 105, y, { align: "center" });
     y += 14;
 
-    secciones.forEach(({ key, titulo }) => {
+    seccionesOrdenadas.forEach(({ key, titulo }) => {
       const contenido = generarFragmento(key, examen[key].opciones, examen[key].texto);
       if (!contenido) return;
 
@@ -648,6 +654,25 @@ export default function ExamenMentalPage() {
     setIaIncongruencias([]);
     setIaError(null);
   };
+
+  const seccionesOrdenadas = ordenSecciones.map(key => secciones.find(s => s.key === key)!);
+
+  const handleDragStart = (i: number) => { dragItem.current = i; };
+  const handleDragEnter = (i: number) => { dragOverItem.current = i; setDragOverIdx(i); };
+  const handleDrop = () => {
+    if (dragItem.current === null || dragOverItem.current === null || dragItem.current === dragOverItem.current) {
+      setDragOverIdx(null);
+      return;
+    }
+    const newOrder = [...ordenSecciones];
+    const [moved] = newOrder.splice(dragItem.current, 1);
+    newOrder.splice(dragOverItem.current, 0, moved);
+    setOrdenSecciones(newOrder);
+    dragItem.current = null;
+    dragOverItem.current = null;
+    setDragOverIdx(null);
+  };
+  const handleDragEnd = () => { setDragOverIdx(null); };
 
   const seccionActual = !enResumen ? secciones[paso] : null;
   const progreso = (paso / TOTAL) * 100;
@@ -785,28 +810,43 @@ export default function ExamenMentalPage() {
             )}
 
             <div className="space-y-2 mb-6">
-              {secciones.map(({ key, titulo }, i) => {
+              {seccionesOrdenadas.map(({ key, titulo }, i) => {
                 const contenido = generarFragmento(key, examen[key].opciones, examen[key].texto);
                 const esAlerta = key === "riesgo" && hayRiesgoAlto;
+                const pasoOriginal = secciones.findIndex(s => s.key === key);
                 return (
-                  <button
+                  <div
                     key={key}
-                    onClick={() => setPaso(i)}
-                    className={`w-full text-left bg-white rounded-lg px-4 py-3 border transition-all hover:border-slate-400 ${esAlerta ? "border-red-200" : "border-slate-100"}`}
+                    draggable
+                    onDragStart={() => handleDragStart(i)}
+                    onDragEnter={() => handleDragEnter(i)}
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={handleDrop}
+                    onDragEnd={handleDragEnd}
+                    onClick={() => setPaso(pasoOriginal)}
+                    className={`group w-full text-left bg-white rounded-lg px-4 py-3 border transition-all cursor-pointer select-none ${
+                      dragOverIdx === i ? "border-slate-400 bg-slate-50 scale-[1.01]" :
+                      esAlerta ? "border-red-200 hover:border-red-300" : "border-slate-100 hover:border-slate-400"
+                    }`}
                   >
-                    <div className="flex justify-between items-start gap-3">
-                      <span className={`text-xs font-semibold uppercase tracking-wide ${esAlerta ? "text-red-500" : "text-slate-400"}`}>
-                        {titulo}
-                      </span>
-                      {contenido
-                        ? <Check className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-                        : <span className="text-xs text-slate-300 flex-shrink-0">Sin datos</span>
-                      }
+                    <div className="flex items-start gap-2">
+                      <GripVertical className="w-4 h-4 text-slate-200 group-hover:text-slate-400 flex-shrink-0 mt-0.5 cursor-grab" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start gap-3">
+                          <span className={`text-xs font-semibold uppercase tracking-wide ${esAlerta ? "text-red-500" : "text-slate-400"}`}>
+                            {titulo}
+                          </span>
+                          {contenido
+                            ? <Check className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                            : <span className="text-xs text-slate-300 flex-shrink-0">Sin datos</span>
+                          }
+                        </div>
+                        {contenido && (
+                          <p className="text-sm text-slate-700 mt-1 line-clamp-2">{contenido}.</p>
+                        )}
+                      </div>
                     </div>
-                    {contenido && (
-                      <p className="text-sm text-slate-700 mt-1 line-clamp-2">{contenido}.</p>
-                    )}
-                  </button>
+                  </div>
                 );
               })}
             </div>
