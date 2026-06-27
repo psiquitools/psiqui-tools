@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Pill, TrendingDown, ClipboardList, Repeat2, Droplets, Syringe, TableProperties } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pill, TrendingDown, ClipboardList, Repeat2, Droplets, Syringe, TableProperties, Activity, Scale } from "lucide-react";
 
 type Categoria = "General" | "Antidepresivos" | "Antipsicóticos" | "Benzodiacepinas";
 
@@ -47,6 +47,30 @@ const HERRAMIENTAS: Herramienta[] = [
         icon: TableProperties,
         href: "/tools/calculadoras-clinicas/efectos-adversos-antidepresivos",
         categoria: "Antidepresivos",
+    },
+    {
+        id: "equivalencias-antipsicoticos",
+        title: "Equivalencias de antipsicóticos",
+        description: "Conversión de dosis entre antipsicóticos usando equivalentes de clorpromazina. 22 fármacos, indicador de dosis alta y rango habitual.",
+        icon: Scale,
+        href: "/tools/calculadoras-clinicas/equivalencias-antipsicoticos",
+        categoria: "Antipsicóticos",
+    },
+    {
+        id: "monitoreo-metabolico-antipsicoticos",
+        title: "Monitoreo metabólico de antipsicóticos",
+        description: "Tabla de seguimiento metabólico por visita: peso, glucosa, lípidos, TA y circunferencia de cintura. Incluye checklist copiable por visita.",
+        icon: Activity,
+        href: "/tools/calculadoras-clinicas/monitoreo-metabolico-antipsicoticos",
+        categoria: "Antipsicóticos",
+    },
+    {
+        id: "efectos-adversos-antipsicoticos",
+        title: "Efectos adversos de antipsicóticos",
+        description: "Tabla comparativa de efectos adversos de antipsicóticos por generación. 25 fármacos, 12 perfiles. Basada en UpToDate.",
+        icon: TableProperties,
+        href: "/tools/calculadoras-clinicas/efectos-adversos-antipsicoticos",
+        categoria: "Antipsicóticos",
     },
     {
         id: "depot-lai",

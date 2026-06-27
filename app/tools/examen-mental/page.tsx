@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import {
   Brain, Download, ArrowLeft, ChevronLeft, ChevronRight, Check, AlertTriangle,
-  Loader2, Clipboard, ClipboardCheck, GripVertical,
+  Loader2, Clipboard, ClipboardCheck, GripVertical, Info,
 } from "lucide-react";
 import jsPDF from "jspdf";
 
@@ -50,7 +50,7 @@ const estadoInicial: ExamenMentalData = {
 
 /* ==================== OPCIONES AGRUPADAS ==================== */
 
-type GrupoOpciones = { label: string; opciones: string[]; columnas?: number; span?: number };
+type GrupoOpciones = { label: string; opciones: string[]; columnas?: number; span?: number; info?: string };
 
 const seccionesAgrupadas: Record<keyof ExamenMentalData, GrupoOpciones[]> = {
   aspecto: [
@@ -58,6 +58,16 @@ const seccionesAgrupadas: Record<keyof ExamenMentalData, GrupoOpciones[]> = {
       label: "Aspecto general", opciones: [
         "Cuidado", "Descuidado", "Acorde a la situación",
         "Aparenta la edad referida", "Aparenta más edad", "Aparenta menos edad",
+      ]
+    },
+    {
+      label: "Vestimenta", opciones: [
+        "Adecuada al contexto", "Inadecuada al contexto", "Llamativa o extravagante",
+      ]
+    },
+    {
+      label: "Estado nutricional", opciones: [
+        "Conservado", "Bajo peso aparente", "Sobrepeso aparente",
       ]
     },
   ],
@@ -104,6 +114,7 @@ const seccionesAgrupadas: Record<keyof ExamenMentalData, GrupoOpciones[]> = {
       ]
     },
     { label: "Disminuida", opciones: ["Enlentecimiento psicomotor", "Inhibición motora"] },
+    { label: "Otros", opciones: ["Acatisia"], info: "Inquietud motora inducida por antipsicóticos. Frecuentemente confundida con agitación psiquiátrica. Si el paciente empeora tras una inyección antipsicótica, descartar acatisia antes de repetir la dosis." },
   ],
   sustancias: [
     {
@@ -131,7 +142,6 @@ const seccionesAgrupadas: Record<keyof ExamenMentalData, GrupoOpciones[]> = {
     {
       label: "Forma", opciones: [
         "Coherente", "Bien estructurado", "Bien articulado",
-        "Tangencial", "Circunstancial", "Disgregado", "Incoherente",
       ]
     },
   ],
@@ -139,8 +149,9 @@ const seccionesAgrupadas: Record<keyof ExamenMentalData, GrupoOpciones[]> = {
     {
       label: "Estado de ánimo", opciones: [
         "Eutímico", "Hipotimia leve", "Hipotimia moderada", "Humor depresivo",
-        "Disfórico", "Eufórico", "Expansivo", "Ansioso", "Lábil",
-      ]
+        "Disfórico", "Eufórico", "Expansivo", "Ansioso", "Lábil", "Irritable",
+      ],
+      info: "Disforia: no es tristeza. Es tensión interna, irritabilidad, malestar difuso — el paciente disfórico parece tenso, no triste. Lábil: variabilidad del ánimo desproporcionada al contexto.",
     },
   ],
   afecto: [
@@ -157,7 +168,8 @@ const seccionesAgrupadas: Record<keyof ExamenMentalData, GrupoOpciones[]> = {
     {
       label: "Resonancia afectiva", opciones: [
         "Resonancia afectiva conservada", "Resonancia afectiva disminuida", "Resonancia afectiva ausente",
-      ]
+      ],
+      info: "Capacidad del paciente de generar una respuesta emocional empática en el entrevistador. Su ausencia — la sensación de entrevista vacía aunque el paciente hable — es síntoma negativo de alta especificidad en esquizofrenia.",
     },
   ],
   hedonia: [
@@ -192,7 +204,7 @@ const seccionesAgrupadas: Record<keyof ExamenMentalData, GrupoOpciones[]> = {
         "Ideación de perjuicio", "Ideación persecutoria", "Ideación autorreferencial",
         "Ideación de grandiosidad", "Ideación celotípica", "Ideación somática",
         "Ideas de minusvalía", "Ideas de culpa", "Ideas de desesperanza", "Ideas nihilistas",
-        "Ideas obsesivas", "Ideas sobrevaloradas",
+        "Ideas obsesivas", "Ideas fóbicas", "Ideas sobrevaloradas",
         "Inserción del pensamiento", "Robo del pensamiento", "Difusión del pensamiento",
       ]
     },
@@ -207,7 +219,9 @@ const seccionesAgrupadas: Record<keyof ExamenMentalData, GrupoOpciones[]> = {
     },
     {
       label: "Otras", opciones: [
-        "Alucinaciones visuales", "Alucinaciones olfativas", "Pseudoalucinaciones", "Ilusiones",
+        "Alucinaciones visuales", "Alucinaciones olfativas", "Alucinaciones táctiles",
+        "Alucinaciones cenestésicas", "Alucinaciones hipnagógicas / hipnopómpicas",
+        "Pseudoalucinaciones", "Ilusiones",
       ]
     },
   ],
@@ -239,7 +253,9 @@ const seccionesAgrupadas: Record<keyof ExamenMentalData, GrupoOpciones[]> = {
       label: "Sueño", opciones: [
         "Sueño conservado", "Insomnio de conciliación", "Insomnio de mantenimiento",
         "Despertar precoz", "Hipersomnia", "Inversión del ritmo sueño-vigilia",
-      ]
+        "Disminución de la necesidad de sueño sin cansancio",
+      ],
+      info: "Tipo de insomnio orienta diagnósticamente: conciliación → ansiedad; mantenimiento → alcohol, apnea, dolor; despertar precoz → depresión; disminución de necesidad sin cansancio → manía (no es insomnio).",
     },
     {
       label: "Apetito", opciones: [
@@ -479,7 +495,7 @@ const SEXUAL_MAP: Record<string, string> = {
 };
 
 const bioritmosGen: GenFn = (opciones, texto) => {
-  const SUENO = new Set(["Sueño conservado", "Insomnio de conciliación", "Insomnio de mantenimiento", "Despertar precoz", "Hipersomnia", "Inversión del ritmo sueño-vigilia"]);
+  const SUENO = new Set(["Sueño conservado", "Insomnio de conciliación", "Insomnio de mantenimiento", "Despertar precoz", "Hipersomnia", "Inversión del ritmo sueño-vigilia", "Disminución de la necesidad de sueño sin cansancio"]);
   const APETITO = new Set(["Apetito conservado", "Hiporexia", "Anorexia con pérdida ponderal", "Hiperfagia", "Aumento ponderal"]);
 
   const sueno = opciones.filter(o => SUENO.has(o));
@@ -541,6 +557,7 @@ export default function ExamenMentalPage() {
   const [iaPanel, setIaPanel] = useState(false);
   const [iaIncongruencias, setIaIncongruencias] = useState<string[]>([]);
   const [copiado, setCopiado] = useState(false);
+  const [infoAbierta, setInfoAbierta] = useState<string | null>(null);
   const [ordenSecciones, setOrdenSecciones] = useState<(keyof ExamenMentalData)[]>(
     secciones.map(s => s.key)
   );
@@ -726,9 +743,24 @@ export default function ExamenMentalPage() {
                 <div className={`grid gap-x-6 gap-y-5 mb-6 ${gridCols[totalCols] ?? "grid-cols-2"}`}>
                   {grupos.map(grupo => (
                     <div key={grupo.label} className={colSpan[grupo.span ?? 1]}>
-                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
-                        {grupo.label}
-                      </p>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+                          {grupo.label}
+                        </p>
+                        {grupo.info && (
+                          <button
+                            onClick={() => setInfoAbierta(prev => prev === grupo.label ? null : grupo.label)}
+                            className="text-slate-300 hover:text-slate-500 transition-colors flex-shrink-0"
+                          >
+                            <Info className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                      {grupo.info && infoAbierta === grupo.label && (
+                        <div className="mb-2 text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 leading-relaxed">
+                          {grupo.info}
+                        </div>
+                      )}
                       <div className={grupo.columnas === 2 ? "grid grid-cols-2 gap-1.5" : "flex flex-col gap-1.5"}>
                         {grupo.opciones.map(opcion => {
                           const sel = examen[seccionActual.key].opciones.includes(opcion);

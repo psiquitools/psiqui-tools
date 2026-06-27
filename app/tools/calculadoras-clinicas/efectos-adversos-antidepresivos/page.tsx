@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
@@ -204,9 +204,9 @@ export default function EfectosAdversosPage() {
                 const esNuevoGrupo =
                   idx === 0 || f.grupo !== visibles[idx - 1].grupo;
                 return (
-                  <>
+                  <Fragment key={f.nombre}>
                     {esNuevoGrupo && (
-                      <tr key={`grupo-${f.grupo}`} className="bg-slate-200">
+                      <tr className="bg-slate-200">
                         <td
                           colSpan={9}
                           className="sticky left-0 px-4 py-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-800"
@@ -216,7 +216,6 @@ export default function EfectosAdversosPage() {
                       </tr>
                     )}
                     <tr
-                      key={f.nombre}
                       className={`border-t border-slate-100 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/50"}`}
                     >
                       <td className={`sticky left-0 z-10 hover:z-[100] group/nota px-4 py-2.5 font-medium text-slate-800 border-r border-slate-100 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50"}`}>
@@ -244,7 +243,7 @@ export default function EfectosAdversosPage() {
                         );
                       })}
                     </tr>
-                  </>
+                  </Fragment>
                 );
               })}
             </tbody>
