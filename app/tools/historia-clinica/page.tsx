@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-    User,
     FileText,
     ClipboardList,
     Brain,
@@ -53,23 +52,22 @@ interface HistoriaClinica {
 const secciones = [
     { id: 0, titulo: "Identificación y Episodio Actual", icon: FileText },
     { id: 1, titulo: "Antecedentes Personales", icon: ClipboardList },
-    { id: 2, titulo: "Psicobiografía", icon: User },
-    { id: 3, titulo: "Evaluación y Plan", icon: Brain },
+    { id: 2, titulo: "Evaluación y Plan", icon: Brain },
 ];
 
 export default function HistoriaClinicaPage() {
     const [seccionActual, setSeccionActual] = useState(0);
 
-    const [iaLoading, setIaLoading]       = useState(false);
-    const [iaError, setIaError]           = useState<string | null>(null);
-    const [iaPropuesta, setIaPropuesta]   = useState("");
-    const [iaOmisiones, setIaOmisiones]   = useState<string[]>([]);
-    const [iaPanel, setIaPanel]           = useState(false);
+    const [iaLoading, setIaLoading] = useState(false);
+    const [iaError, setIaError] = useState<string | null>(null);
+    const [iaPropuesta, setIaPropuesta] = useState("");
+    const [iaOmisiones, setIaOmisiones] = useState<string[]>([]);
+    const [iaPanel, setIaPanel] = useState(false);
 
-    const [iaAntecLoading, setIaAntecLoading]   = useState(false);
-    const [iaAntecError, setIaAntecError]       = useState<string | null>(null);
+    const [iaAntecLoading, setIaAntecLoading] = useState(false);
+    const [iaAntecError, setIaAntecError] = useState<string | null>(null);
     const [iaAntecPropuesta, setIaAntecPropuesta] = useState("");
-    const [iaAntecPanel, setIaAntecPanel]       = useState(false);
+    const [iaAntecPanel, setIaAntecPanel] = useState(false);
 
     const estructurarAntecedentes = async () => {
         if (!historia.antecedentes.saludMental.trim()) return;
@@ -192,13 +190,13 @@ export default function HistoriaClinicaPage() {
             antecedentes.ingresosPsiq.estado === "no"
                 ? "No antecedentes de ingresos psiquiátricos previos."
                 : "Antecedentes de ingresos psiquiátricos previos: " +
-                  antecedentes.ingresosPsiq.descripcion.replace(/\n/g, " ").trim();
+                antecedentes.ingresosPsiq.descripcion.replace(/\n/g, " ").trim();
 
         const autoliticosTexto =
             antecedentes.intentosAutoliticos.estado === "no"
                 ? "No antecedentes de intentos autolíticos previos."
                 : "Antecedentes de intentos autolíticos previos: " +
-                  antecedentes.intentosAutoliticos.descripcion.replace(/\n/g, " ").trim();
+                antecedentes.intentosAutoliticos.descripcion.replace(/\n/g, " ").trim();
 
         const contenido = `
   <h1>HISTORIA CLÍNICA PSIQUIÁTRICA</h1>
@@ -208,6 +206,9 @@ export default function HistoriaClinicaPage() {
 
   ${seccion("MOTIVO DE CONSULTA")}
   ${parrafos(historia.motivoConsulta)}
+
+  ${seccion("PSICOBIOGRAFÍA")}
+  ${parrafos(historia.psicobiografia)}
 
   ${seccion("ANTECEDENTES PERSONALES MÉDICO-QUIRÚRGICOS")}
   <p>Alergias: ${esc(antecedentes.alergias)}</p>
@@ -223,14 +224,11 @@ export default function HistoriaClinicaPage() {
   ${seccion("ANTECEDENTES FAMILIARES EN SALUD MENTAL")}
   ${parrafos(antecedentes.familiaresSaludMental)}
   <p>${antecedentes.suicidioFamiliar.estado === "no"
-    ? "Niega antecedentes familiares de suicidio consumado."
-    : "Antecedentes familiares de suicidio consumado" + (antecedentes.suicidioFamiliar.descripcion.trim() ? ": " + antecedentes.suicidioFamiliar.descripcion.trim() : "") + "."
-  }</p>
+                ? "Niega antecedentes familiares de suicidio consumado."
+                : "Antecedentes familiares de suicidio consumado" + (antecedentes.suicidioFamiliar.descripcion.trim() ? ": " + antecedentes.suicidioFamiliar.descripcion.trim() : "") + "."
+            }</p>
   <p class="sub">Hábitos tóxicos:</p>
   ${parrafos(antecedentes.habitosToxicos)}
-
-  ${seccion("PSICOBIOGRAFÍA")}
-  ${parrafos(historia.psicobiografia)}
 
   ${seccion("ENFERMEDAD ACTUAL")}
   ${parrafos(historia.enfermedadActual)}
@@ -348,6 +346,18 @@ export default function HistoriaClinicaPage() {
                                     ...historia,
                                     motivoConsulta: e.target.value,
                                 })
+                            }
+                        />
+
+                        <h3 className="text-slate-800 font-semibold mt-6 mb-2">
+                            Psicobiografía / Datos de Filiación
+                        </h3>
+                        <textarea
+                            className={`${textarea} min-h-[140px]`}
+                            placeholder="Historia vital relevante, desarrollo, contexto psicosocial, eventos significativos..."
+                            value={historia.psicobiografia}
+                            onChange={(e) =>
+                                setHistoria({ ...historia, psicobiografia: e.target.value })
                             }
                         />
 
@@ -791,9 +801,12 @@ export default function HistoriaClinicaPage() {
                             />
                         )}
 
-                        <h3 className="text-slate-800 font-semibold mt-6 mb-2">
+                        <h3 className="text-slate-800 font-semibold mt-6 mb-1">
                             Hábitos Tóxicos
                         </h3>
+                        <p className="text-xs text-slate-500 mb-2 leading-relaxed">
+                            Para cada sustancia: <span className="font-medium text-slate-600">primer consumo · frecuencia actual · último consumo · cantidad habitual · periodos de abstinencia · tratamientos previos</span>
+                        </p>
                         <textarea
                             className={textarea}
                             value={historia.antecedentes.habitosToxicos}
@@ -811,23 +824,6 @@ export default function HistoriaClinicaPage() {
                 );
 
             case 2:
-                return (
-                    <>
-                        <h2 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">
-                            Psicobiografía
-                        </h2>
-                        <textarea
-                            className={textarea}
-                            placeholder="Historia vital relevante, desarrollo, contexto psicosocial, eventos significativos..."
-                            value={historia.psicobiografia}
-                            onChange={(e) =>
-                                setHistoria({ ...historia, psicobiografia: e.target.value })
-                            }
-                        />
-                    </>
-                );
-
-            case 3:
                 return (
                     <>
                         <div className="flex items-center justify-between mb-4 border-b border-slate-200 pb-2">

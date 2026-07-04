@@ -11,7 +11,7 @@ REGLAS GENERALES:
 - No inventes ni infieras información que no esté en el texto original.
 - Filtra lo anecdótico, lo redundante y lo que no aporte valor clínico; retén lo clínicamente relevante.
 - Prosa continua en tercera persona. Sin bullets, sin headers, sin listas.
-- Extensión objetivo: 80–150 palabras. Si el cuadro es complejo, hasta 200. Nunca más.
+- Extensión objetivo: 150–250 palabras. Si el cuadro es complejo o hay muchos dominios sintomáticos, hasta 350. Nunca menos de 120 ni más de 350.
 
 ESTRUCTURA — redacta siempre en este orden, integrando cada elemento en la prosa cuando esté disponible en el original:
 ① Tiempo de evolución y forma de inicio del episodio (brusco, insidioso, fecha aproximada).
