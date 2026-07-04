@@ -25,9 +25,9 @@ interface Farmaco {
 const GRUPOS = [
   "Todos",
   "ISRS",
-  "Agentes atípicos",
   "IRSN",
   "Moduladores de serotonina",
+  "Agentes atípicos",
   "Tricíclicos y tetracíclicos",
   "IMAO",
 ];
@@ -41,12 +41,6 @@ const FARMACOS: Farmaco[] = [
   { nombre: "Paroxetina",    grupo: "ISRS", anticolinergico: "1+", somnolencia: "2+", insomnio: "1+",     hipotension: "2+",     qtc: "1+",      gi: "1+",     peso: "2+",     sexualidad: "4+" },
   { nombre: "Sertralina",    grupo: "ISRS", anticolinergico: "0",  somnolencia: "1+", insomnio: "2+",     hipotension: "1+",     qtc: "1+",      gi: "2+",     peso: "1+",     sexualidad: "3+", nota: "Mayor tasa de diarrea respecto al resto de ISRS" },
 
-  // ── Agentes atípicos ──
-  { nombre: "Agomelatina",              grupo: "Agentes atípicos", anticolinergico: "0",  somnolencia: "1+", insomnio: "1+",     hipotension: "0",      qtc: "0",       gi: "1+",     peso: "0",      sexualidad: "0 a 1+", nota: "No disponible en EE.UU. Hepatotóxica — contraindicada en insuficiencia hepática; monitorizar transaminasas" },
-  { nombre: "Bupropión",                grupo: "Agentes atípicos", anticolinergico: "0",  somnolencia: "0",  insomnio: "2+",     hipotension: "0",      qtc: "0 a 1+",  gi: "1+",     peso: "0",      sexualidad: "0" },
-  { nombre: "Dextrometorfano-bupropión",grupo: "Agentes atípicos", anticolinergico: "0",  somnolencia: "1+", insomnio: "1+",     hipotension: "0",      qtc: "0 a 1+",  gi: "1+",     peso: "0",      sexualidad: "1+" },
-  { nombre: "Mirtazapina",              grupo: "Agentes atípicos", anticolinergico: "1+", somnolencia: "4+", insomnio: "0",      hipotension: "0",      qtc: "1+",      gi: "0",      peso: "4+",     sexualidad: "1+" },
-
   // ── IRSN ──
   { nombre: "Desvenlafaxina",  grupo: "IRSN", anticolinergico: "0", somnolencia: "0",  insomnio: "2+",     hipotension: "0",      qtc: "0",       gi: "2+",     peso: "Desc.", sexualidad: "1+" },
   { nombre: "Duloxetina",      grupo: "IRSN", anticolinergico: "0", somnolencia: "0",  insomnio: "1+",     hipotension: "0",      qtc: "0",       gi: "2+",     peso: "0 a 1+", sexualidad: "1+" },
@@ -59,6 +53,12 @@ const FARMACOS: Farmaco[] = [
   { nombre: "Trazodona",   grupo: "Moduladores de serotonina", anticolinergico: "0", somnolencia: "4+",     insomnio: "0",  hipotension: "1+ / 3+", qtc: "1 a 2+", gi: "1+ / 3+", peso: "0 / 1+",  sexualidad: "1+", nota: "Valores: dosis hipnótica / dosis antidepresiva. Asociada raramente a priapismo (emergencia médica)" },
   { nombre: "Vilazodona",  grupo: "Moduladores de serotonina", anticolinergico: "0", somnolencia: "0",      insomnio: "2+", hipotension: "0",      qtc: "0",      gi: "4+",     peso: "0",       sexualidad: "1+" },
   { nombre: "Vortioxetina",grupo: "Moduladores de serotonina", anticolinergico: "0", somnolencia: "0",      insomnio: "0",  hipotension: "0",      qtc: "0",      gi: "3+",     peso: "0",       sexualidad: "1+" },
+
+  // ── Agentes atípicos ──
+  { nombre: "Agomelatina",              grupo: "Agentes atípicos", anticolinergico: "0",  somnolencia: "1+", insomnio: "1+",     hipotension: "0",      qtc: "0",       gi: "1+",     peso: "0",      sexualidad: "0 a 1+", nota: "No disponible en EE.UU. Hepatotóxica — contraindicada en insuficiencia hepática; monitorizar transaminasas" },
+  { nombre: "Bupropión",                grupo: "Agentes atípicos", anticolinergico: "0",  somnolencia: "0",  insomnio: "2+",     hipotension: "0",      qtc: "0 a 1+",  gi: "1+",     peso: "0",      sexualidad: "0" },
+  { nombre: "Dextrometorfano-bupropión",grupo: "Agentes atípicos", anticolinergico: "0",  somnolencia: "1+", insomnio: "1+",     hipotension: "0",      qtc: "0 a 1+",  gi: "1+",     peso: "0",      sexualidad: "1+" },
+  { nombre: "Mirtazapina",              grupo: "Agentes atípicos", anticolinergico: "1+", somnolencia: "4+", insomnio: "0",      hipotension: "0",      qtc: "1+",      gi: "0",      peso: "4+",     sexualidad: "1+" },
 
   // ── Tricíclicos y tetracíclicos ──
   { nombre: "Amitriptilina", grupo: "Tricíclicos y tetracíclicos", anticolinergico: "4+", somnolencia: "4+", insomnio: "0",  hipotension: "3+", qtc: "1 a 2+", gi: "1+", peso: "4+", sexualidad: "3 a 4+" },
@@ -120,6 +120,16 @@ function nivelColor(val: string): string {
 
 export default function EfectosAdversosPage() {
   const [grupoActivo, setGrupoActivo] = useState("Todos");
+  const [hoveredCell, setHoveredCell] = useState<{ nombre: string; colKey: string } | null>(null);
+
+  function ringClass(nombre: string, colKey: string) {
+    if (!hoveredCell) return "";
+    const isRow = hoveredCell.nombre === nombre;
+    const isCol = hoveredCell.colKey === colKey;
+    if (isRow && isCol) return "ring-2 ring-inset ring-blue-500/70";
+    if (isRow || isCol) return "ring-1 ring-inset ring-blue-300/60";
+    return "";
+  }
 
   const visibles = grupoActivo === "Todos"
     ? FARMACOS
@@ -170,17 +180,18 @@ export default function EfectosAdversosPage() {
         </div>
 
         {/* Tabla */}
-        <div className="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
+        <div className="overflow-auto rounded-lg border border-slate-200 shadow-sm max-h-[75vh]">
           <table className="min-w-full text-xs border-collapse">
-            <thead>
+            <thead className="sticky top-0 z-20">
               <tr className="bg-slate-800 text-white">
-                <th className="sticky left-0 z-10 bg-slate-800 px-4 py-3 text-left font-semibold min-w-[160px]">
+                <th className="sticky left-0 z-30 bg-slate-800 px-4 py-3 text-left font-semibold min-w-[160px]">
                   Fármaco
                 </th>
                 {COLUMNAS.map(col => {
+                  const colActiva = hoveredCell?.colKey === col.key;
                   if (col.key === "anticolinergico") {
                     return (
-                      <th key={col.key} className="relative group/ac px-3 py-3 text-center font-semibold whitespace-nowrap min-w-[140px] cursor-help z-10 hover:z-[100]">
+                      <th key={col.key} className={`relative group/ac px-3 py-3 text-center font-semibold whitespace-nowrap min-w-[140px] cursor-help z-10 hover:z-[100] transition-colors ${colActiva ? "bg-slate-600" : ""}`}>
                         <span className="border-b border-dashed border-slate-400">{col.label}</span>
                         <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 invisible group-hover/ac:visible opacity-0 group-hover/ac:opacity-100 transition-opacity w-52 bg-slate-900 text-white text-xs rounded-lg p-3 shadow-xl text-left normal-case tracking-normal font-normal leading-relaxed pointer-events-none">
                           <p className="font-semibold mb-2 border-b border-slate-600 pb-1.5">Síntomas anticolinérgicos</p>
@@ -192,17 +203,18 @@ export default function EfectosAdversosPage() {
                     );
                   }
                   return (
-                    <th key={col.key} className="px-3 py-3 text-center font-semibold whitespace-nowrap min-w-[120px]">
+                    <th key={col.key} className={`px-3 py-3 text-center font-semibold whitespace-nowrap min-w-[120px] transition-colors ${colActiva ? "bg-slate-600" : ""}`}>
                       {col.label}
                     </th>
                   );
                 })}
               </tr>
             </thead>
-            <tbody>
+            <tbody onMouseLeave={() => setHoveredCell(null)}>
               {visibles.map((f, idx) => {
                 const esNuevoGrupo =
                   idx === 0 || f.grupo !== visibles[idx - 1].grupo;
+                const filaActiva = hoveredCell?.nombre === f.nombre;
                 return (
                   <Fragment key={f.nombre}>
                     {esNuevoGrupo && (
@@ -218,7 +230,7 @@ export default function EfectosAdversosPage() {
                     <tr
                       className={`border-t border-slate-100 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/50"}`}
                     >
-                      <td className={`sticky left-0 z-10 hover:z-[100] group/nota px-4 py-2.5 font-medium text-slate-800 border-r border-slate-100 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50"}`}>
+                      <td className={`sticky left-0 z-10 hover:z-[100] group/nota px-4 py-2.5 font-medium text-slate-800 border-r border-slate-100 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-slate-50"} ${filaActiva ? "ring-1 ring-inset ring-blue-300/60" : ""}`}>
                         <div className="relative flex items-center gap-1.5">
                           <span>{f.nombre}</span>
                           {f.nota && (
@@ -236,7 +248,8 @@ export default function EfectosAdversosPage() {
                         return (
                           <td
                             key={col.key}
-                            className={`px-3 py-2.5 text-center font-medium rounded-none ${nivelColor(val)}`}
+                            onMouseEnter={() => setHoveredCell({ nombre: f.nombre, colKey: col.key })}
+                            className={`px-3 py-2.5 text-center font-medium rounded-none ${nivelColor(val)} ${ringClass(f.nombre, col.key)}`}
                           >
                             {val}
                           </td>
