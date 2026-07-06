@@ -199,29 +199,28 @@ export default function HistoriaClinicaPage() {
                 antecedentes.intentosAutoliticos.descripcion.replace(/\n/g, " ").trim();
 
         const contenido = `
-  <h1>HISTORIA CLÍNICA PSIQUIÁTRICA</h1>
 
-  ${seccion("DATOS DE IDENTIFICACIÓN")}
+  ${seccion("Datos de identificación:")}
   <p>Identificador: ${esc(historia.datosIdentificacion.identificador)}</p>
 
-  ${seccion("MOTIVO DE CONSULTA")}
+  ${seccion("Motivo de consulta:")}
   ${parrafos(historia.motivoConsulta)}
 
-  ${seccion("PSICOBIOGRAFÍA")}
+  ${seccion("Datos de filiación:")}
   ${parrafos(historia.psicobiografia)}
 
-  ${seccion("ANTECEDENTES PERSONALES MÉDICO-QUIRÚRGICOS")}
+  ${seccion("Antecedentes personales médico-quirúrgicos:")}
   <p>Alergias: ${esc(antecedentes.alergias)}</p>
   ${parrafos(antecedentes.medicoQuirurgicos)}
 
-  ${seccion("ANTECEDENTES PERSONALES EN SALUD MENTAL")}
+  ${seccion("Antecedentes personales en salud mental:")}
   ${parrafos(antecedentes.saludMental)}
   <p>${esc(ingresoTexto)}</p>
   <p>${esc(autoliticosTexto)}</p>
   <p class="sub">Tratamiento habitual:</p>
   ${parrafos(antecedentes.tratamientoHabitual)}
 
-  ${seccion("ANTECEDENTES FAMILIARES EN SALUD MENTAL")}
+  ${seccion("Antecedentes familiares en salud mental:")}
   ${parrafos(antecedentes.familiaresSaludMental)}
   <p>${antecedentes.suicidioFamiliar.estado === "no"
                 ? "Niega antecedentes familiares de suicidio consumado."
@@ -230,16 +229,16 @@ export default function HistoriaClinicaPage() {
   <p class="sub">Hábitos tóxicos:</p>
   ${parrafos(antecedentes.habitosToxicos)}
 
-  ${seccion("ENFERMEDAD ACTUAL")}
+  ${seccion("Episodio actual:")}
   ${parrafos(historia.enfermedadActual)}
 
-  ${seccion("EXAMEN MENTAL")}
+  ${seccion("Examen mental:")}
   ${parrafos(historia.examenMental)}
 
-  ${seccion("JUICIO CLÍNICO")}
+  ${seccion("Juicio clínico:")}
   ${parrafos(historia.juicioClinico)}
 
-  ${seccion("PLAN DE MANEJO")}
+  ${seccion("Plan de manejo:")}
   ${parrafos(historia.planManejo)}`;
 
         const html = `<!DOCTYPE html>

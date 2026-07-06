@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ClipboardCheck, Clipboard } from "lucide-react";
+import { ClipboardCheck, Clipboard, Sparkles, Check, X } from "lucide-react";
 
 type Plantilla = {
   id: string;
@@ -118,6 +118,23 @@ const PLANTILLAS: Plantilla[] = [
       "Juicio de realidad comprometido. Insight ausente.",
   },
   {
+    id: "psicotica",
+    titulo: "Sint. psicótica",
+    texto:
+      "Paciente consciente, orientado en persona y lugar, con desorientación temporal parcial. " +
+      "Abordable con dificultad, actitud suspicaz y escasa colaboración espontánea. " +
+      "Sin alteraciones de la psicomotricidad. No signos ni síntomas de intoxicación ni abstinencia. " +
+      "Perplejidad referida y objetivada. " +
+      "Afecto inapropiado, de rango restringido e incongruente con el contenido del discurso. " +
+      "Discurso espontáneo con escasa producción, coherente en su estructura superficial pero con laxitud asociativa. " +
+      "Sin aceleración ni enlentecimiento formales del pensamiento. " +
+      "Contenido con ideación delirante de carácter persecutorio de probable reciente estructuración. " +
+      "Alteraciones de la sensopercepción: alucinaciones auditivas referidas en segunda y tercera persona, con predominio vespertino-nocturno. " +
+      "No ideas ni conductas autolesivas ni heteroagresivas activas en el momento de la entrevista. " +
+      "Insomnio marcado con reducción de horas de sueño sin sensación subjetiva de cansancio referido. Apetito reducido. " +
+      "Juicio de realidad comprometido. Insight ausente.",
+  },
+  {
     id: "toc",
     titulo: "TOC",
     texto:
@@ -229,6 +246,12 @@ export default function PlantillasJM() {
   const [seleccionada, setSeleccionada] = useState(PLANTILLAS[0].id);
   const [copiado, setCopiado] = useState(false);
 
+  const [descripcion, setDescripcion] = useState("");
+  const [iaLoading, setIaLoading] = useState(false);
+  const [iaError, setIaError] = useState<string | null>(null);
+  const [iaResultado, setIaResultado] = useState("");
+  const [iaCopiado, setIaCopiado] = useState(false);
+
   const plantilla = PLANTILLAS.find((p) => p.id === seleccionada)!;
 
   async function copiar() {
@@ -240,6 +263,38 @@ export default function PlantillasJM() {
   function seleccionar(id: string) {
     setSeleccionada(id);
     setCopiado(false);
+  }
+
+  async function generarConIA() {
+    if (!descripcion.trim()) return;
+    setIaLoading(true);
+    setIaError(null);
+    setIaResultado("");
+    try {
+      const res = await fetch("/api/generar-examen-mental", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ descripcion }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Error desconocido");
+      setIaResultado(data.texto);
+    } catch (err) {
+      setIaError(err instanceof Error ? err.message : "Error al conectar con la IA");
+    } finally {
+      setIaLoading(false);
+    }
+  }
+
+  async function copiarIA() {
+    await navigator.clipboard.writeText(iaResultado);
+    setIaCopiado(true);
+    setTimeout(() => setIaCopiado(false), 2000);
+  }
+
+  function descartar() {
+    setIaResultado("");
+    setIaError(null);
   }
 
   return (
@@ -306,6 +361,91 @@ export default function PlantillasJM() {
             </p>
           </div>
         </div>
+
+        {/* Separador */}
+        <div className="my-10 border-t border-slate-200" />
+
+        {/* Sección IA */}
+        <div className="mb-6">
+          <div className="mb-1 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-violet-500" />
+            <p className="text-sm font-semibold text-slate-800">Generar con IA</p>
+          </div>
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Describe los hallazgos del paciente en lenguaje libre. La IA redactará el examen mental completo
+            en el formato estándar, asumiendo normalidad en lo que no menciones.
+          </p>
+        </div>
+
+        <textarea
+          value={descripcion}
+          onChange={(e) => setDescripcion(e.target.value)}
+          rows={4}
+          placeholder="Ej: paciente ansioso, con rumiaciones de difícil control, sin alteraciones de la sensopercepción, insomnio de conciliación, sin ideación autolítica..."
+          className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100 resize-none"
+        />
+
+        <button
+          onClick={generarConIA}
+          disabled={iaLoading || !descripcion.trim()}
+          className="mt-3 flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          {iaLoading ? "Generando…" : "Generar examen mental"}
+        </button>
+
+        {iaError && (
+          <div className="mt-4 flex items-start gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
+            <X className="h-4 w-4 mt-0.5 shrink-0" />
+            {iaError}
+          </div>
+        )}
+
+        {iaResultado && (
+          <div className="mt-4 rounded-lg bg-white shadow-sm ring-1 ring-violet-200">
+            <div className="flex items-center justify-between border-b border-violet-100 px-5 py-3">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-violet-400" />
+                <p className="text-xs font-semibold uppercase tracking-wide text-violet-400">
+                  Generado por IA — revisar antes de usar
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={copiarIA}
+                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                    iaCopiado
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {iaCopiado ? (
+                    <>
+                      <ClipboardCheck className="h-3.5 w-3.5" />
+                      Copiado
+                    </>
+                  ) : (
+                    <>
+                      <Clipboard className="h-3.5 w-3.5" />
+                      Copiar
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={descartar}
+                  className="flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+            <div className="px-5 py-4">
+              <p className="font-mono text-sm leading-relaxed text-slate-700">
+                {iaResultado}
+              </p>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
