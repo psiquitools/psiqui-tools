@@ -55,6 +55,12 @@ const CATEGORIES: Category[] = [
                 url: "/pdfs/depresion/plan-seguridad-byn.pdf",
                 description: "Plan de seguridad en crisis",
             },
+            {
+                title: "Activación conductual",
+                type: "Paciente",
+                url: "/pdfs/depresion/activacion-conductual.pdf",
+                description: "Técnica de activación conductual para la depresión.",
+            },
         ],
     },
     {
