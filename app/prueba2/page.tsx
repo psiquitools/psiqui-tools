@@ -12,7 +12,7 @@ import {
   LineChart,
 } from "lucide-react";
 
-export default function Prueba() {
+export default function Prueba2() {
   return (
     <div className="min-h-screen bg-white">
 
@@ -20,24 +20,22 @@ export default function Prueba() {
 
         {/* Header */}
         <div className="mb-12 text-center">
-          <div className="mb-5 flex items-center justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-slate-800 shadow-md overflow-hidden">
+          <div className="mb-4 inline-flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-800 shadow-md overflow-hidden">
               <Image
                 src="/logo1.png"
                 alt="psiqui.tools"
-                width={64}
-                height={64}
+                width={48}
+                height={48}
                 className="object-contain"
               />
             </div>
+            <span className="text-3xl tracking-wide text-slate-500">
+              psiqui<span className="font-semibold text-slate-800">.tools</span>
+            </span>
           </div>
 
-          <h1 className="mb-3 text-4xl tracking-wide text-slate-700">
-            <span className="font-light">psiqui</span>
-            <span className="font-semibold text-slate-800">.tools</span>
-          </h1>
-
-          <p className="mx-auto mb-8 max-w-2xl text-base tracking-wide text-slate-500">
+          <p className="mx-auto mb-8 max-w-2xl text-base tracking-wide text-slate-400">
             Herramientas clínicas para residentes de psiquiatría
           </p>
         </div>

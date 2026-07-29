@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useMemo, useCallback } from 'react';
-import { Plus, FileDown, Shield, Trash2, X, ArrowLeft, Pencil } from 'lucide-react';
-import Link from 'next/link';
+import { Plus, FileDown, Shield, Trash2, X, Pencil } from 'lucide-react';
 import jsPDF from 'jspdf';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -543,16 +542,6 @@ export default function GraficoVidaPsiquiatricaPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-
-      {/* Nav */}
-      <div className="sticky top-0 z-50 bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <Link href="/" className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-900">
-            <ArrowLeft className="w-4 h-4" />
-            Volver a psiqui.tools
-          </Link>
-        </div>
-      </div>
 
       <div className="max-w-[1400px] mx-auto p-6 space-y-5">
 

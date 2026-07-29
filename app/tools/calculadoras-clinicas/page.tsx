@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Pill, TrendingDown, ClipboardList, Repeat2, Droplets, Syringe, TableProperties, Activity, Scale } from "lucide-react";
+import { ArrowRight, Pill, TrendingDown, ClipboardList, Repeat2, Droplets, Syringe, TableProperties, Activity, Scale } from "lucide-react";
 
 type Categoria = "General" | "Antidepresivos" | "Antipsicóticos" | "Benzodiacepinas";
 
@@ -110,11 +110,6 @@ export default function CalculadorasPage() {
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-6">
             <div className="max-w-4xl mx-auto space-y-6">
-
-                <Link href="/" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900">
-                    <ArrowLeft className="w-4 h-4" />
-                    Volver a psiqui.tools
-                </Link>
 
                 <div>
                     <h1 className="text-2xl font-semibold text-slate-900">Herramientas Farmacológicas</h1>

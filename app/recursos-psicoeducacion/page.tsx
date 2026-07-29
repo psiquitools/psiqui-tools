@@ -13,7 +13,6 @@ import {
     FileText,
     Search,
     ExternalLink,
-    ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -177,19 +176,6 @@ export default function RecursosPsicoeducacionPage() {
 
     return (
         <div className="bg-slate-50 min-h-screen">
-            {/* Barra superior */}
-            <div className="sticky top-0 z-40 bg-white border-b">
-                <div className="max-w-6xl mx-auto px-4 py-3">
-                    <Link
-                        href="/"
-                        className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-900"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Volver a psiqui.tools
-                    </Link>
-                </div>
-            </div>
-
             <div className="max-w-6xl mx-auto p-4 md:p-8 pb-24">
                 {/* Header */}
                 <div className="mb-8">

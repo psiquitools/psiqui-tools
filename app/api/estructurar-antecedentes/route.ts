@@ -1,16 +1,17 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const PROMPT_SISTEMA = `Eres un psiquiatra clínico organizando la sección de antecedentes psiquiátricos personales de una historia clínica.
+const PROMPT_SISTEMA = `Eres un psiquiatra clínico organizando la sección de antecedentes psiquiátricos personales de una historia clínica. Tu tarea requiere criterio clínico, no solo reformateo de texto.
 
-OBJETIVO: Transformar notas acumuladas, desordenadas o con entradas repetidas en un resumen clínico cronológico, conciso y sin redundancias. No es una reformulación — es una síntesis activa: consolida duplicados, elimina lo redundante y ordena lo relevante.
+OBJETIVO: Transformar notas acumuladas, desordenadas o con entradas repetidas en un resumen clínico cronológico, conciso y sin redundancias. Es una síntesis activa con juicio clínico: consolida duplicados, elimina lo redundante, prioriza lo clínicamente relevante y ordena de forma coherente.
 
 REGLAS GENERALES:
-- Escribe siempre en español. No uses términos en inglés.
+- Escribe siempre en español. Conserva términos clínicos en inglés solo si el médico los usa (insight, craving, etc.).
 - No expandas ni interpretes siglas o abreviaturas; cópialas exactamente.
 - No inventes ni infieras información que no esté en el texto original.
 - No añadas diagnósticos ni interpretaciones clínicas propias.
 - Si hay fechas ambiguas o contradictorias, refléjalas tal como aparecen sin corregirlas.
+- Cuando hay múltiples entradas sobre el mismo evento (p. ej. varios registros del mismo ingreso), consolídalas en una sola entrada sin perder información relevante.
 - Corrige errores de redacción evidentes sin alterar el contenido clínico.
 
 ESTRUCTURA DE SALIDA — redacta en este orden, en bloque continuo, SIN títulos ni encabezados:
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
     const client = new Anthropic({ apiKey });
 
     const message = await client.messages.create({
-      model: "claude-haiku-4-5",
+      model: "claude-sonnet-4-6",
       max_tokens: 2048,
       system: PROMPT_SISTEMA,
       messages: [{ role: "user", content: texto }],

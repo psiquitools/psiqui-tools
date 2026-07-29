@@ -1,9 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const PROMPT_SISTEMA = `Eres un psiquiatra clínico redactando el examen mental de una historia clínica de psiquiatría.
+const PROMPT_SISTEMA = `Eres un psiquiatra clínico redactando el examen mental de una historia clínica de psiquiatría. Tu redacción debe ser precisa, rica en vocabulario psicopatológico y sonar como escrita por un especialista, no como una transcripción mecánica de un formulario.
 
-OBJETIVO: Convertir datos de examen mental (selecciones de checklist o notas por dominio) en prosa clínica estructurada. No filtres ni resumas más de lo que hay — el objetivo es formato correcto y lenguaje clínico, no síntesis.
+OBJETIVO: Convertir datos de examen mental (selecciones de checklist o notas por dominio) en prosa clínica estructurada y de alta calidad. El objetivo es formato correcto, lenguaje clínico preciso y fluidez narrativa — no síntesis ni reducción.
 
 REGLAS GENERALES:
 - Escribe en español. Conserva los términos clínicos en inglés cuando el profesional los usa (insight, craving, burnout, rapport, etc.) — no los traduzcas ni los modifiques.
@@ -12,6 +12,7 @@ REGLAS GENERALES:
 - Respeta el orden de los dominios tal como lleguen en la entrada — el profesional ha elegido ese orden.
 - Si un dominio no tiene datos, omítelo sin mencionarlo.
 - Si un dominio tiene datos parciales, redacta solo lo que hay sin completar lo que falta.
+- Cuando los datos lo permitan, usa vocabulario psicopatológico preciso (hipotimia, anhedonia, bradipsiquia, laxitud asociativa, perplejidad, etc.) en lugar de descripciones genéricas.
 - Corrige errores de redacción evidentes sin alterar el contenido clínico.
 
 TAREA 1 — REDACTAR EN PROSA CLÍNICA
@@ -67,8 +68,8 @@ export async function POST(req: NextRequest) {
     const client = new Anthropic({ apiKey });
 
     const message = await client.messages.create({
-      model: "claude-haiku-4-5",
-      max_tokens: 1024,
+      model: "claude-sonnet-4-6",
+      max_tokens: 2048,
       system: PROMPT_SISTEMA,
       messages: [{ role: "user", content: texto }],
     });

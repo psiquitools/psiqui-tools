@@ -9,7 +9,6 @@ import {
     AlertCircle,
     AlertTriangle,
     XCircle,
-    ArrowLeft,
     FileText,
     RotateCcw,
 } from "lucide-react";
@@ -34,7 +33,8 @@ type Farmaco = {
     nombre: string;
     marcaEspana: string;
     familia: string;
-    presentaciones: number[];   // mg disponibles
+    presentaciones: number[];   // mg disponibles (tabletas reales)
+    presentacionesVirtuales?: number[];  // escalones intermedios alcanzables partiendo o combinando tabletas
     indicaciones: Indicacion[];
     momentoToma: string;        // mañana / noche / etc.
     efectosAdversosInicio: string[];
@@ -125,6 +125,7 @@ const FARMACOS: Farmaco[] = [
         marcaEspana: "Prozac®, Adofen®",
         familia: "ISRS",
         presentaciones: [20],
+        presentacionesVirtuales: [40],  // 2 × 20 mg
         momentoToma: "1 vez al día por la mañana (efecto activador)",
         efectosAdversosInicio: [
             "Náuseas",
@@ -157,7 +158,7 @@ const FARMACOS: Farmaco[] = [
         nombre: "Paroxetina",
         marcaEspana: "Seroxat®, Frosinor®",
         familia: "ISRS",
-        presentaciones: [20],
+        presentaciones: [10, 20],
         momentoToma: "1 vez al día por la mañana",
         efectosAdversosInicio: [
             "Sedación (más sedante que otros ISRS)",
@@ -331,6 +332,7 @@ const FARMACOS: Farmaco[] = [
         marcaEspana: "Deprax®",
         familia: "Otros antidepresivos",
         presentaciones: [100],
+        presentacionesVirtuales: [150],  // 1½ × 100 mg (comprimido divisible)
         momentoToma: "1 vez al día por la noche (efecto sedante)",
         efectosAdversosInicio: [
             "Sedación",
@@ -493,6 +495,7 @@ const FARMACOS: Farmaco[] = [
         marcaEspana: "Seroquel Prolong®",
         familia: "Antipsicótico atípico",
         presentaciones: [50, 150, 200, 300, 400],
+        presentacionesVirtuales: [500],  // 200 + 300 mg
         momentoToma: "1 vez al día por la noche (efecto sedante)",
         efectosAdversosInicio: [
             "Sedación marcada (especialmente al inicio)",
@@ -660,6 +663,7 @@ const FARMACOS: Farmaco[] = [
         marcaEspana: "Largactil®",
         familia: "Antipsicótico típico (FGA)",
         presentaciones: [25, 100],
+        presentacionesVirtuales: [50, 150, 200],  // ½ × 100, 1½ × 100, 2 × 100 mg
         momentoToma: "2-3 veces al día; toma principal por la noche",
         efectosAdversosInicio: [
             "Sedación intensa",
@@ -790,7 +794,7 @@ const FARMACOS: Farmaco[] = [
             "Cardiopatía con trastornos del ritmo",
         ],
         indicaciones: [
-            { id: "mania", nombre: "Episodio maníaco agudo", dosisMinima: 800, dosisInicialEstandar: 800, dosisInicialLenta: 400, dosisObjetivo: 1200, dosisMaxima: 1800, notas: "Guiar por niveles plasmáticos (objetivo 0.8-1.2 mEq/L en agudo)" },
+            { id: "mania", nombre: "Episodio maníaco agudo", dosisMinima: 400, dosisInicialEstandar: 400, dosisInicialLenta: 400, dosisObjetivo: 800, dosisMaxima: 1800, notas: "Guiar por niveles plasmáticos (objetivo 0.8-1.2 mEq/L en agudo). Ajuste posterior a la dosis inicial según niveles a los 5-7 días — no por escalones fijos." },
             { id: "mantenimiento", nombre: "Mantenimiento trastorno bipolar", dosisMinima: 400, dosisInicialEstandar: 400, dosisInicialLenta: 400, dosisObjetivo: 800, dosisMaxima: 1200, notas: "Guiar por niveles plasmáticos (objetivo 0.6-0.8 mEq/L en mantenimiento)" },
         ],
     },
@@ -800,6 +804,7 @@ const FARMACOS: Farmaco[] = [
         marcaEspana: "Depakine®",
         familia: "Estabilizador del ánimo",
         presentaciones: [200, 300, 500],
+        presentacionesVirtuales: [700],  // 200 + 500 mg
         momentoToma: "2-3 veces al día con alimentos",
         efectosAdversosInicio: [
             "Sedación",
@@ -1021,6 +1026,40 @@ const FARMACOS: Farmaco[] = [
         indicaciones: [
             { id: "ansiedad", nombre: "Ansiedad aguda / crisis de ansiedad", dosisMinima: 0.5, dosisInicialEstandar: 1, dosisInicialLenta: 0.5, dosisObjetivo: 1, dosisMaxima: 4, notas: "Puede usarse sublingual para mayor rapidez de acción" },
             { id: "insomnio", nombre: "Insomnio (corto plazo)", dosisMinima: 0.5, dosisInicialEstandar: 1, dosisInicialLenta: 0.5, dosisObjetivo: 1, dosisMaxima: 2.5, notas: "Dosis única nocturna; máximo 4 semanas" },
+        ],
+    },
+    {
+        id: "clorazepato",
+        nombre: "Clorazepato dipotásico",
+        marcaEspana: "Tranxilium®",
+        familia: "Benzodiacepina",
+        presentaciones: [5, 10, 15],
+        momentoToma: "2-3 veces al día, con o sin alimentos",
+        efectosAdversosInicio: [
+            "Somnolencia y sedación",
+            "Deterioro cognitivo y de la memoria",
+            "Tolerancia con uso prolongado",
+            "Dependencia física",
+            "Síndrome de retirada al suspender",
+        ],
+        tiempoRespuesta: "Efecto ansiolítico en 30-60 minutos (profármaco — se convierte en nordiazepam en el estómago)",
+        notasGenerales: "Profármaco que se convierte en nordiazepam (mismo metabolito activo que el diazepam). Vida media muy larga (30-100 h). Uso limitado a corto plazo (≤4 semanas). Retirada siempre gradual. Evitar en hepatopatía grave, apnea del sueño y adultos mayores.",
+        contraindicacionesAbsolutas: [
+            "Miastenia gravis",
+            "Apnea del sueño grave",
+            "Insuficiencia respiratoria grave",
+            "Hepatopatía grave (insuficiencia hepática)",
+            "Hipersensibilidad conocida a benzodiacepinas",
+        ],
+        contraindicacionesRelativas: [
+            "Antecedente de dependencia a alcohol u otras sustancias",
+            "EPOC o insuficiencia respiratoria leve-moderada",
+            "Adultos mayores (sedación prolongada por vida media muy larga; riesgo elevado de caídas y deterioro cognitivo)",
+            "Depresión mayor",
+            "Embarazo tercer trimestre (síndrome del bebé hipotónico)",
+        ],
+        indicaciones: [
+            { id: "ansiedad", nombre: "Ansiedad (corto plazo)", dosisMinima: 5, dosisInicialEstandar: 10, dosisInicialLenta: 5, dosisObjetivo: 15, dosisMaxima: 45, notas: "Dividir en 2-3 tomas al día; máximo 4 semanas; siempre con plan de retirada gradual" },
         ],
     },
     // ─── ESTIMULANTES (TDAH) ───
@@ -1298,6 +1337,23 @@ function generarPasos(
         ];
     }
 
+    // Caso especial litio: ajuste guiado por niveles plasmáticos, no por escalones fijos
+    if (farmaco.id === "litio") {
+        const nivelObjetivo = indicacion.id === "mania" ? "0.8–1.2 mEq/L" : "0.6–0.8 mEq/L";
+        // Rápida (ingreso hospitalario): iniciar directamente a 800 mg/día con controles frecuentes
+        if (velocidad === "rapida") {
+            return [
+                { desde: 1, hasta: null, dosis: 800, descripcion: `Desde el día 1: 800 mg/día (2 comp de 400 mg) — controlar niveles cada 3-5 días y ajustar hasta alcanzar objetivo ${nivelObjetivo}` },
+            ];
+        }
+        // Estándar y lenta: iniciar a 400 mg/día y subir a los 7 o 14 días
+        const diasPrimerEscalon = velocidad === "lenta" ? 14 : 7;
+        return [
+            { desde: 1, hasta: diasPrimerEscalon, dosis: 400, descripcion: `Días 1-${diasPrimerEscalon}: 400 mg/día (1 comp de 400 mg)` },
+            { desde: diasPrimerEscalon + 1, hasta: null, dosis: 800, descripcion: `Día ${diasPrimerEscalon + 1} en adelante: 800 mg/día — ajustar según niveles plasmáticos cada 5-7 días (objetivo ${nivelObjetivo})` },
+        ];
+    }
+
     const inicial = velocidad === "lenta" ? indicacion.dosisInicialLenta : indicacion.dosisInicialEstandar;
     const objetivo = indicacion.dosisObjetivo;
 
@@ -1318,7 +1374,7 @@ function generarPasos(
 
     // Calcular pasos intermedios
     const pasos: Paso[] = [];
-    const presentaciones = [...farmaco.presentaciones].sort((a, b) => a - b);
+    const presentaciones = [...farmaco.presentaciones, ...(farmaco.presentacionesVirtuales ?? [])].sort((a, b) => a - b);
 
     let dosisActual = inicial;
     let diaActual = 1;
@@ -1381,6 +1437,11 @@ function describeDosisTablets(dosis: number, presentaciones: number[]): string {
     // 4 comprimidos
     for (const p of desc)
         if (Math.abs(dosis - 4 * p) < 0.01) return `CUATRO comprimidos enteros de ${fd(p)} mg`;
+    // combinación de dos tamaños distintos (ej. 200 mg + 300 mg)
+    for (let i = 0; i < asc.length; i++)
+        for (let j = i + 1; j < asc.length; j++)
+            if (Math.abs(dosis - asc[i] - asc[j]) < 0.01)
+                return `UN comprimido de ${fd(asc[i])} mg + UN comprimido de ${fd(asc[j])} mg`;
 
     return `${fd(dosis)} mg`;
 }
@@ -1535,22 +1596,13 @@ export default function GeneradorPautaPage() {
 
             <div className="max-w-4xl mx-auto space-y-6">
 
-                {/* Volver */}
-                <Link
-                    href="/tools/calculadoras-clinicas"
-                    className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    Volver a Herramientas Farmacológicas
-                </Link>
-
                 {/* Header */}
                 <div className="flex items-center gap-3">
                     <Pill className="w-7 h-7 text-slate-700" />
                     <div>
                         <h1 className="text-2xl font-semibold">Generador de pauta terapéutica</h1>
                         <p className="text-sm text-slate-600">
-                            Pauta de titulación práctica para informe clínico
+                            Pauta de titulación recomendada para informe clínico
                         </p>
                     </div>
                 </div>
@@ -1692,7 +1744,7 @@ export default function GeneradorPautaPage() {
 
                 {/* Tabla de pasos */}
                 <div className="bg-white border border-slate-200 rounded-lg p-4">
-                    <h3 className="text-sm font-medium text-slate-700 mb-3">Pauta de titulación</h3>
+                    <h3 className="text-sm font-medium text-slate-700 mb-3">Pauta de titulación recomendada</h3>
                     <div className="space-y-2">
                         {pasos.map((p, idx) => (
                             <div

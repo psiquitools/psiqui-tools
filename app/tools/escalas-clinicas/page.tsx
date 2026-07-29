@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Activity, ArrowLeft, AlertCircle } from "lucide-react";
+import { Activity, AlertCircle } from "lucide-react";
 
 interface Escala {
     id: string;
@@ -38,11 +38,6 @@ export default function EscalasClinicasPage() {
     return (
         <div className="bg-slate-50 min-h-screen">
             <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
-
-                <Link href="/" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900">
-                    <ArrowLeft className="w-4 h-4" />
-                    Volver a psiqui.tools
-                </Link>
 
                 <div className="flex items-center gap-3">
                     <div className="bg-slate-100 p-3 rounded-lg">

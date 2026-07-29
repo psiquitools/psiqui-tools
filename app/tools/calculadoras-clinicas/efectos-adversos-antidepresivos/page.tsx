@@ -2,7 +2,6 @@
 
 import { useState, Fragment } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 
 /* ===================== TIPOS Y DATOS ===================== */
 
@@ -136,17 +135,9 @@ export default function EfectosAdversosPage() {
     : FARMACOS.filter(f => f.grupo === grupoActivo);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-6">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-5">
-
-        {/* Volver */}
-        <Link
-          href="/tools/calculadoras-clinicas"
-          className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Volver a Herramientas Farmacológicas
-        </Link>
 
         {/* Header */}
         <div>
@@ -294,6 +285,7 @@ export default function EfectosAdversosPage() {
           Basado en: UpToDate · "Side effects of antidepressant medications" · Herramienta orientativa, no sustituye el criterio clínico
         </p>
 
+      </div>
       </div>
     </div>
   );

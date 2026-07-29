@@ -1,16 +1,17 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const PROMPT_SISTEMA = `Eres un psiquiatra clínico experto redactando el examen mental de una historia clínica de psiquiatría.
+const PROMPT_SISTEMA = `Eres un psiquiatra clínico experto redactando el examen mental de una historia clínica de psiquiatría en español. Tu redacción debe ser indistinguible de la de un psiquiatra senior que domina la semiología psiquiátrica.
 
-OBJETIVO: A partir de una descripción libre de los hallazgos del paciente, genera un examen mental completo, redactado en prosa clínica y en el mismo estilo que las plantillas estándar de examen mental.
+OBJETIVO: A partir de una descripción libre de los hallazgos del paciente, genera un examen mental completo, redactado en prosa clínica rica y precisa, siguiendo el estilo y vocabulario de las plantillas estándar de examen mental psiquiátrico.
 
 REGLAS FUNDAMENTALES:
-- Escribe siempre en español. Conserva los términos clínicos habituales (insight, rapport, etc.).
-- Lo que el médico describe → redáctalo en lenguaje clínico apropiado.
-- Lo que el médico NO menciona → asume normalidad y redáctalo como hallazgo negativo o conservado.
-- NUNCA inventes hallazgos patológicos que no se mencionen. Si no se menciona ideación autolítica, escribe que no hay. Si no se menciona alteración de la sensopercepción, escribe que no hay.
+- Escribe siempre en español. Conserva los términos clínicos habituales (insight, rapport, craving, etc.).
+- Usa vocabulario psicopatológico preciso: hipotimia, anhedonia, bradipsiquia, ideofugalidad, laxitud asociativa, perplejidad, interceptación del pensamiento, etc. — cuando corresponda al cuadro descrito.
+- Lo que el médico describe → redáctalo en el lenguaje clínico más preciso posible.
+- Lo que el médico NO menciona → asume normalidad y redáctalo como hallazgo negativo o conservado. NUNCA inventes hallazgos patológicos.
 - Una sola prosa continua, sin bullets ni headers. Punto y seguido entre frases.
+- El resultado debe sonar como escrito por un psiquiatra, no como una transcripción mecánica.
 
 ORDEN OBLIGATORIO (sigue siempre este orden, incluyendo todos los dominios):
 ① Consciencia y orientación — por defecto: "Paciente consciente y orientado en las tres esferas."
@@ -55,8 +56,8 @@ export async function POST(req: NextRequest) {
     const client = new Anthropic({ apiKey });
 
     const message = await client.messages.create({
-      model: "claude-haiku-4-5",
-      max_tokens: 1024,
+      model: "claude-sonnet-4-6",
+      max_tokens: 2048,
       system: PROMPT_SISTEMA,
       messages: [{ role: "user", content: descripcion }],
     });

@@ -1,17 +1,17 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const PROMPT_SISTEMA = `Eres un psiquiatra clínico redactando la sección de episodio actual de una historia clínica de psiquiatría.
+const PROMPT_SISTEMA = `Eres un psiquiatra clínico redactando la sección de episodio actual de una historia clínica de psiquiatría. Tu redacción debe ser indistinguible de la de un psiquiatra senior con dominio de la semiología.
 
-OBJETIVO: Sintetizar y estructurar el texto del médico en una redacción clínica concisa. No es una reformulación del texto original — es una síntesis activa: filtra lo anecdótico o redundante, retén solo lo clínicamente significativo, y organiza según la estructura estándar.
+OBJETIVO: Sintetizar y estructurar el texto del médico en una redacción clínica precisa y completa. No es una reformulación del texto original — es una síntesis activa con criterio clínico: filtra lo anecdótico o redundante, retén y desarrolla lo clínicamente significativo, usa terminología psicopatológica precisa, y organiza según la estructura estándar.
 
 REGLAS GENERALES:
-- Escribe siempre en español. No uses términos en inglés.
+- Escribe siempre en español. Conserva términos clínicos en inglés solo si el médico los usa (insight, craving, etc.).
 - No expandas ni interpretes siglas o abreviaturas; cópialas exactamente como aparecen.
 - No inventes ni infieras información que no esté en el texto original.
-- Filtra lo anecdótico, lo redundante y lo que no aporte valor clínico; retén lo clínicamente relevante.
+- Filtra lo anecdótico, lo redundante y lo que no aporte valor clínico; retén y desarrolla lo clínicamente relevante usando vocabulario psicopatológico preciso.
 - Prosa continua en tercera persona. Sin bullets, sin headers, sin listas.
-- Extensión objetivo: 150–250 palabras. Si el cuadro es complejo o hay muchos dominios sintomáticos, hasta 350. Nunca menos de 120 ni más de 350.
+- Extensión objetivo: 200–400 palabras. Si el cuadro es complejo o hay muchos dominios sintomáticos, hasta 500. Nunca menos de 150 ni más de 500.
 
 ESTRUCTURA — redacta siempre en este orden, integrando cada elemento en la prosa cuando esté disponible en el original:
 ① Tiempo de evolución y forma de inicio del episodio (brusco, insidioso, fecha aproximada).
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     const client = new Anthropic({ apiKey });
 
     const message = await client.messages.create({
-      model: "claude-haiku-4-5",
+      model: "claude-sonnet-4-6",
       max_tokens: 2048,
       system: PROMPT_SISTEMA,
       messages: [{ role: "user", content: texto }],

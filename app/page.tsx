@@ -1,9 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   Brain,
   FileText,
   ArrowRight,
-  Shield,
   Activity,
   BookOpen,
   History,
@@ -11,207 +11,192 @@ import {
   ClipboardList,
   LineChart,
 } from "lucide-react";
-import FeedbackSection from "./components/FeedbackSection";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-white">
 
-      <div className="mx-auto max-w-6xl p-6 md:p-12">
+      <div className="mx-auto max-w-5xl p-6 md:p-12">
 
         {/* Header */}
         <div className="mb-12 text-center">
-          <div className="mb-6 flex items-center justify-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-slate-800 shadow-lg">
-              <svg viewBox="0 0 48 48" fill="none" className="w-full h-full" aria-hidden="true">
-                <circle cx="24" cy="24" r="3.5" stroke="white" strokeWidth="1.5" />
-                <circle cx="14" cy="16" r="2.5" stroke="white" strokeWidth="1.5" />
-                <circle cx="34" cy="16" r="2.5" stroke="white" strokeWidth="1.5" />
-                <circle cx="14" cy="32" r="2.5" stroke="white" strokeWidth="1.5" />
-                <circle cx="34" cy="32" r="2.5" stroke="white" strokeWidth="1.5" />
-                <line x1="21" y1="22.5" x2="16.5" y2="18" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
-                <line x1="27" y1="22.5" x2="31.5" y2="18" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
-                <line x1="21" y1="25.5" x2="16.5" y2="30" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
-                <line x1="27" y1="25.5" x2="31.5" y2="30" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
+          <div className="mb-5 flex items-center justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-slate-800 shadow-md overflow-hidden">
+              <Image
+                src="/logo1.png"
+                alt="psiqui.tools"
+                width={64}
+                height={64}
+                className="object-contain"
+              />
             </div>
           </div>
 
-          <h1 className="mb-3 text-4xl tracking-tight text-slate-800 md:text-5xl">
+          <h1 className="mb-3 text-4xl tracking-wide text-slate-700">
             <span className="font-light">psiqui</span>
-            <span className="font-normal">.tools</span>
+            <span className="font-semibold text-slate-800">.tools</span>
           </h1>
 
-          <p className="mx-auto mb-8 max-w-2xl text-lg text-slate-600">
+          <p className="mx-auto mb-8 max-w-2xl text-base tracking-wide text-slate-500">
             Herramientas clínicas para residentes de psiquiatría
           </p>
-
-          {/* Disclaimer */}
-          <div className="mx-auto mb-12 max-w-3xl rounded-lg bg-slate-800 p-4 text-white">
-            <div className="flex items-start gap-3 text-left">
-              <Shield className="mt-0.5 h-5 w-5 flex-shrink-0 text-slate-300" />
-              <div>
-                <h3 className="mb-1 text-sm font-semibold">Privacidad y Seguridad</h3>
-                <p className="text-sm text-slate-300">
-                  Todas las herramientas funcionan localmente en su dispositivo.
-                  No se almacena, transmite ni guarda información clínica. Evite
-                  introducir datos identificativos de pacientes.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Grid de herramientas */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Bloque 1 — Historia Clínica */}
+        <Link
+          href="/tools/historia-clinica"
+          className="group flex items-center gap-6 rounded-xl bg-slate-100 border border-slate-200 p-7 text-left transition-all duration-200 hover:bg-slate-150 hover:border-slate-300 hover:shadow-md w-full"
+        >
+          <div className="shrink-0 rounded-xl bg-slate-800 p-3 transition-colors group-hover:bg-slate-700">
+            <FileText className="h-7 w-7 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="mb-1 text-2xl font-bold text-slate-900">Historia Clínica Psiquiátrica</h3>
+            <p className="text-sm leading-relaxed text-slate-500">
+              Formato estructurado para evaluación psiquiátrica completa. Recoge identificación, motivo de consulta, episodio actual, antecedentes y examen mental. Genera informe en PDF listo para archivar.
+            </p>
+          </div>
+          <ArrowRight className="shrink-0 h-5 w-5 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-slate-700" />
+        </Link>
 
-          {/* Historia Clínica — tamaño normal */}
+        {/* Bloque 2 — Evaluación */}
+        <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+
           <Link
-            href="/tools/historia-clinica"
-            className="group relative rounded-lg border-2 border-slate-200 bg-white p-6 text-left transition-all duration-200 hover:-translate-y-1 hover:border-slate-400 hover:shadow-xl"
+            href="/tools/examen-mental"
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
           >
-            <div className="mb-4 flex items-start justify-between">
-              <div className="rounded-lg bg-slate-100 p-3 transition-colors group-hover:bg-slate-800">
-                <FileText className="h-6 w-6 text-slate-700 transition-colors group-hover:text-white" />
+            <div className="flex items-start justify-between">
+              <div className="rounded-xl bg-slate-50 p-3">
+                <Brain className="h-5 w-5 text-slate-600" />
               </div>
-              <ArrowRight className="h-5 w-5 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-slate-800" />
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-slate-800">Historia Clínica Psiquiátrica</h3>
-            <p className="text-sm leading-relaxed text-slate-600">
-              Formato estructurado para evaluación psiquiátrica básica. Generación de informe en PDF.
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Examen Mental</h3>
+            <p className="text-sm text-slate-500">
+              Elaborar el examen mental de forma estructurada.
             </p>
           </Link>
 
-          {/* Examen Mental + Generador de Pauta — apilados, mismo ancho que una tarjeta normal */}
-          <div className="flex flex-col gap-3">
-            <Link
-              href="/tools/examen-mental"
-              className="flex-1 group relative rounded-lg border-2 border-indigo-100 bg-indigo-50 p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md"
-            >
-              <div className="mb-2 flex items-start justify-between">
-                <div className="rounded-lg bg-white p-2 shadow-sm transition-colors group-hover:bg-indigo-700">
-                  <Brain className="h-5 w-5 text-indigo-600 transition-colors group-hover:text-white" />
-                </div>
-                <ArrowRight className="h-4 w-4 text-indigo-300 transition-all group-hover:translate-x-1 group-hover:text-indigo-700" />
-              </div>
-              <h3 className="mb-1 text-sm font-semibold text-indigo-900">Examen Mental</h3>
-              <p className="text-xs leading-relaxed text-indigo-500">
-                Herramienta de ayuda para elaborar el examen mental de forma estructurada.
-              </p>
-            </Link>
-
-            <Link
-              href="/tools/generador-pauta"
-              className="flex-1 group relative rounded-lg border-2 border-indigo-100 bg-indigo-50 p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md"
-            >
-              <div className="mb-2 flex items-start justify-between">
-                <div className="rounded-lg bg-white p-2 shadow-sm transition-colors group-hover:bg-indigo-700">
-                  <ClipboardList className="h-5 w-5 text-indigo-600 transition-colors group-hover:text-white" />
-                </div>
-                <ArrowRight className="h-4 w-4 text-indigo-300 transition-all group-hover:translate-x-1 group-hover:text-indigo-700" />
-              </div>
-              <h3 className="mb-1 text-sm font-semibold text-indigo-900">Generador de Pauta</h3>
-              <p className="text-xs leading-relaxed text-indigo-500">
-                Generar pauta de tratamiento para el plan de manejo.
-              </p>
-            </Link>
-          </div>
-
-          {/* Escalas Clínicas */}
           <Link
             href="/tools/escalas-clinicas"
-            className="group relative rounded-lg border-2 border-slate-200 bg-white p-6 text-left transition-all duration-200 hover:-translate-y-1 hover:border-slate-400 hover:shadow-xl"
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
           >
-            <div className="mb-4 flex items-start justify-between">
-              <div className="rounded-lg bg-slate-100 p-3 transition-colors group-hover:bg-slate-800">
-                <Activity className="h-6 w-6 text-slate-700 transition-colors group-hover:text-white" />
+            <div className="flex items-start justify-between">
+              <div className="rounded-xl bg-slate-50 p-3">
+                <Activity className="h-5 w-5 text-slate-600" />
               </div>
-              <ArrowRight className="h-5 w-5 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-slate-800" />
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-slate-800">Escalas Clínicas</h3>
-            <p className="text-sm leading-relaxed text-slate-600">
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Escalas Clínicas</h3>
+            <p className="text-sm text-slate-500">
               Escalas de evaluación de uso frecuente en psiquiatría.
             </p>
           </Link>
 
-          {/* Calculadoras Clínicas */}
+          <Link
+            href="/tools/organizador-antecedentes-psq"
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
+          >
+            <div className="flex items-start justify-between">
+              <div className="rounded-xl bg-slate-50 p-3">
+                <History className="h-5 w-5 text-slate-600" />
+              </div>
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
+            </div>
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Organizador de Antecedentes</h3>
+            <p className="text-sm text-slate-500">
+              Organiza cronológicamente los antecedentes psiquiátricos del paciente.
+            </p>
+          </Link>
+
+          <Link
+            href="/tools/linea-vida-psiquiatrica"
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
+          >
+            <div className="flex items-start justify-between">
+              <div className="rounded-xl bg-slate-50 p-3">
+                <LineChart className="h-5 w-5 text-slate-600" />
+              </div>
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
+            </div>
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Línea de Vida</h3>
+            <p className="text-sm text-slate-500">
+              Evolución clínica del paciente representada visualmente.
+            </p>
+          </Link>
+
+        </div>
+
+        {/* Bloque 3 — Tratamiento */}
+        <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
+
+          <Link
+            href="/tools/generador-pauta"
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
+          >
+            <div className="flex items-start justify-between">
+              <div className="rounded-xl bg-slate-50 p-3">
+                <ClipboardList className="h-5 w-5 text-slate-600" />
+              </div>
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
+            </div>
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Generador de Pauta</h3>
+            <p className="text-sm text-slate-500">
+              Genera pauta de tratamiento para el plan de manejo.
+            </p>
+          </Link>
+
           <Link
             href="/tools/calculadoras-clinicas"
-            className="group relative rounded-lg border-2 border-slate-200 bg-white p-6 text-left transition-all duration-200 hover:-translate-y-1 hover:border-slate-400 hover:shadow-xl"
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
           >
-            <div className="mb-4 flex items-start justify-between">
-              <div className="rounded-lg bg-slate-100 p-3 transition-colors group-hover:bg-slate-800">
-                <Calculator className="h-6 w-6 text-slate-700 transition-colors group-hover:text-white" />
+            <div className="flex items-start justify-between">
+              <div className="rounded-xl bg-slate-50 p-3">
+                <Calculator className="h-5 w-5 text-slate-600" />
               </div>
-              <ArrowRight className="h-5 w-5 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-slate-800" />
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-slate-800">Herramientas Farmacológicas</h3>
-            <p className="text-sm leading-relaxed text-slate-600">
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Herramientas Farmacológicas</h3>
+            <p className="text-sm text-slate-500">
               Dosis, equivalencias, planes de discontinuación y más.
             </p>
           </Link>
 
-          {/* Psicoeducación */}
           <Link
             href="/recursos-psicoeducacion"
-            className="group relative rounded-lg border-2 border-slate-200 bg-white p-6 text-left transition-all duration-200 hover:-translate-y-1 hover:border-slate-400 hover:shadow-xl"
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
           >
-            <div className="mb-4 flex items-start justify-between">
-              <div className="rounded-lg bg-slate-100 p-3 transition-colors group-hover:bg-slate-800">
-                <BookOpen className="h-6 w-6 text-slate-700 transition-colors group-hover:text-white" />
+            <div className="flex items-start justify-between">
+              <div className="rounded-xl bg-slate-50 p-3">
+                <BookOpen className="h-5 w-5 text-slate-600" />
               </div>
-              <ArrowRight className="h-5 w-5 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-slate-800" />
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-slate-800">Recursos de Psicoeducación</h3>
-            <p className="text-sm leading-relaxed text-slate-600">
-              Material educativo para pacientes y familiares, listo para imprimir y entregar en consulta.
-            </p>
-          </Link>
-
-          {/* Organizador de Antecedentes */}
-          <Link
-            href="/tools/organizador-antecedentes-psq"
-            className="group relative rounded-lg border-2 border-slate-200 bg-white p-6 text-left transition-all duration-200 hover:-translate-y-1 hover:border-slate-400 hover:shadow-xl"
-          >
-            <div className="mb-4 flex items-start justify-between">
-              <div className="rounded-lg bg-slate-100 p-3 transition-colors group-hover:bg-slate-800">
-                <History className="h-6 w-6 text-slate-700 transition-colors group-hover:text-white" />
-              </div>
-              <ArrowRight className="h-5 w-5 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-slate-800" />
-            </div>
-            <h3 className="mb-2 text-lg font-semibold text-slate-800">Organizador de Antecedentes</h3>
-            <p className="text-sm leading-relaxed text-slate-600">
-              Organiza de forma cornológica los antecedentes psiquiátricos del paciente.
-            </p>
-          </Link>
-
-          {/* Línea de Vida Psiquiátrica */}
-          <Link
-            href="/tools/linea-vida-psiquiatrica"
-            className="group relative rounded-lg border-2 border-slate-200 bg-white p-6 text-left transition-all duration-200 hover:-translate-y-1 hover:border-slate-400 hover:shadow-xl"
-          >
-            <div className="mb-4 flex items-start justify-between">
-              <div className="rounded-lg bg-slate-100 p-3 transition-colors group-hover:bg-slate-800">
-                <LineChart className="h-6 w-6 text-slate-700 transition-colors group-hover:text-white" />
-              </div>
-              <ArrowRight className="h-5 w-5 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-slate-800" />
-            </div>
-            <h3 className="mb-2 text-lg font-semibold text-slate-800">Línea de Vida Psiquiátrica</h3>
-            <p className="text-sm leading-relaxed text-slate-600">
-              Representa visualmente la evolución clínica del paciente a lo largo del tiempo.
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Recursos de Psicoeducación</h3>
+            <p className="text-sm text-slate-500">
+              Material educativo para pacientes y familiares listo para entregar en consulta.
             </p>
           </Link>
 
         </div>
-
-        <FeedbackSection />
 
         {/* Footer */}
-        <div className="mt-16 text-center">
+        <div className="mt-16 flex flex-col items-center gap-3 text-center">
           <p className="text-sm text-slate-500">
-            Herramienta con fines formativos • No sustituye el criterio médico profesional
+            Herramienta con fines formativos • No sustituye el criterio médico profesional •{" "}
+            <Link
+              href="/feedback"
+              className="underline underline-offset-2 hover:text-slate-800 transition-colors"
+            >
+              ¿Sugerencias? Escríbenos
+            </Link>
+          </p>
+          <p className="text-xs text-slate-400">
+            Todas las herramientas funcionan localmente en tu dispositivo. No se almacena ni transmite información clínica.
           </p>
         </div>
+
       </div>
     </div>
   );

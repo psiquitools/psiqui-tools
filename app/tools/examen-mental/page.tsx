@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link";
 import {
-  Brain, Download, ArrowLeft, ChevronLeft, ChevronRight, Check, AlertTriangle,
+  Brain, Download, ChevronLeft, ChevronRight, Check, AlertTriangle,
   Loader2, Clipboard, ClipboardCheck, GripVertical, Info,
 } from "lucide-react";
 import jsPDF from "jspdf";
@@ -295,9 +294,9 @@ const seccionesAgrupadas: Record<keyof ExamenMentalData, GrupoOpciones[]> = {
 
 const gridCols: Record<number, string> = {
   1: "grid-cols-1",
-  2: "grid-cols-2",
-  3: "grid-cols-3",
-  4: "grid-cols-4",
+  2: "grid-cols-1 md:grid-cols-2",
+  3: "grid-cols-1 md:grid-cols-3",
+  4: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
 };
 
 const colSpan: Record<number, string> = {
@@ -392,7 +391,6 @@ const hedoniaGen: GenFn = (opciones, texto) => {
   );
   const otros = opciones.filter(o => !perdidas.includes(o));
   const frases: string[] = [];
-
   if (perdidas.length === 1) frases.push(perdidas[0]);
   else if (perdidas.length === 2) {
     const sufijos = perdidas.map(o =>
@@ -692,17 +690,12 @@ export default function ExamenMentalPage() {
   const handleDragEnd = () => { setDragOverIdx(null); };
 
   const seccionActual = !enResumen ? secciones[paso] : null;
-  const progreso = (paso / TOTAL) * 100;
 
   return (
     <div className="bg-slate-50 min-h-screen flex flex-col">
       {/* Barra superior */}
-      <div className="sticky top-0 bg-white border-b z-50">
+      <div className="sticky top-[60px] bg-white border-b z-40">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 text-sm">
-            <ArrowLeft className="w-4 h-4" />
-            Volver
-          </Link>
           <div className="flex items-center gap-2">
             <Brain className="w-5 h-5 text-slate-700" />
             <span className="font-semibold text-slate-800 text-sm">Examen Mental</span>
@@ -712,7 +705,7 @@ export default function ExamenMentalPage() {
           </span>
         </div>
         <div className="h-1 bg-slate-100">
-          <div className="h-1 bg-slate-800 transition-all duration-300" style={{ width: `${progreso}%` }} />
+          <div className="h-1 bg-slate-800 transition-all duration-300" style={{ width: `${(paso / TOTAL) * 100}%` }} />
         </div>
       </div>
 
@@ -761,7 +754,7 @@ export default function ExamenMentalPage() {
                           {grupo.info}
                         </div>
                       )}
-                      <div className={grupo.columnas === 2 ? "grid grid-cols-2 gap-1.5" : "flex flex-col gap-1.5"}>
+                      <div className={grupo.columnas === 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-1.5" : "flex flex-col gap-1.5"}>
                         {grupo.opciones.map(opcion => {
                           const sel = examen[seccionActual.key].opciones.includes(opcion);
                           const esAlto = seccionActual.key === "riesgo" && OPCIONES_RIESGO_ALTO.includes(opcion);
@@ -769,16 +762,16 @@ export default function ExamenMentalPage() {
                             <button
                               key={opcion}
                               onClick={() => toggleOpcion(seccionActual.key, opcion)}
-                              className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all border text-left ${sel
-                                  ? esAlto
-                                    ? "bg-red-700 border-red-700 text-white"
-                                    : "bg-slate-800 border-slate-800 text-white"
-                                  : esAlto
-                                    ? "bg-white border-red-200 text-red-700 hover:border-red-400"
-                                    : "bg-white border-slate-200 text-slate-700 hover:border-slate-400"
+                              className={`inline-flex items-start gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all border text-left ${sel
+                                ? esAlto
+                                  ? "bg-red-700 border-red-700 text-white"
+                                  : "bg-slate-800 border-slate-800 text-white"
+                                : esAlto
+                                  ? "bg-white border-red-200 text-red-700 hover:border-red-400"
+                                  : "bg-white border-slate-200 text-slate-700 hover:border-slate-400"
                                 }`}
                             >
-                              <span className={`w-3.5 h-3.5 flex-shrink-0 rounded border flex items-center justify-center ${sel ? "bg-white border-white" : esAlto ? "border-red-300" : "border-slate-300"
+                              <span className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 rounded border flex items-center justify-center ${sel ? "bg-white border-white" : esAlto ? "border-red-300" : "border-slate-300"
                                 }`}>
                                 {sel && <Check className={`w-2.5 h-2.5 ${esAlto ? "text-red-700" : "text-slate-800"}`} />}
                               </span>
@@ -856,10 +849,9 @@ export default function ExamenMentalPage() {
                     onDrop={handleDrop}
                     onDragEnd={handleDragEnd}
                     onClick={() => setPaso(pasoOriginal)}
-                    className={`group w-full text-left bg-white rounded-lg px-4 py-3 border transition-all cursor-pointer select-none ${
-                      dragOverIdx === i ? "border-slate-400 bg-slate-50 scale-[1.01]" :
-                      esAlerta ? "border-red-200 hover:border-red-300" : "border-slate-100 hover:border-slate-400"
-                    }`}
+                    className={`group w-full text-left bg-white rounded-lg px-4 py-3 border transition-all cursor-pointer select-none ${dragOverIdx === i ? "border-slate-400 bg-slate-50 scale-[1.01]" :
+                        esAlerta ? "border-red-200 hover:border-red-300" : "border-slate-100 hover:border-slate-400"
+                      }`}
                   >
                     <div className="flex items-start gap-2">
                       <GripVertical className="w-4 h-4 text-slate-200 group-hover:text-slate-400 flex-shrink-0 mt-0.5 cursor-grab" />
@@ -952,11 +944,10 @@ export default function ExamenMentalPage() {
                   </button>
                   <button
                     onClick={copiarPropuesta}
-                    className={`flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
-                      copiado
+                    className={`flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${copiado
                         ? "bg-emerald-600 text-white"
                         : "bg-violet-700 hover:bg-violet-800 text-white"
-                    }`}
+                      }`}
                   >
                     {copiado
                       ? <ClipboardCheck className="w-4 h-4" />
