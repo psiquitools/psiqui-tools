@@ -52,7 +52,7 @@ export default function Prueba() {
             <FileText className="h-7 w-7 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="mb-1 text-2xl font-bold text-slate-900">
+            <h3 className="mb-1 text-lg font-semibold text-slate-900">
               Historia Clínica Psiquiátrica
             </h3>
             <p className="text-sm leading-relaxed text-slate-700">
@@ -71,7 +71,7 @@ export default function Prueba() {
             <CalendarClock className="h-7 w-7 text-slate-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="mb-1 text-2xl font-bold text-slate-800">
+            <h3 className="mb-1 text-lg font-semibold text-slate-800">
               Consulta de Seguimiento
             </h3>
             <p className="text-sm leading-relaxed text-slate-700">
