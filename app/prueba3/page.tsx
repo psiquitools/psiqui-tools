@@ -12,7 +12,7 @@ import {
   LineChart,
 } from "lucide-react";
 
-export default function Home() {
+export default function Prueba3() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#EEF2FF" }}>
 

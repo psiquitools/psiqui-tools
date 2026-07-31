@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import {
     Calendar,
     Plus,
     Trash2,
     Edit2,
     FileDown,
-    ArrowLeft,
     History,
     AlignLeft,
 } from "lucide-react";
@@ -135,15 +133,6 @@ export default function OrganizadorAntecedentesPage() {
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900">
             <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
-
-                {/* Volver */}
-                <Link
-                    href="/"
-                    className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    Volver a psiqui.tools
-                </Link>
 
                 {/* Header */}
                 <div className="flex items-center justify-between flex-wrap gap-4">

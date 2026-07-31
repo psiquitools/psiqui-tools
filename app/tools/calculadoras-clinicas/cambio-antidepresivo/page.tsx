@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Clock, Minus, ChevronDown } from "lucide-react";
+import { ArrowRight, AlertTriangle, CheckCircle, Clock, Minus, ChevronDown } from "lucide-react";
 
 /* ─── tipos ─────────────────────────────────────────────── */
 
@@ -100,12 +99,6 @@ export default function CambioAntidepresivo() {
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-6">
       <div className="mx-auto max-w-5xl space-y-8">
-
-        {/* Volver */}
-        <Link href="/tools/calculadoras-clinicas" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900">
-          <ArrowLeft className="h-4 w-4" />
-          Volver a Herramientas Farmacológicas
-        </Link>
 
         {/* Encabezado */}
         <div>

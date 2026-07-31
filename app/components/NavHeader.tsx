@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
@@ -14,7 +15,8 @@ export function NavHeader() {
     if (isHome) return null;
     const segments = pathname.split("/").filter(Boolean);
     if (segments.length >= 2) {
-      return "/" + segments.slice(0, -1).join("/");
+      const parent = "/" + segments.slice(0, -1).join("/");
+      return parent === "/tools" ? "/" : parent;
     }
     return "/";
   })();
@@ -35,21 +37,16 @@ export function NavHeader() {
           </>
         )}
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800">
-            <svg viewBox="0 0 48 48" fill="none" className="w-full h-full" aria-hidden="true">
-              <circle cx="24" cy="24" r="3.5" stroke="white" strokeWidth="1.5"/>
-              <circle cx="14" cy="16" r="2.5" stroke="white" strokeWidth="1.5"/>
-              <circle cx="34" cy="16" r="2.5" stroke="white" strokeWidth="1.5"/>
-              <circle cx="14" cy="32" r="2.5" stroke="white" strokeWidth="1.5"/>
-              <circle cx="34" cy="32" r="2.5" stroke="white" strokeWidth="1.5"/>
-              <line x1="21" y1="22.5" x2="16.5" y2="18" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
-              <line x1="27" y1="22.5" x2="31.5" y2="18" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
-              <line x1="21" y1="25.5" x2="16.5" y2="30" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
-              <line x1="27" y1="25.5" x2="31.5" y2="30" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
-            </svg>
-          </div>
-          <span className="text-sm tracking-wide text-slate-500">
-            psiqui<span className="font-semibold text-slate-800">.tools</span>
+          <Image
+            src="/psiqui-logo.svg"
+            alt="psiqui.tools"
+            width={32}
+            height={32}
+            className="rounded-lg"
+            unoptimized
+          />
+          <span className="text-sm tracking-wide font-light" style={{ color: "#1E1B4B" }}>
+            psiqui<span className="font-semibold" style={{ color: "#4338CA" }}>.tools</span>
           </span>
         </Link>
       </div>

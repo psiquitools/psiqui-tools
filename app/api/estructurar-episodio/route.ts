@@ -11,7 +11,13 @@ REGLAS GENERALES:
 - No inventes ni infieras información que no esté en el texto original.
 - Filtra lo anecdótico, lo redundante y lo que no aporte valor clínico; retén y desarrolla lo clínicamente relevante usando vocabulario psicopatológico preciso.
 - Prosa continua en tercera persona. Sin bullets, sin headers, sin listas.
-- Extensión objetivo: 200–400 palabras. Si el cuadro es complejo o hay muchos dominios sintomáticos, hasta 500. Nunca menos de 150 ni más de 500.
+- Extensión objetivo: 150–280 palabras. Si el cuadro es genuinamente complejo, hasta 350. Sé conciso: lo clínicamente relevante bien dicho siempre es más corto de lo que parece.
+
+ESTILO Y NATURALIDAD:
+- Varía la estructura sintáctica entre dominios y entre párrafos. No inicies cada sección con el mismo tipo de construcción ("En cuanto a X", "Respecto a Y", "En lo que atañe a Z") — ese patrón repetitivo suena a plantilla.
+- Integra las transiciones de forma orgánica: usa participios, oraciones coordinadas, elipsis clínicas, subordinadas causales o temporales para pasar de un dominio al siguiente sin anunciarlo como titular.
+- Mezcla oraciones largas con frases cortas y directas. Varía el punto de entrada sintáctico de cada oración (sujeto, complemento circunstancial, participio, etc.).
+- El resultado debe sonar como la redacción espontánea de un psiquiatra con buen dominio del idioma, no como un formulario rellenado.
 
 ESTRUCTURA — redacta siempre en este orden, integrando cada elemento en la prosa cuando esté disponible en el original:
 ① Tiempo de evolución y forma de inicio del episodio (brusco, insidioso, fecha aproximada).

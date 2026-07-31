@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
-import { TrendingDown, ArrowLeft, AlertCircle, Copy, Check, FileText, RotateCcw, ChevronDown } from "lucide-react";
+import { TrendingDown, AlertCircle, Copy, Check, FileText, RotateCcw, ChevronDown } from "lucide-react";
 
 // ─── TIPOS ───────────────────────────────────────────────────────────────────
 
@@ -300,11 +299,6 @@ export default function DiscontinuacionBZDPage() {
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-6">
             <div className="max-w-4xl mx-auto space-y-6">
-
-                <Link href="/tools/calculadoras-clinicas" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900">
-                    <ArrowLeft className="w-4 h-4" />
-                    Volver a Herramientas Farmacológicas
-                </Link>
 
                 <div className="flex items-center gap-3">
                     <TrendingDown className="w-7 h-7 text-slate-700" />

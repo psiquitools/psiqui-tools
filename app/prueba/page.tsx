@@ -6,7 +6,7 @@ import {
   ArrowRight,
   Activity,
   BookOpen,
-  History,
+  CalendarClock,
   Calculator,
   ClipboardList,
   LineChart,
@@ -21,7 +21,7 @@ export default function Prueba() {
         {/* Header */}
         <div className="mb-12 text-center">
           <div className="mb-5 flex items-center justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-slate-800 shadow-md overflow-hidden">
+            <div className="overflow-hidden rounded-2xl shadow-md">
               <Image
                 src="/logo1.png"
                 alt="psiqui.tools"
@@ -32,9 +32,9 @@ export default function Prueba() {
             </div>
           </div>
 
-          <h1 className="mb-3 text-4xl tracking-wide text-slate-700">
-            <span className="font-light">psiqui</span>
-            <span className="font-semibold text-slate-800">.tools</span>
+          <h1 className="mb-3 text-4xl tracking-wide">
+            <span className="font-light" style={{ color: "#1E1B4B" }}>psiqui</span>
+            <span className="font-semibold" style={{ color: "#4338CA" }}>.tools</span>
           </h1>
 
           <p className="mx-auto mb-8 max-w-2xl text-base tracking-wide text-slate-500">
@@ -42,25 +42,49 @@ export default function Prueba() {
           </p>
         </div>
 
-        {/* Bloque 1 — Historia Clínica */}
-        <Link
-          href="/tools/historia-clinica"
-          className="group flex items-center gap-6 rounded-xl bg-slate-100 border border-slate-200 p-7 text-left transition-all duration-200 hover:bg-slate-150 hover:border-slate-300 hover:shadow-md w-full"
-        >
-          <div className="shrink-0 rounded-xl bg-slate-800 p-3 transition-colors group-hover:bg-slate-700">
-            <FileText className="h-7 w-7 text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="mb-1 text-2xl font-bold text-slate-900">Historia Clínica Psiquiátrica</h3>
-            <p className="text-sm leading-relaxed text-slate-500">
-              Formato estructurado para evaluación psiquiátrica completa. Recoge identificación, motivo de consulta, episodio actual, antecedentes y examen mental. Genera informe en PDF listo para archivar.
-            </p>
-          </div>
-          <ArrowRight className="shrink-0 h-5 w-5 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-slate-700" />
-        </Link>
+        {/* Bloque 1 — Historia Clínica + Seguimiento en paralelo */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+          <Link
+            href="/tools/historia-clinica"
+            className="group flex flex-col gap-4 rounded-xl bg-slate-100 border border-slate-200 p-7 text-left transition-all duration-200 hover:bg-slate-150 hover:border-slate-300 hover:shadow-md"
+          >
+            <div className="flex items-start justify-between">
+              <div className="shrink-0 rounded-xl bg-slate-800 p-3 transition-colors group-hover:bg-slate-700">
+                <FileText className="h-7 w-7 text-white" />
+              </div>
+              <ArrowRight className="h-5 w-5 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-slate-700" />
+            </div>
+            <div>
+              <h3 className="mb-1 text-xl font-bold text-slate-900">Historia Clínica Psiquiátrica</h3>
+              <p className="text-sm leading-relaxed text-slate-500">
+                Formato estructurado para evaluación psiquiátrica completa. Recoge identificación, motivo de consulta, episodio actual, antecedentes y examen mental. Genera informe en PDF listo para archivar.
+              </p>
+            </div>
+          </Link>
+
+          <Link
+            href="/tools/seguimiento"
+            className="group flex flex-col gap-4 rounded-xl border border-amber-200 bg-amber-50 p-7 text-left transition-all duration-200 hover:border-amber-300 hover:shadow-md"
+          >
+            <div className="flex items-start justify-between">
+              <div className="shrink-0 rounded-xl bg-amber-100 p-3 transition-colors group-hover:bg-amber-200">
+                <CalendarClock className="h-7 w-7 text-amber-600" />
+              </div>
+              <ArrowRight className="h-5 w-5 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-slate-700" />
+            </div>
+            <div>
+              <h3 className="mb-1 text-xl font-bold text-slate-900">Consulta de Seguimiento</h3>
+              <p className="text-sm leading-relaxed text-slate-500">
+                Registra los dominios clínicos explorados, cambios de tratamiento y pauta de tomas. Genera la nota de seguimiento y la nota de tratamiento con IA.
+              </p>
+            </div>
+          </Link>
+
+        </div>
 
         {/* Bloque 2 — Evaluación */}
-        <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3">
 
           <Link
             href="/tools/examen-mental"
@@ -91,22 +115,6 @@ export default function Prueba() {
             <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Escalas Clínicas</h3>
             <p className="text-sm text-slate-500">
               Escalas de evaluación de uso frecuente en psiquiatría.
-            </p>
-          </Link>
-
-          <Link
-            href="/tools/organizador-antecedentes-psq"
-            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
-          >
-            <div className="flex items-start justify-between">
-              <div className="rounded-xl bg-slate-50 p-3">
-                <History className="h-5 w-5 text-slate-600" />
-              </div>
-              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
-            </div>
-            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Organizador de Antecedentes</h3>
-            <p className="text-sm text-slate-500">
-              Organiza cronológicamente los antecedentes psiquiátricos del paciente.
             </p>
           </Link>
 

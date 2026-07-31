@@ -25,16 +25,14 @@ export default function TopBar({ backHref }: TopBarProps) {
                         </>
                     )}
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="bg-slate-800 p-2 rounded-md">
-                            <Image
-                                src="/logo1.png"
-                                alt="psiqui.tools"
-                                width={24}
-                                height={24}
-                                className="object-contain"
-                                priority
-                            />
-                        </div>
+                        <Image
+                            src="/logo1.png"
+                            alt="psiqui.tools"
+                            width={28}
+                            height={28}
+                            className="rounded-md"
+                            priority
+                        />
                         <span className="text-sm font-medium text-slate-800 group-hover:text-slate-900">
                             psiqui.tools
                         </span>
