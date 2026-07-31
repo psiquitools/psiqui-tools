@@ -14,7 +14,7 @@ import {
 
 export default function Home() {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#EEF2FF" }}>
+    <div className="min-h-screen bg-white">
 
       <div className="mx-auto max-w-5xl p-6 md:p-12">
 
@@ -32,15 +32,12 @@ export default function Home() {
             </div>
           </div>
 
-          <h1 className="mb-3 text-4xl tracking-wide">
-            <span className="font-light" style={{ color: "#1E1B4B" }}>psiqui</span>
-            <span className="font-semibold" style={{ color: "#4338CA" }}>.tools</span>
+          <h1 className="mb-3 text-4xl tracking-wide text-slate-700">
+            <span className="font-light">psiqui</span>
+            <span className="font-semibold text-slate-800">.tools</span>
           </h1>
 
-          <p
-            className="mx-auto mb-8 max-w-2xl text-base tracking-wide"
-            style={{ color: "#3730A3" }}
-          >
+          <p className="mx-auto mb-8 max-w-2xl text-base tracking-wide text-slate-500">
             Herramientas clínicas para residentes de psiquiatría
           </p>
         </div>
@@ -48,48 +45,39 @@ export default function Home() {
         {/* Historia Clínica — card destacada */}
         <Link
           href="/tools/historia-clinica"
-          className="group flex items-center gap-6 rounded-xl border-2 border-[#4338CA] p-7 text-left transition-all duration-200 hover:shadow-[0_4px_20px_rgba(99,102,241,0.25)] w-full"
-          style={{ backgroundColor: "#FFFFFF" }}
+          className="group flex items-center gap-6 rounded-xl bg-slate-100 border border-slate-200 p-7 text-left transition-all duration-200 hover:border-slate-300 hover:shadow-md w-full"
         >
-          <div
-            className="shrink-0 rounded-xl p-3 transition-colors"
-            style={{ backgroundColor: "#4338CA" }}
-          >
-            <FileText className="h-7 w-7" style={{ color: "#FFFFFF" }} />
+          <div className="shrink-0 rounded-xl bg-slate-800 p-3 transition-colors group-hover:bg-slate-700">
+            <FileText className="h-7 w-7 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="mb-1 text-2xl font-bold" style={{ color: "#1E1B4B" }}>
+            <h3 className="mb-1 text-2xl font-bold text-slate-900">
               Historia Clínica Psiquiátrica
             </h3>
-            <p className="text-sm leading-relaxed" style={{ color: "#3730A3" }}>
+            <p className="text-sm leading-relaxed text-slate-500">
               Formato estructurado para evaluación psiquiátrica completa. Recoge identificación, motivo de consulta, episodio actual, antecedentes y examen mental. Genera informe en PDF listo para archivar.
             </p>
           </div>
-          <ArrowRight
-            className="shrink-0 h-5 w-5 transition-all group-hover:translate-x-1 text-[#A5B4FC] group-hover:text-[#4338CA]"
-          />
+          <ArrowRight className="shrink-0 h-5 w-5 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-slate-700" />
         </Link>
 
         {/* Seguimiento — card normal */}
         <Link
           href="/tools/seguimiento"
-          className="group mt-4 flex items-center gap-6 rounded-xl border border-[#E0E7FF] p-7 text-left transition-all duration-200 hover:border-[#6366F1] hover:shadow-[0_4px_20px_rgba(99,102,241,0.15)] w-full"
-          style={{ backgroundColor: "#FFFFFF" }}
+          className="group mt-4 flex items-center gap-6 rounded-xl border border-slate-300 bg-white p-7 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md w-full"
         >
-          <div className="shrink-0 rounded-xl p-3 transition-colors bg-[#EEF2FF] group-hover:bg-[#E0E7FF]">
-            <CalendarClock className="h-7 w-7" style={{ color: "#4338CA" }} />
+          <div className="shrink-0 rounded-xl bg-slate-50 p-3">
+            <CalendarClock className="h-7 w-7 text-slate-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="mb-1 text-2xl font-bold" style={{ color: "#1E1B4B" }}>
+            <h3 className="mb-1 text-2xl font-bold text-slate-800">
               Consulta de Seguimiento
             </h3>
-            <p className="text-sm leading-relaxed" style={{ color: "#3730A3" }}>
+            <p className="text-sm leading-relaxed text-slate-500">
               Registra los dominios clínicos explorados, cambios de tratamiento y pauta de tomas. Genera la nota de seguimiento y la nota de tratamiento con IA.
             </p>
           </div>
-          <ArrowRight
-            className="shrink-0 h-5 w-5 transition-all group-hover:translate-x-1 text-[#A5B4FC] group-hover:text-[#4338CA]"
-          />
+          <ArrowRight className="shrink-0 h-5 w-5 text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-slate-600" />
         </Link>
 
         {/* Evaluación */}
@@ -97,59 +85,44 @@ export default function Home() {
 
           <Link
             href="/tools/examen-mental"
-            className="group rounded-xl border border-[#E0E7FF] p-6 text-left transition-all duration-200 hover:border-[#6366F1] hover:shadow-[0_4px_20px_rgba(99,102,241,0.15)]"
-            style={{ backgroundColor: "#FFFFFF" }}
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
           >
             <div className="flex items-start justify-between">
-              <div className="rounded-xl p-3" style={{ backgroundColor: "#EEF2FF" }}>
-                <Brain className="h-5 w-5" style={{ color: "#4338CA" }} />
+              <div className="rounded-xl bg-slate-50 p-3">
+                <Brain className="h-5 w-5 text-slate-600" />
               </div>
-              <ArrowRight className="h-4 w-4 transition-all group-hover:translate-x-0.5 text-[#A5B4FC] group-hover:text-[#4338CA]" />
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
-            <h3 className="mt-4 mb-1 text-base font-semibold" style={{ color: "#1E1B4B" }}>
-              Examen Mental
-            </h3>
-            <p className="text-sm" style={{ color: "#3730A3" }}>
-              Elaborar el examen mental de forma estructurada.
-            </p>
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Examen Mental</h3>
+            <p className="text-sm text-slate-500">Elaborar el examen mental de forma estructurada.</p>
           </Link>
 
           <Link
             href="/tools/escalas-clinicas"
-            className="group rounded-xl border border-[#E0E7FF] p-6 text-left transition-all duration-200 hover:border-[#6366F1] hover:shadow-[0_4px_20px_rgba(99,102,241,0.15)]"
-            style={{ backgroundColor: "#FFFFFF" }}
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
           >
             <div className="flex items-start justify-between">
-              <div className="rounded-xl p-3" style={{ backgroundColor: "#EEF2FF" }}>
-                <Activity className="h-5 w-5" style={{ color: "#4338CA" }} />
+              <div className="rounded-xl bg-slate-50 p-3">
+                <Activity className="h-5 w-5 text-slate-600" />
               </div>
-              <ArrowRight className="h-4 w-4 transition-all group-hover:translate-x-0.5 text-[#A5B4FC] group-hover:text-[#4338CA]" />
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
-            <h3 className="mt-4 mb-1 text-base font-semibold" style={{ color: "#1E1B4B" }}>
-              Escalas Clínicas
-            </h3>
-            <p className="text-sm" style={{ color: "#3730A3" }}>
-              Escalas de evaluación de uso frecuente en psiquiatría.
-            </p>
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Escalas Clínicas</h3>
+            <p className="text-sm text-slate-500">Escalas de evaluación de uso frecuente en psiquiatría.</p>
           </Link>
 
           <Link
             href="/tools/linea-vida-psiquiatrica"
-            className="group rounded-xl border border-[#E0E7FF] p-6 text-left transition-all duration-200 hover:border-[#6366F1] hover:shadow-[0_4px_20px_rgba(99,102,241,0.15)]"
-            style={{ backgroundColor: "#FFFFFF" }}
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
           >
             <div className="flex items-start justify-between">
-              <div className="rounded-xl p-3" style={{ backgroundColor: "#EEF2FF" }}>
-                <LineChart className="h-5 w-5" style={{ color: "#4338CA" }} />
+              <div className="rounded-xl bg-slate-50 p-3">
+                <LineChart className="h-5 w-5 text-slate-600" />
               </div>
-              <ArrowRight className="h-4 w-4 transition-all group-hover:translate-x-0.5 text-[#A5B4FC] group-hover:text-[#4338CA]" />
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
-            <h3 className="mt-4 mb-1 text-base font-semibold" style={{ color: "#1E1B4B" }}>
-              Línea de Vida
-            </h3>
-            <p className="text-sm" style={{ color: "#3730A3" }}>
-              Evolución clínica del paciente representada visualmente.
-            </p>
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Línea de Vida</h3>
+            <p className="text-sm text-slate-500">Evolución clínica del paciente representada visualmente.</p>
           </Link>
 
         </div>
@@ -159,78 +132,60 @@ export default function Home() {
 
           <Link
             href="/tools/generador-pauta"
-            className="group rounded-xl border border-[#E0E7FF] p-6 text-left transition-all duration-200 hover:border-[#6366F1] hover:shadow-[0_4px_20px_rgba(99,102,241,0.15)]"
-            style={{ backgroundColor: "#FFFFFF" }}
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
           >
             <div className="flex items-start justify-between">
-              <div className="rounded-xl p-3" style={{ backgroundColor: "#EEF2FF" }}>
-                <ClipboardList className="h-5 w-5" style={{ color: "#4338CA" }} />
+              <div className="rounded-xl bg-slate-50 p-3">
+                <ClipboardList className="h-5 w-5 text-slate-600" />
               </div>
-              <ArrowRight className="h-4 w-4 transition-all group-hover:translate-x-0.5 text-[#A5B4FC] group-hover:text-[#4338CA]" />
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
-            <h3 className="mt-4 mb-1 text-base font-semibold" style={{ color: "#1E1B4B" }}>
-              Generador de Pauta
-            </h3>
-            <p className="text-sm" style={{ color: "#3730A3" }}>
-              Genera pauta de tratamiento para el plan de manejo.
-            </p>
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Generador de Pauta</h3>
+            <p className="text-sm text-slate-500">Genera pauta de tratamiento para el plan de manejo.</p>
           </Link>
 
           <Link
             href="/tools/calculadoras-clinicas"
-            className="group rounded-xl border border-[#E0E7FF] p-6 text-left transition-all duration-200 hover:border-[#6366F1] hover:shadow-[0_4px_20px_rgba(99,102,241,0.15)]"
-            style={{ backgroundColor: "#FFFFFF" }}
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
           >
             <div className="flex items-start justify-between">
-              <div className="rounded-xl p-3" style={{ backgroundColor: "#EEF2FF" }}>
-                <Calculator className="h-5 w-5" style={{ color: "#4338CA" }} />
+              <div className="rounded-xl bg-slate-50 p-3">
+                <Calculator className="h-5 w-5 text-slate-600" />
               </div>
-              <ArrowRight className="h-4 w-4 transition-all group-hover:translate-x-0.5 text-[#A5B4FC] group-hover:text-[#4338CA]" />
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
-            <h3 className="mt-4 mb-1 text-base font-semibold" style={{ color: "#1E1B4B" }}>
-              Herramientas Farmacológicas
-            </h3>
-            <p className="text-sm" style={{ color: "#3730A3" }}>
-              Dosis, equivalencias, planes de discontinuación y más.
-            </p>
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Herramientas Farmacológicas</h3>
+            <p className="text-sm text-slate-500">Dosis, equivalencias, planes de discontinuación y más.</p>
           </Link>
 
           <Link
             href="/recursos-psicoeducacion"
-            className="group rounded-xl border border-[#E0E7FF] p-6 text-left transition-all duration-200 hover:border-[#6366F1] hover:shadow-[0_4px_20px_rgba(99,102,241,0.15)]"
-            style={{ backgroundColor: "#FFFFFF" }}
+            className="group rounded-xl border border-slate-300 bg-white p-6 text-left transition-all duration-200 hover:border-slate-400 hover:shadow-md"
           >
             <div className="flex items-start justify-between">
-              <div className="rounded-xl p-3" style={{ backgroundColor: "#EEF2FF" }}>
-                <BookOpen className="h-5 w-5" style={{ color: "#4338CA" }} />
+              <div className="rounded-xl bg-slate-50 p-3">
+                <BookOpen className="h-5 w-5 text-slate-600" />
               </div>
-              <ArrowRight className="h-4 w-4 transition-all group-hover:translate-x-0.5 text-[#A5B4FC] group-hover:text-[#4338CA]" />
+              <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
-            <h3 className="mt-4 mb-1 text-base font-semibold" style={{ color: "#1E1B4B" }}>
-              Recursos de Psicoeducación
-            </h3>
-            <p className="text-sm" style={{ color: "#3730A3" }}>
-              Material educativo para pacientes y familiares listo para entregar en consulta.
-            </p>
+            <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Recursos de Psicoeducación</h3>
+            <p className="text-sm text-slate-500">Material educativo para pacientes y familiares listo para entregar en consulta.</p>
           </Link>
 
         </div>
 
         {/* Footer */}
-        <div
-          className="mt-16 flex flex-col items-center gap-3 text-center border-t border-[#E0E7FF] pt-8"
-        >
-          <p className="text-sm" style={{ color: "rgba(67, 56, 202, 0.6)" }}>
+        <div className="mt-16 flex flex-col items-center gap-3 text-center">
+          <p className="text-sm text-slate-500">
             Herramienta con fines formativos • No sustituye el criterio médico profesional •{" "}
             <Link
               href="/feedback"
-              className="underline underline-offset-2 hover:text-[#1E1B4B] transition-colors"
-              style={{ color: "rgba(67, 56, 202, 0.6)" }}
+              className="underline underline-offset-2 hover:text-slate-800 transition-colors"
             >
               ¿Sugerencias? Escríbenos
             </Link>
           </p>
-          <p className="text-xs" style={{ color: "rgba(99, 102, 241, 0.5)" }}>
+          <p className="text-xs text-slate-400">
             Todas las herramientas funcionan localmente en tu dispositivo. No se almacena ni transmite información clínica.
           </p>
         </div>

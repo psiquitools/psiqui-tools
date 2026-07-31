@@ -45,8 +45,8 @@ export function NavHeader() {
             className="rounded-lg"
             unoptimized
           />
-          <span className="text-sm tracking-wide font-light" style={{ color: "#1E1B4B" }}>
-            psiqui<span className="font-semibold" style={{ color: "#4338CA" }}>.tools</span>
+          <span className="text-sm tracking-wide font-light text-slate-700">
+            psiqui<span className="font-semibold text-slate-800">.tools</span>
           </span>
         </Link>
       </div>
