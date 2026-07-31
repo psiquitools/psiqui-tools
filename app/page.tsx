@@ -37,7 +37,7 @@ export default function Home() {
             <span className="font-semibold text-slate-800">.tools</span>
           </h1>
 
-          <p className="mx-auto mb-8 max-w-2xl text-base tracking-wide text-slate-500">
+          <p className="mx-auto mb-8 max-w-2xl text-base tracking-wide text-slate-700">
             Herramientas clínicas para residentes de psiquiatría
           </p>
         </div>
@@ -54,7 +54,7 @@ export default function Home() {
             <h3 className="mb-1 text-2xl font-bold text-slate-900">
               Historia Clínica Psiquiátrica
             </h3>
-            <p className="text-sm leading-relaxed text-slate-500">
+            <p className="text-sm leading-relaxed text-slate-700">
               Formato estructurado para evaluación psiquiátrica completa. Recoge identificación, motivo de consulta, episodio actual, antecedentes y examen mental. Genera informe en PDF listo para archivar.
             </p>
           </div>
@@ -73,7 +73,7 @@ export default function Home() {
             <h3 className="mb-1 text-2xl font-bold text-slate-800">
               Consulta de Seguimiento
             </h3>
-            <p className="text-sm leading-relaxed text-slate-500">
+            <p className="text-sm leading-relaxed text-slate-700">
               Registra los dominios clínicos explorados, cambios de tratamiento y pauta de tomas. Genera la nota de seguimiento y la nota de tratamiento con IA.
             </p>
           </div>
@@ -94,7 +94,7 @@ export default function Home() {
               <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
             <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Examen Mental</h3>
-            <p className="text-sm text-slate-500">Elaborar el examen mental de forma estructurada.</p>
+            <p className="text-sm text-slate-700">Elaborar el examen mental de forma estructurada.</p>
           </Link>
 
           <Link
@@ -108,7 +108,7 @@ export default function Home() {
               <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
             <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Escalas Clínicas</h3>
-            <p className="text-sm text-slate-500">Escalas de evaluación de uso frecuente en psiquiatría.</p>
+            <p className="text-sm text-slate-700">Escalas de evaluación de uso frecuente en psiquiatría.</p>
           </Link>
 
           <Link
@@ -122,7 +122,7 @@ export default function Home() {
               <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
             <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Línea de Vida</h3>
-            <p className="text-sm text-slate-500">Evolución clínica del paciente representada visualmente.</p>
+            <p className="text-sm text-slate-700">Evolución clínica del paciente representada visualmente.</p>
           </Link>
 
         </div>
@@ -141,7 +141,7 @@ export default function Home() {
               <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
             <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Generador de Pauta</h3>
-            <p className="text-sm text-slate-500">Genera pauta de tratamiento para el plan de manejo.</p>
+            <p className="text-sm text-slate-700">Genera pauta de tratamiento para el plan de manejo.</p>
           </Link>
 
           <Link
@@ -155,7 +155,7 @@ export default function Home() {
               <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
             <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Herramientas Farmacológicas</h3>
-            <p className="text-sm text-slate-500">Dosis, equivalencias, planes de discontinuación y más.</p>
+            <p className="text-sm text-slate-700">Dosis, equivalencias, planes de discontinuación y más.</p>
           </Link>
 
           <Link
@@ -169,14 +169,14 @@ export default function Home() {
               <ArrowRight className="h-4 w-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-600" />
             </div>
             <h3 className="mt-4 mb-1 text-base font-semibold text-slate-800">Recursos de Psicoeducación</h3>
-            <p className="text-sm text-slate-500">Material educativo para pacientes y familiares listo para entregar en consulta.</p>
+            <p className="text-sm text-slate-700">Material educativo para pacientes y familiares listo para entregar en consulta.</p>
           </Link>
 
         </div>
 
         {/* Footer */}
         <div className="mt-16 flex flex-col items-center gap-3 text-center">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-700">
             Herramienta con fines formativos • No sustituye el criterio médico profesional •{" "}
             <Link
               href="/feedback"
