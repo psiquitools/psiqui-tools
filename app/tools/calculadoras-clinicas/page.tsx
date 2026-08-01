@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Pill, TrendingDown, ClipboardList, Repeat2, Droplets, Syringe, TableProperties, Activity, Scale } from "lucide-react";
+import { ArrowRight, Pill, TrendingDown, ClipboardList, Repeat2, Droplets, Syringe, TableProperties, Activity, Scale, Gauge } from "lucide-react";
 
 type Categoria = "General" | "Antidepresivos" | "Antipsicóticos" | "Benzodiacepinas";
 
@@ -30,6 +30,14 @@ const HERRAMIENTAS: Herramienta[] = [
         description: "Conversión mg · mL · gotas para soluciones orales: haloperidol, clonazepam, risperidona, aripiprazol, quetiapina y más.",
         icon: Droplets,
         href: "/tools/calculadoras-clinicas/formulaciones-liquidas",
+        categoria: "General",
+    },
+    {
+        id: "semaglutida",
+        title: "Semaglutida — Calculadora de clicks",
+        description: "Calcula los clicks en el selector de dosis según la presentación (Ozempic® 0,25/0,5 mg, Ozempic® 1 mg, Wegovy® 1 mg, Wegovy® 2,4 mg).",
+        icon: Gauge,
+        href: "/tools/calculadoras-clinicas/semaglutida",
         categoria: "General",
     },
     {

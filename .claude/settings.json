@@ -1,7 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mkdir -p /Users/Juanma/Documents/proyectos/psiqui-tools/app/tools/escalas-clinicas/c-ssrs)"
+      "Bash(mkdir -p /Users/Juanma/Documents/proyectos/psiqui-tools/app/tools/escalas-clinicas/c-ssrs)",
+      "WebFetch(domain:medsbase.com)",
+      "WebFetch(domain:formblends.com)",
+      "WebFetch(domain:www.medicines.org.uk)",
+      "WebFetch(domain:dosecalc.org)",
+      "WebFetch(domain:cima.aemps.es)",
+      "WebFetch(domain:www.novomedlink.com)",
+      "WebFetch(domain:pro.novonordisk.es)",
+      "WebFetch(domain:pharmagiant.com)",
+      "WebFetch(domain:www.vademecum.es)"
     ],
     "additionalDirectories": [
       "/Users/Juanma/Documents/proyectos/psiqui-tools/app/tools/escalas-clinicas"

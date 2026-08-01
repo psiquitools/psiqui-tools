@@ -76,6 +76,14 @@ const FARMACOS: Farmaco[] = [
         medida: "jeringa",
         notas: "Administrar con jeringa oral graduada (Italfarmaco). Verificar concentración en ficha técnica del lote.",
     },
+    {
+        id: "sertralina",
+        nombre: "Sertralina",
+        marca: "Besitran® solución oral 20 mg/mL",
+        concMgMl: 20,
+        medida: "jeringa",
+        notas: "Administrar con jeringa oral graduada. Diluir en agua, zumo de naranja, de manzana o limonada inmediatamente antes de tomar.",
+    },
 ];
 
 function r3(n: number) {
