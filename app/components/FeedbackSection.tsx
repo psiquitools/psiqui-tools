@@ -91,7 +91,7 @@ export default function FeedbackSection() {
                 value={categoria}
                 onChange={(e) => handleCategoria(e.target.value)}
                 required
-                className="w-full rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
               >
                 <option value="">Selecciona una categoría</option>
                 {CATEGORIAS.map((c) => (
@@ -112,7 +112,7 @@ export default function FeedbackSection() {
                     onChange={(e) => setTituloHerramienta(e.target.value)}
                     required
                     placeholder="Ej: Calculadora de dosis pediátricas"
-                    className="w-full rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 placeholder-slate-300 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 placeholder-slate-300 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
                   />
                 </div>
                 <div>
@@ -124,7 +124,7 @@ export default function FeedbackSection() {
                     onChange={(e) => setDescripcionHerramienta(e.target.value)}
                     rows={3}
                     placeholder="¿Para qué serviría? ¿Qué problema resolvería?"
-                    className="w-full resize-none rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 placeholder-slate-300 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                    className="w-full resize-none rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 placeholder-slate-300 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
                   />
                 </div>
               </>
@@ -141,7 +141,7 @@ export default function FeedbackSection() {
                   required
                   rows={4}
                   placeholder="Describe tu comentario, sugerencia o el problema encontrado..."
-                  className="w-full resize-none rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 placeholder-slate-300 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                  className="w-full resize-none rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 placeholder-slate-300 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
                 />
               </div>
             )}

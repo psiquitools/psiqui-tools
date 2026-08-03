@@ -231,6 +231,22 @@ const PLANTILLAS_EXAMEN: Plantilla[] = [
       "Juicio de realidad conservado. Insight parcial.",
   },
   {
+    id: "dolor-cronico",
+    titulo: "Dolor crónico",
+    texto:
+      "Paciente consciente y orientado en las tres esferas. " +
+      "Abordable y colaborador, con signos objetivables de malestar físico secundario al dolor crónico. " +
+      "Atento. " +
+      "Conductualmente adecuado. Sin alteraciones de la psicomotricidad. " +
+      "Hipotimia referida de curso crónico, reactiva al contexto álgico y al desbordamiento emocional asociado. " +
+      "Afecto reactivo, congruente y de rango restringido. " +
+      "Discurso espontáneo, fluido, coherente y bien estructurado. " +
+      "Sin alteraciones en el curso ni forma del pensamiento. " +
+      "Contenido con ideación de muerte de carácter pasivo referida, sin deseo activo de morir ni ideación autolítica estructurada con plan o intención; el paciente contextualiza su aparición en momentos de agudización del dolor y/o situaciones de desbordamiento emocional. No ideas ni conductas heteroagresivas. " +
+      "Insomnio referido con componente álgico predominante. Apetito variable en relación al dolor. " +
+      "Juicio de realidad conservado. Insight presente.",
+  },
+  {
     id: "tlp",
     titulo: "TLP en crisis",
     texto:
@@ -324,6 +340,18 @@ export default function PlantillasJM() {
   const [textoCita, setTextoCita] = useState("");
   const [copiadoPlanJunto, setCopiadoPlanJunto] = useState(false);
 
+  const [genero, setGenero] = useState<"m" | "f">("m");
+
+  function feminizar(texto: string): string {
+    return texto
+      .replace(/\borientado\b/g, "orientada")
+      .replace(/\bcolaborador\b/g, "colaboradora")
+      .replace(/\bAtento\b/g, "Atenta")
+      .replace(/\batento\b/g, "atenta")
+      .replace(/\badecuado\b/g, "adecuada")
+      .replace(/\bagitado\b/g, "agitada");
+  }
+
   const plantilla = PLANTILLAS_EXAMEN.find((p) => p.id === seleccionada)!;
 
   const bulletsPlan = PLANTILLAS_PLAN
@@ -348,8 +376,11 @@ export default function PlantillasJM() {
     });
   }
 
+  const textoActivo = genero === "f" ? feminizar(plantilla.texto) : plantilla.texto;
+  const textoIAactivo = genero === "f" ? feminizar(iaResultado) : iaResultado;
+
   async function copiar() {
-    await navigator.clipboard.writeText(plantilla.texto);
+    await navigator.clipboard.writeText(textoActivo);
     setCopiado(true);
     setTimeout(() => setCopiado(false), 2000);
   }
@@ -388,7 +419,7 @@ export default function PlantillasJM() {
   }
 
   async function copiarIA() {
-    await navigator.clipboard.writeText(iaResultado);
+    await navigator.clipboard.writeText(textoIAactivo);
     setIaCopiado(true);
     setTimeout(() => setIaCopiado(false), 2000);
   }
@@ -439,6 +470,29 @@ export default function PlantillasJM() {
         {/* Sección: Examen Mental */}
         {seccion === "examen" && (
           <>
+            {/* Toggle género */}
+            <div className="mb-5 flex items-center gap-2">
+              <span className="text-xs text-slate-400">Paciente:</span>
+              <div className="flex overflow-hidden rounded-lg border border-slate-200 text-xs font-medium">
+                <button
+                  onClick={() => setGenero("m")}
+                  className={`px-3 py-1.5 transition-colors ${
+                    genero === "m" ? "bg-slate-800 text-white" : "bg-white text-slate-500 hover:bg-slate-50"
+                  }`}
+                >
+                  Masculino
+                </button>
+                <button
+                  onClick={() => setGenero("f")}
+                  className={`px-3 py-1.5 transition-colors ${
+                    genero === "f" ? "bg-slate-800 text-white" : "bg-white text-slate-500 hover:bg-slate-50"
+                  }`}
+                >
+                  Femenino
+                </button>
+              </div>
+            </div>
+
             {/* Selector */}
             <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-3">
               {PLANTILLAS_EXAMEN.map((p) => (
@@ -485,7 +539,7 @@ export default function PlantillasJM() {
               </div>
               <div className="px-5 py-4">
                 <p className="font-mono text-sm leading-relaxed text-slate-700">
-                  {plantilla.texto}
+                  {textoActivo}
                 </p>
               </div>
             </div>
@@ -569,7 +623,7 @@ export default function PlantillasJM() {
                 </div>
                 <div className="px-5 py-4">
                   <p className="font-mono text-sm leading-relaxed text-slate-700">
-                    {iaResultado}
+                    {textoIAactivo}
                   </p>
                 </div>
               </div>
