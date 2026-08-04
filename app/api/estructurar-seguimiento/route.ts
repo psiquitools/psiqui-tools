@@ -15,6 +15,7 @@ NOTA CLÍNICA DE SEGUIMIENTO:
 - Solo incluye los dominios con información. Los vacíos, ignóralos
 - No incluyas diagnóstico, plan ni información de tratamiento
 - El texto debe sonar como la redacción espontánea de un psiquiatra con dominio del idioma, no como una plantilla rellenada
+- Puntuación permitida: punto, coma, punto y coma, dos puntos, paréntesis y comillas dobles (""). Prohibido: comillas angulares (« »), guion largo (—) y guion medio (–)
 
 NOTA DE TRATAMIENTO:
 - Una o dos frases en tercera persona que reflejen el estado del tratamiento y los cambios de esta consulta

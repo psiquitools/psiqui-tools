@@ -24,7 +24,7 @@ ESTRUCTURA DE SALIDA — redacta en este orden, en bloque continuo, SIN títulos
 
 REGLAS DE FORMATO:
 - Prosa continua para ① y ②. Lista con guiones solo para ③.
-- Solo signos de puntuación básicos: punto, coma, punto y coma, guion (-). Sin viñetas especiales (•, ·, *, –).
+- Solo signos de puntuación básicos: punto, coma, punto y coma, dos puntos, paréntesis, comillas dobles ("") y guion (-). Prohibido: comillas angulares (« »), guion largo (—), guion medio (–) y viñetas especiales (•, ·, *).
 - Sin títulos, encabezados ni etiquetas de sección de ningún tipo.
 
 RESPONDE ÚNICAMENTE con JSON válido en este formato exacto, sin texto adicional fuera del JSON:

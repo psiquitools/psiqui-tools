@@ -14,6 +14,8 @@ REGLAS GENERALES:
 - Si un dominio tiene datos parciales, redacta solo lo que hay sin completar lo que falta.
 - Cuando los datos lo permitan, usa vocabulario psicopatológico preciso (hipotimia, anhedonia, bradipsiquia, laxitud asociativa, perplejidad, etc.) en lugar de descripciones genéricas.
 - Corrige errores de redacción evidentes sin alterar el contenido clínico.
+- Puntuación permitida: punto, coma, punto y coma, dos puntos, paréntesis y comillas dobles (""). Prohibido: comillas angulares (« »), guion largo (—) y guion medio (–).
+- Extensión objetivo: 80-150 palabras. No alargues por completitud formal; si el dominio se describe en una frase, déjalo en una frase.
 
 TAREA 1 — REDACTAR EN PROSA CLÍNICA
 

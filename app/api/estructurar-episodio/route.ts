@@ -11,6 +11,7 @@ REGLAS GENERALES:
 - No inventes ni infieras información que no esté en el texto original.
 - Filtra lo anecdótico, lo redundante y lo que no aporte valor clínico; retén y desarrolla lo clínicamente relevante usando vocabulario psicopatológico preciso.
 - Prosa continua en tercera persona. Sin bullets, sin headers, sin listas.
+- Puntuación permitida: punto, coma, punto y coma, dos puntos, paréntesis y comillas dobles (""). Prohibido: comillas angulares (« »), guion largo (—) y guion medio (–).
 - Extensión objetivo: 150–280 palabras. Si el cuadro es genuinamente complejo, hasta 350. Sé conciso: lo clínicamente relevante bien dicho siempre es más corto de lo que parece.
 
 ESTILO Y NATURALIDAD:
