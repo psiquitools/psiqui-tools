@@ -62,6 +62,9 @@ export default function HistoriaClinicaPage() {
     const [iaPropuesta, setIaPropuesta] = useState("");
     const [iaOmisiones, setIaOmisiones] = useState<string[]>([]);
     const [iaPanel, setIaPanel] = useState(false);
+    const [iaFeedback, setIaFeedback] = useState("");
+    const [iaFeedbackLoading, setIaFeedbackLoading] = useState(false);
+    const [iaFeedbackUsado, setIaFeedbackUsado] = useState(false);
 
     const [iaAntecLoading, setIaAntecLoading] = useState(false);
     const [iaAntecError, setIaAntecError] = useState<string | null>(null);
@@ -135,6 +138,33 @@ export default function HistoriaClinicaPage() {
         setIaPropuesta("");
         setIaOmisiones([]);
         setIaError(null);
+        setIaFeedback("");
+        setIaFeedbackUsado(false);
+    };
+
+    const refinarPropuesta = async () => {
+        if (!iaFeedback.trim() || iaFeedbackUsado) return;
+        setIaFeedbackLoading(true);
+        setIaError(null);
+        try {
+            const texto =
+                `REVISIÓN DE PROPUESTA:\n\nPropuesta actual:\n${iaPropuesta}\n\nAjuste solicitado:\n${iaFeedback.trim()}\n\nAplica el ajuste sobre la propuesta actual y devuelve el episodio completo revisado.`;
+            const res = await fetch("/api/estructurar-episodio", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ texto }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? "Error desconocido");
+            setIaPropuesta(data.estructurado);
+            setIaOmisiones(data.omisiones ?? []);
+            setIaFeedbackUsado(true);
+            setIaFeedback("");
+        } catch (err) {
+            setIaError(err instanceof Error ? err.message : "Error al conectar con la IA");
+        } finally {
+            setIaFeedbackLoading(false);
+        }
     };
 
     const [historia, setHistoria] = useState<HistoriaClinica>({
@@ -431,6 +461,33 @@ export default function HistoriaClinicaPage() {
                                     value={iaPropuesta}
                                     onChange={(e) => setIaPropuesta(e.target.value)}
                                 />
+
+                                {/* Retroalimentación — un único envío */}
+                                {!iaFeedbackUsado && (
+                                    <div className="mt-3 rounded-lg border border-violet-200 bg-white p-3">
+                                        <p className="mb-1.5 text-xs font-medium text-violet-700">
+                                            Indicaciones de ajuste
+                                        </p>
+                                        <textarea
+                                            value={iaFeedback}
+                                            onChange={(e) => setIaFeedback(e.target.value)}
+                                            rows={2}
+                                            placeholder="Ej: acortar el texto, añadir que el inicio fue insidioso, quitar la mención al sueño…"
+                                            className="w-full resize-none rounded-md border border-violet-200 bg-violet-50 px-3 py-2 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-violet-300"
+                                        />
+                                        <div className="mt-2 flex justify-end">
+                                            <button
+                                                type="button"
+                                                onClick={refinarPropuesta}
+                                                disabled={iaFeedbackLoading || !iaFeedback.trim()}
+                                                className="inline-flex items-center gap-1.5 rounded-md bg-violet-100 px-3 py-1.5 text-xs font-medium text-violet-700 hover:bg-violet-200 disabled:cursor-not-allowed disabled:opacity-40"
+                                            >
+                                                <Sparkles className="h-3 w-3" />
+                                                {iaFeedbackLoading ? "Ajustando…" : "Ajustar propuesta"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="mt-3 flex justify-end gap-2">
                                     <button

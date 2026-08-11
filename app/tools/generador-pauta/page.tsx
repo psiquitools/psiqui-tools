@@ -222,6 +222,44 @@ const FARMACOS: Farmaco[] = [
             { id: "panico", nombre: "Trastorno de pánico", dosisMinima: 10, dosisInicialEstandar: 10, dosisInicialLenta: 10, dosisObjetivo: 20, dosisMaxima: 40 },
         ],
     },
+    {
+        id: "fluvoxamina",
+        nombre: "Fluvoxamina",
+        marcaEspana: "Dumirox®",
+        familia: "ISRS",
+        presentaciones: [50, 100],
+        momentoToma: "1-2 veces al día. Dosis ≤ 100 mg: una sola toma por la noche. Dosis mayores: dividir en mañana y noche",
+        efectosAdversosInicio: [
+            "Náuseas (muy frecuentes al inicio)",
+            "Somnolencia",
+            "Cefalea",
+            "Insomnio",
+            "Sequedad de boca",
+            "Agitación o nerviosismo",
+        ],
+        tiempoRespuesta: "Inicio del efecto terapéutico a las 2-4 semanas; respuesta máxima a las 6-12 semanas",
+        notasGenerales: "Inhibidor potente de CYP1A2 y CYP2C19: múltiples interacciones farmacológicas. Revisar tratamiento concomitante antes de iniciar. Más sedante que otros ISRS.",
+        contraindicacionesAbsolutas: [
+            "IMAOs (síndrome serotoninérgico grave)",
+            "Tizanidina, alosetron, ramelteon (toxicidad por inhibición CYP1A2)",
+            "Pimozida y tioridazina (prolongación QT)",
+            "Hipersensibilidad conocida a fluvoxamina",
+        ],
+        contraindicacionesRelativas: [
+            "Clozapina (inhibición CYP1A2 → riesgo de toxicidad; monitorizar niveles)",
+            "Teofilina y warfarina (niveles aumentados; monitorizar)",
+            "Antidepresivos tricíclicos (niveles aumentados por inhibición enzimática)",
+            "Hepatopatía (empezar con 50 mg/día; titular lentamente)",
+            "Tabaquismo (induce CYP1A2: los fumadores pueden necesitar dosis mayores)",
+            "Adultos mayores (empezar con 50 mg/día)",
+        ],
+        indicaciones: [
+            { id: "toc", nombre: "Trastorno obsesivo-compulsivo", dosisMinima: 50, dosisInicialEstandar: 50, dosisInicialLenta: 50, dosisObjetivo: 200, dosisMaxima: 300, notas: "Principal indicación. Subir 50 mg cada 4-7 días según tolerancia. Dosis elevadas son frecuentemente necesarias" },
+            { id: "depresion", nombre: "Trastorno depresivo mayor", dosisMinima: 100, dosisInicialEstandar: 50, dosisInicialLenta: 50, dosisObjetivo: 150, dosisMaxima: 300 },
+            { id: "panico", nombre: "Trastorno de pánico", dosisMinima: 50, dosisInicialEstandar: 50, dosisInicialLenta: 50, dosisObjetivo: 150, dosisMaxima: 300 },
+            { id: "tas", nombre: "Trastorno de ansiedad social", dosisMinima: 50, dosisInicialEstandar: 50, dosisInicialLenta: 50, dosisObjetivo: 150, dosisMaxima: 300 },
+        ],
+    },
     // ─── IRSN ───
     {
         id: "venlafaxina",
@@ -617,6 +655,38 @@ const FARMACOS: Farmaco[] = [
         indicaciones: [
             { id: "psicosis", nombre: "Episodio psicótico / esquizofrenia", dosisMinima: 3, dosisInicialEstandar: 6, dosisInicialLenta: 3, dosisObjetivo: 6, dosisMaxima: 12 },
             { id: "mania", nombre: "Trastorno esquizoafectivo / manía", dosisMinima: 6, dosisInicialEstandar: 6, dosisInicialLenta: 3, dosisObjetivo: 9, dosisMaxima: 12 },
+        ],
+    },
+    {
+        id: "lurasidona",
+        nombre: "Lurasidona",
+        marcaEspana: "Latuda®",
+        familia: "Antipsicótico atípico",
+        presentaciones: [18.5, 37, 74, 111, 148],
+        momentoToma: "1 vez al día con una comida (mínimo 350 kcal) — la absorción se reduce significativamente en ayunas",
+        efectosAdversosInicio: [
+            "Acatisia (el más frecuente y clínicamente relevante)",
+            "Náuseas y vómitos",
+            "Somnolencia",
+            "Síntomas extrapiramidales (parkinsonismo)",
+        ],
+        tiempoRespuesta: "Efecto antipsicótico en 2-4 semanas; efecto en depresión bipolar en 2-6 semanas",
+        notasGenerales: "Perfil metabólico muy favorable: sin aumento de peso significativo, sin alteraciones lipídicas ni glucémicas, sin prolongación QT. Buena opción en pacientes con riesgo metabólico. Tomar siempre con comida.",
+        contraindicacionesAbsolutas: [
+            "Inhibidores potentes de CYP3A4 (ketoconazol, itraconazol, claritromicina, ritonavir — elevan niveles de lurasidona a rango tóxico)",
+            "Inductores potentes de CYP3A4 (rifampicina, carbamazepina, fenitoína, hierba de San Juan — anulan eficacia)",
+            "Hipersensibilidad conocida a lurasidona",
+        ],
+        contraindicacionesRelativas: [
+            "Inhibidores o inductores moderados de CYP3A4 (ajuste de dosis; no superar 74 mg/día con inhibidores moderados)",
+            "Insuficiencia renal moderada-grave (dosis máxima 74 mg/día)",
+            "Insuficiencia hepática moderada-grave (dosis máxima 74 mg/día)",
+            "Adultos mayores (mayor sensibilidad a efectos extrapiramidales; iniciar a dosis bajas)",
+            "Antecedentes de acatisia (monitorizar estrechamente)",
+        ],
+        indicaciones: [
+            { id: "psicosis", nombre: "Esquizofrenia", dosisMinima: 37, dosisInicialEstandar: 37, dosisInicialLenta: 37, dosisObjetivo: 74, dosisMaxima: 148 },
+            { id: "depresion-bipolar", nombre: "Depresión bipolar (TB I)", dosisMinima: 18.5, dosisInicialEstandar: 18.5, dosisInicialLenta: 18.5, dosisObjetivo: 37, dosisMaxima: 111, notas: "Indicada en monoterapia o como adyuvante a litio o valproato. Dosis habitual 37 mg/día" },
         ],
     },
     // ─── ANTIPSICÓTICOS TÍPICOS (FGA) ───

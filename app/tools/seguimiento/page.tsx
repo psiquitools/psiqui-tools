@@ -1,18 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { ClipboardCheck, Clipboard, Plus, X, Sparkles } from "lucide-react";
+import { ClipboardCheck, Clipboard, Plus, X, Sparkles, RotateCcw } from "lucide-react";
 
-const DOMINIOS_DEFAULT = [
-  { id: "estado_animo", nombre: "Estado de ánimo / afectividad" },
-  { id: "ansiedad", nombre: "Ansiedad" },
-  { id: "sueno", nombre: "Sueño" },
-  { id: "apetito", nombre: "Apetito / peso" },
-  { id: "funcionalidad", nombre: "Funcionalidad" },
-  { id: "conducta", nombre: "Conducta" },
-  { id: "ideacion", nombre: "Ideación autolítica / riesgo" },
-  { id: "adherencia", nombre: "Adherencia y efectos adversos" },
-];
+// Plantilla inicial — el clínico la rellena, edita o borra libremente
+const SCAFFOLD = `Estado de ánimo / afectividad:
+Ansiedad:
+Sueño:
+Apetito / peso:
+Funcionalidad:
+Conducta:
+Ideación autolítica / riesgo:
+Adherencia y efectos adversos: `;
 
 type EstadoFarmaco = "sin_cambios" | "ajuste" | "retirar";
 
@@ -32,11 +31,7 @@ type Resultado = {
 };
 
 export default function ConsultaSeguimiento() {
-  const [dominios, setDominios] = useState<Record<string, string>>(
-    Object.fromEntries(DOMINIOS_DEFAULT.map((d) => [d.id, ""]))
-  );
-  const [dominiosExtra, setDominiosExtra] = useState<{ id: string; nombre: string; texto: string }[]>([]);
-  const [nuevoDominio, setNuevoDominio] = useState("");
+  const [notas, setNotas] = useState(SCAFFOLD);
 
   const [farmacos, setFarmacos] = useState<Farmaco[]>([]);
   const [addNombre, setAddNombre] = useState("");
@@ -45,35 +40,11 @@ export default function ConsultaSeguimiento() {
   const [addEsNuevo, setAddEsNuevo] = useState(false);
 
   const [copiadoPauta, setCopiadoPauta] = useState(false);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const [copiadoNota, setCopiadoNota] = useState(false);
   const [copiadoTrat, setCopiadoTrat] = useState(false);
-
-  function setDominio(id: string, valor: string) {
-    setDominios((prev) => ({ ...prev, [id]: valor }));
-  }
-
-  function setDominioExtra(id: string, valor: string) {
-    setDominiosExtra((prev) =>
-      prev.map((d) => (d.id === id ? { ...d, texto: valor } : d))
-    );
-  }
-
-  function añadirDominio() {
-    if (!nuevoDominio.trim()) return;
-    setDominiosExtra((prev) => [
-      ...prev,
-      { id: `extra_${Date.now()}`, nombre: nuevoDominio.trim(), texto: "" },
-    ]);
-    setNuevoDominio("");
-  }
-
-  function eliminarDominioExtra(id: string) {
-    setDominiosExtra((prev) => prev.filter((d) => d.id !== id));
-  }
 
   function añadirFarmaco() {
     if (!addNombre.trim()) return;
@@ -95,11 +66,6 @@ export default function ConsultaSeguimiento() {
     setAddEsNuevo(false);
   }
 
-  const textoPauta = farmacos
-    .filter((f) => f.estado !== "retirar")
-    .map((f) => [f.nombre, f.dosisActual, f.pauta].filter(Boolean).join(" "))
-    .join("\n");
-
   function actualizarFarmaco(id: string, cambios: Partial<Farmaco>) {
     setFarmacos((prev) => prev.map((f) => (f.id === id ? { ...f, ...cambios } : f)));
   }
@@ -108,8 +74,12 @@ export default function ConsultaSeguimiento() {
     setFarmacos((prev) => prev.filter((f) => f.id !== id));
   }
 
+  const textoPauta = farmacos
+    .filter((f) => f.estado !== "retirar")
+    .map((f) => [f.nombre, f.dosisActual, f.pauta].filter(Boolean).join(" "))
+    .join("\n");
+
   async function generar() {
-    // Incluir fármaco pendiente en el formulario si existe
     const farmacoPendiente: Farmaco | null = addNombre.trim()
       ? {
           id: `f_${Date.now()}`,
@@ -132,41 +102,31 @@ export default function ConsultaSeguimiento() {
 
     const farmacosEfectivos = farmacoPendiente ? [...farmacos, farmacoPendiente] : farmacos;
 
-    const dominiosConTexto = [
-      ...DOMINIOS_DEFAULT
-        .filter((d) => dominios[d.id]?.trim())
-        .map((d) => ({ nombre: d.nombre, texto: dominios[d.id] })),
-      ...dominiosExtra
-        .filter((d) => d.texto.trim())
-        .map((d) => ({ nombre: d.nombre, texto: d.texto })),
-    ];
-
-    if (dominiosConTexto.length === 0 && farmacosEfectivos.length === 0) return;
-
-    setLoading(true);
-    setError(null);
-    setResultado(null);
-
     const bloques: string[] = [];
 
-    if (dominiosConTexto.length > 0) {
-      bloques.push(
-        "DOMINIOS CLÍNICOS:\n" +
-        dominiosConTexto.map((d) => `${d.nombre}: ${d.texto}`).join("\n")
-      );
+    if (notas.trim()) {
+      bloques.push("DOMINIOS CLÍNICOS:\n" + notas.trim());
     }
 
     if (farmacosEfectivos.length > 0) {
       bloques.push(
         "TRATAMIENTO:\n" +
-        farmacosEfectivos.map((f) => {
-          if (f.esNuevo) return `NUEVO: ${f.nombre}${f.dosisActual ? ` ${f.dosisActual}` : ""}`;
-          if (f.estado === "retirar") return `RETIRAR: ${f.nombre}${f.dosisActual ? ` ${f.dosisActual}` : ""}`;
-          if (f.estado === "ajuste") return `AJUSTE: ${f.nombre} ${f.dosisActual} → ${f.dosisNueva || "?"}`;
-          return `SIN CAMBIOS: ${f.nombre}${f.dosisActual ? ` ${f.dosisActual}` : ""}`;
-        }).join("\n")
+        farmacosEfectivos
+          .map((f) => {
+            if (f.esNuevo) return `NUEVO: ${f.nombre}${f.dosisActual ? ` ${f.dosisActual}` : ""}`;
+            if (f.estado === "retirar") return `RETIRAR: ${f.nombre}${f.dosisActual ? ` ${f.dosisActual}` : ""}`;
+            if (f.estado === "ajuste") return `AJUSTE: ${f.nombre} ${f.dosisActual} → ${f.dosisNueva || "?"}`;
+            return `SIN CAMBIOS: ${f.nombre}${f.dosisActual ? ` ${f.dosisActual}` : ""}`;
+          })
+          .join("\n")
       );
     }
+
+    if (bloques.length === 0) return;
+
+    setLoading(true);
+    setError(null);
+    setResultado(null);
 
     try {
       const res = await fetch("/api/estructurar-seguimiento", {
@@ -184,31 +144,7 @@ export default function ConsultaSeguimiento() {
     }
   }
 
-  async function copiarPauta() {
-    if (!textoPauta) return;
-    await navigator.clipboard.writeText(textoPauta);
-    setCopiadoPauta(true);
-    setTimeout(() => setCopiadoPauta(false), 2000);
-  }
-
-  async function copiarNota() {
-    if (!resultado?.nota) return;
-    await navigator.clipboard.writeText(resultado.nota);
-    setCopiadoNota(true);
-    setTimeout(() => setCopiadoNota(false), 2000);
-  }
-
-  async function copiarTrat() {
-    if (!resultado?.tratamiento) return;
-    await navigator.clipboard.writeText(resultado.tratamiento);
-    setCopiadoTrat(true);
-    setTimeout(() => setCopiadoTrat(false), 2000);
-  }
-
-  const hayContenido =
-    DOMINIOS_DEFAULT.some((d) => dominios[d.id]?.trim()) ||
-    dominiosExtra.some((d) => d.texto.trim()) ||
-    farmacos.length > 0;
+  const hayContenido = notas !== SCAFFOLD || farmacos.length > 0;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -221,194 +157,184 @@ export default function ConsultaSeguimiento() {
           </p>
           <h1 className="text-xl font-semibold text-slate-800">Consulta de Seguimiento</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Registra los dominios explorados y genera la nota clínica con IA.
+            Escribe las notas de la consulta y genera la nota clínica con IA.
           </p>
         </div>
 
-        {/* Columnas: dominios + tratamiento */}
+        {/* Columnas */}
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[3fr_2fr]">
 
-        {/* Bloque 1: Dominios clínicos */}
-        <div>
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-slate-400">
-            Dominios clínicos
-          </h2>
-          <div className="flex flex-col gap-3">
-            {DOMINIOS_DEFAULT.map((d) => (
-              <div key={d.id} className="rounded-lg bg-white ring-1 ring-slate-200">
-                <label className="block px-4 pt-3 text-xs font-semibold text-slate-500">
-                  {d.nombre}
-                </label>
-                <textarea
-                  value={dominios[d.id]}
-                  onChange={(e) => setDominio(d.id, e.target.value)}
-                  rows={2}
-                  placeholder="…"
-                  className="w-full resize-y bg-transparent px-4 pb-3 pt-1.5 text-sm text-slate-700 placeholder:text-slate-300 focus:outline-none"
-                />
-              </div>
-            ))}
-
-            {dominiosExtra.map((d) => (
-              <div key={d.id} className="rounded-lg bg-white ring-1 ring-slate-200">
-                <div className="flex items-center justify-between px-4 pt-3">
-                  <label className="text-xs font-semibold text-slate-500">{d.nombre}</label>
-                  <button
-                    onClick={() => eliminarDominioExtra(d.id)}
-                    className="text-slate-300 transition-colors hover:text-slate-500"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-                <textarea
-                  value={d.texto}
-                  onChange={(e) => setDominioExtra(d.id, e.target.value)}
-                  rows={2}
-                  placeholder="…"
-                  className="w-full resize-y bg-transparent px-4 pb-3 pt-1.5 text-sm text-slate-700 placeholder:text-slate-300 focus:outline-none"
-                />
-              </div>
-            ))}
-
-            <div className="flex gap-2">
-              <input
-                value={nuevoDominio}
-                onChange={(e) => setNuevoDominio(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && añadirDominio()}
-                placeholder="Añadir dominio personalizado…"
-                className="flex-1 rounded-lg border border-dashed border-slate-300 bg-white px-3 py-2 text-sm text-slate-600 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
-              />
+          {/* Bloque 1: Notas clínicas (textarea libre) */}
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+                Notas clínicas
+              </h2>
               <button
-                onClick={añadirDominio}
-                disabled={!nuevoDominio.trim()}
-                className="rounded-lg border border-dashed border-slate-300 bg-white px-3 py-2 text-slate-400 transition-colors hover:border-slate-400 hover:text-slate-600 disabled:opacity-40"
+                onClick={() => setNotas(SCAFFOLD)}
+                className="flex items-center gap-1 text-xs text-slate-400 transition-colors hover:text-slate-600"
+                title="Restaurar plantilla"
               >
-                <Plus className="h-4 w-4" />
+                <RotateCcw className="h-3 w-3" />
+                Restaurar plantilla
               </button>
             </div>
+            <div className="rounded-lg bg-white ring-1 ring-slate-200 focus-within:ring-slate-400 transition-shadow">
+              <textarea
+                value={notas}
+                onChange={(e) => setNotas(e.target.value)}
+                rows={18}
+                spellCheck={false}
+                className="w-full resize-y bg-transparent px-4 py-4 font-mono text-sm leading-relaxed text-slate-700 placeholder:text-slate-300 focus:outline-none"
+                placeholder="Escribe aquí las notas de la consulta…"
+              />
+            </div>
+            <p className="mt-1.5 text-xs text-slate-400">
+              Rellena los dominios que hayas explorado, borra los que no apliquen y añade cualquier nota libre al final.
+            </p>
           </div>
-        </div>
 
-        {/* Bloque 2: Tratamiento */}
-        <div className="mb-10">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-slate-400">
-            Tratamiento
-          </h2>
+          {/* Bloque 2: Tratamiento */}
+          <div>
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-slate-400">
+              Tratamiento
+            </h2>
 
-          {farmacos.length > 0 && (
-            <div className="mb-3 flex flex-col gap-2">
-              {farmacos.map((f) => (
-                <div key={f.id} className="rounded-lg bg-white ring-1 ring-slate-200">
-                  <div className="flex items-start gap-3 px-4 py-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-medium text-slate-700">{f.nombre}</span>
-                        {f.dosisActual && (
-                          <span className="text-sm text-slate-400">{f.dosisActual}</span>
+            {farmacos.length > 0 && (
+              <div className="mb-3 flex flex-col gap-2">
+                {farmacos.map((f) => (
+                  <div key={f.id} className="rounded-lg bg-white ring-1 ring-slate-200">
+                    <div className="flex items-start gap-3 px-4 py-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-medium text-slate-700">{f.nombre}</span>
+                          {f.dosisActual && (
+                            <span className="text-sm text-slate-400">{f.dosisActual}</span>
+                          )}
+                          {f.pauta && (
+                            <span className="font-mono text-sm text-slate-500">{f.pauta}</span>
+                          )}
+                          {f.esNuevo && (
+                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                              Nuevo
+                            </span>
+                          )}
+                        </div>
+
+                        {!f.esNuevo && (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {(["sin_cambios", "ajuste", "retirar"] as EstadoFarmaco[]).map((estado) => (
+                              <button
+                                key={estado}
+                                onClick={() => actualizarFarmaco(f.id, { estado })}
+                                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                                  f.estado === estado
+                                    ? estado === "retirar"
+                                      ? "bg-red-100 text-red-700"
+                                      : estado === "ajuste"
+                                        ? "bg-amber-100 text-amber-700"
+                                        : "bg-slate-800 text-white"
+                                    : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                }`}
+                              >
+                                {estado === "sin_cambios" ? "Sin cambios" : estado === "ajuste" ? "Ajustar" : "Retirar"}
+                              </button>
+                            ))}
+                          </div>
                         )}
-                        {f.pauta && (
-                          <span className="font-mono text-sm text-slate-500">{f.pauta}</span>
-                        )}
-                        {f.esNuevo && (
-                          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                            Nuevo
-                          </span>
+
+                        {f.estado === "ajuste" && !f.esNuevo && (
+                          <input
+                            value={f.dosisNueva}
+                            onChange={(e) => actualizarFarmaco(f.id, { dosisNueva: e.target.value })}
+                            placeholder="Nueva dosis"
+                            className="mt-2 w-40 rounded-md border border-slate-200 px-3 py-1.5 text-sm text-slate-700 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
+                          />
                         )}
                       </div>
 
-                      {!f.esNuevo && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {(["sin_cambios", "ajuste", "retirar"] as EstadoFarmaco[]).map((estado) => (
-                            <button
-                              key={estado}
-                              onClick={() => actualizarFarmaco(f.id, { estado })}
-                              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${f.estado === estado
-                                  ? estado === "retirar"
-                                    ? "bg-red-100 text-red-700"
-                                    : estado === "ajuste"
-                                      ? "bg-amber-100 text-amber-700"
-                                      : "bg-slate-800 text-white"
-                                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                                }`}
-                            >
-                              {estado === "sin_cambios"
-                                ? "Sin cambios"
-                                : estado === "ajuste"
-                                  ? "Ajustar"
-                                  : "Retirar"}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-
-                      {f.estado === "ajuste" && !f.esNuevo && (
-                        <input
-                          value={f.dosisNueva}
-                          onChange={(e) => actualizarFarmaco(f.id, { dosisNueva: e.target.value })}
-                          placeholder="Nueva dosis"
-                          className="mt-2 w-40 rounded-md border border-slate-200 px-3 py-1.5 text-sm text-slate-700 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
-                        />
-                      )}
+                      <button
+                        onClick={() => eliminarFarmaco(f.id)}
+                        className="mt-0.5 shrink-0 text-slate-300 transition-colors hover:text-slate-500"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
                     </div>
-
-                    <button
-                      onClick={() => eliminarFarmaco(f.id)}
-                      className="mt-0.5 shrink-0 text-slate-300 transition-colors hover:text-slate-500"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
                   </div>
+                ))}
+              </div>
+            )}
+
+            {/* Añadir fármaco */}
+            <div className="rounded-lg bg-white ring-1 ring-slate-200 px-4 py-3">
+              <p className="mb-2 text-xs font-semibold text-slate-400">Añadir fármaco</p>
+              <div className="flex flex-wrap items-end gap-2">
+                <input
+                  value={addNombre}
+                  onChange={(e) => setAddNombre(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && añadirFarmaco()}
+                  placeholder="Nombre"
+                  className="min-w-32 flex-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm text-slate-700 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
+                />
+                <input
+                  value={addDosis}
+                  onChange={(e) => setAddDosis(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && añadirFarmaco()}
+                  placeholder="Dosis"
+                  className="w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm text-slate-700 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
+                />
+                <input
+                  value={addPauta}
+                  onChange={(e) => setAddPauta(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && añadirFarmaco()}
+                  placeholder="Pauta"
+                  className="w-36 rounded-md border border-slate-200 px-3 py-1.5 font-mono text-sm text-slate-700 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
+                />
+                <button
+                  onClick={añadirFarmaco}
+                  disabled={!addNombre.trim()}
+                  className="rounded-md bg-slate-800 px-3 py-1.5 text-white transition-colors hover:bg-slate-700 disabled:opacity-40"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+              <label className="mt-2 flex w-fit cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={addEsNuevo}
+                  onChange={(e) => setAddEsNuevo(e.target.checked)}
+                  className="accent-slate-800"
+                />
+                <span className="text-xs text-slate-500">Fármaco nuevo</span>
+              </label>
+            </div>
+
+            {/* Pauta de tomas */}
+            {textoPauta && (
+              <div className="mt-4 rounded-lg bg-white ring-1 ring-slate-200">
+                <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2">
+                  <p className="text-xs font-semibold text-slate-400">Pauta de tomas</p>
+                  <button
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(textoPauta);
+                      setCopiadoPauta(true);
+                      setTimeout(() => setCopiadoPauta(false), 2000);
+                    }}
+                    className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                      copiadoPauta ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    {copiadoPauta ? <><ClipboardCheck className="h-3.5 w-3.5" />Copiado</> : <><Clipboard className="h-3.5 w-3.5" />Copiar</>}
+                  </button>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {/* Formulario añadir fármaco */}
-          <div className="rounded-lg bg-white ring-1 ring-slate-200 px-4 py-3">
-            <p className="mb-2 text-xs font-semibold text-slate-400">Añadir fármaco</p>
-            <div className="flex flex-wrap items-end gap-2">
-              <input
-                value={addNombre}
-                onChange={(e) => setAddNombre(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && añadirFarmaco()}
-                placeholder="Nombre"
-                className="min-w-32 flex-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm text-slate-700 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
-              />
-              <input
-                value={addDosis}
-                onChange={(e) => setAddDosis(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && añadirFarmaco()}
-                placeholder={addEsNuevo ? "Dosis" : "Dosis"}
-                className="w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm text-slate-700 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
-              />
-              <input
-                value={addPauta}
-                onChange={(e) => setAddPauta(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && añadirFarmaco()}
-                placeholder="Pauta"
-                className="w-36 rounded-md border border-slate-200 px-3 py-1.5 font-mono text-sm text-slate-700 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
-              />
-              <button
-                onClick={añadirFarmaco}
-                disabled={!addNombre.trim()}
-                className="rounded-md bg-slate-800 px-3 py-1.5 text-white transition-colors hover:bg-slate-700 disabled:opacity-40"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-            <label className="mt-2 flex w-fit cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={addEsNuevo}
-                onChange={(e) => setAddEsNuevo(e.target.checked)}
-                className="accent-slate-800"
-              />
-              <span className="text-xs text-slate-500">Fármaco nuevo (no estaba en el tratamiento previo)</span>
-            </label>
+                <pre className="px-4 py-3 font-mono text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
+                  {textoPauta}
+                </pre>
+              </div>
+            )}
           </div>
-        </div>
 
-        </div> {/* fin grid columnas */}
+        </div>
 
         {/* Botón generar */}
         <button
@@ -437,53 +363,23 @@ export default function ConsultaSeguimiento() {
                   Nota de seguimiento
                 </p>
                 <button
-                  onClick={copiarNota}
-                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${copiadoNota
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    }`}
+                  onClick={async () => {
+                    if (!resultado?.nota) return;
+                    await navigator.clipboard.writeText(resultado.nota);
+                    setCopiadoNota(true);
+                    setTimeout(() => setCopiadoNota(false), 2000);
+                  }}
+                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                    copiadoNota ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
                 >
-                  {copiadoNota ? (
-                    <><ClipboardCheck className="h-3.5 w-3.5" />Copiado</>
-                  ) : (
-                    <><Clipboard className="h-3.5 w-3.5" />Copiar</>
-                  )}
+                  {copiadoNota ? <><ClipboardCheck className="h-3.5 w-3.5" />Copiado</> : <><Clipboard className="h-3.5 w-3.5" />Copiar</>}
                 </button>
               </div>
               <div className="px-5 py-4">
-                <p className="font-mono text-sm leading-relaxed text-slate-700">
-                  {resultado.nota}
-                </p>
+                <p className="font-mono text-sm leading-relaxed text-slate-700">{resultado.nota}</p>
               </div>
             </div>
-
-            {textoPauta && (
-              <div className="rounded-lg bg-white shadow-sm ring-1 ring-slate-200">
-                <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                    Pauta de tomas
-                  </p>
-                  <button
-                    onClick={copiarPauta}
-                    className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${copiadoPauta
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
-                  >
-                    {copiadoPauta ? (
-                      <><ClipboardCheck className="h-3.5 w-3.5" />Copiado</>
-                    ) : (
-                      <><Clipboard className="h-3.5 w-3.5" />Copiar</>
-                    )}
-                  </button>
-                </div>
-                <div className="px-5 py-4">
-                  <p className="font-mono text-sm leading-relaxed text-slate-700 whitespace-pre-line">
-                    {textoPauta}
-                  </p>
-                </div>
-              </div>
-            )}
 
             {resultado.tratamiento && (
               <div className="rounded-lg bg-white shadow-sm ring-1 ring-slate-200">
@@ -492,23 +388,21 @@ export default function ConsultaSeguimiento() {
                     Nota de tratamiento
                   </p>
                   <button
-                    onClick={copiarTrat}
-                    className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${copiadoTrat
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
+                    onClick={async () => {
+                      if (!resultado?.tratamiento) return;
+                      await navigator.clipboard.writeText(resultado.tratamiento!);
+                      setCopiadoTrat(true);
+                      setTimeout(() => setCopiadoTrat(false), 2000);
+                    }}
+                    className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                      copiadoTrat ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
                   >
-                    {copiadoTrat ? (
-                      <><ClipboardCheck className="h-3.5 w-3.5" />Copiado</>
-                    ) : (
-                      <><Clipboard className="h-3.5 w-3.5" />Copiar</>
-                    )}
+                    {copiadoTrat ? <><ClipboardCheck className="h-3.5 w-3.5" />Copiado</> : <><Clipboard className="h-3.5 w-3.5" />Copiar</>}
                   </button>
                 </div>
                 <div className="px-5 py-4">
-                  <p className="font-mono text-sm leading-relaxed text-slate-700">
-                    {resultado.tratamiento}
-                  </p>
+                  <p className="font-mono text-sm leading-relaxed text-slate-700">{resultado.tratamiento}</p>
                 </div>
               </div>
             )}
