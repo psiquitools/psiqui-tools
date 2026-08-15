@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useMemo, useCallback } from 'react';
-import { Plus, FileDown, Shield, Trash2, X, Pencil } from 'lucide-react';
+import { Plus, FileDown, Shield, Trash2, X, Pencil, Upload, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 import jsPDF from 'jspdf';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -47,6 +47,27 @@ interface LifeEvent {
   id: string;
   date: string;
   description: string;
+}
+
+// ─── Export/import data schema ─────────────────────────────────────────────────
+
+interface LineaVidaData {
+  schemaVersion: 1;
+  exportedAt: string;
+  birthYear: number;
+  episodes: MoodEpisode[];
+  treatments: TreatmentPeriod[];
+  lifeEvents: LifeEvent[];
+}
+
+type ImportStatus = { ok: boolean; msg: string } | null;
+
+const EMBED_MARKER = 'LINEAVIDA_DATA_V1:';
+const CURRENT_SCHEMA = 1 as const;
+
+function migrateData(data: LineaVidaData): LineaVidaData {
+  // v1 → current: passthrough. Add migration steps here if schema changes.
+  return data;
 }
 
 // ─── Chart layout constants ─────────────────────────────────────────────────────
@@ -134,6 +155,22 @@ function treatLine(type: TreatmentType, x1: number, x2: number, cy: number, key:
   }
 }
 
+// ─── UTF-8-safe base64 encode/decode ──────────────────────────────────────────
+
+function toBase64(str: string): string {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  bytes.forEach(b => { binary += String.fromCharCode(b); });
+  return btoa(binary);
+}
+
+function fromBase64(b64: string): string {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
 // ─── Sample data (basado en Kaplan & Sadock Fig. 6-1) ──────────────────────────
 
 const SAMPLE_EPISODES: MoodEpisode[] = [
@@ -179,7 +216,8 @@ const selectCls =
 // ─── Main component ─────────────────────────────────────────────────────────────
 
 export default function GraficoVidaPsiquiatricaPage() {
-  const svgRef = useRef<SVGSVGElement>(null);
+  const svgRef       = useRef<SVGSVGElement>(null);
+  const importRef    = useRef<HTMLInputElement>(null);
 
   const [episodes,   setEpisodes]   = useState<MoodEpisode[]>(SAMPLE_EPISODES);
   const [treatments, setTreatments] = useState<TreatmentPeriod[]>(SAMPLE_TREATMENTS);
@@ -189,6 +227,10 @@ export default function GraficoVidaPsiquiatricaPage() {
   const [isOpen,    setIsOpen]    = useState(false);
   const [activeTab, setActiveTab] = useState<'episodio' | 'tratamiento' | 'evento'>('episodio');
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [exportLoading, setExportLoading] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importStatus,  setImportStatus]  = useState<ImportStatus>(null);
 
   const [epForm, setEpForm] = useState({
     type: 'depresion' as EpisodeType,
@@ -328,31 +370,42 @@ export default function GraficoVidaPsiquiatricaPage() {
     }
   };
 
-  // ── PDF export ────────────────────────────────────────────────────────────────
+  // ── PDF export (jsPDF render + pdf-lib data embed) ────────────────────────────
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     const svg = svgRef.current;
     if (!svg) return;
-    const data = new XMLSerializer().serializeToString(svg);
-    const blob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
-    const url  = URL.createObjectURL(blob);
-    const img  = new window.Image();
-    img.onload = () => {
-      const scale  = 2;
-      const vb     = svg.viewBox.baseVal;
-      const canvas = document.createElement('canvas');
-      canvas.width  = vb.width  * scale;
-      canvas.height = vb.height * scale;
-      const ctx = canvas.getContext('2d')!;
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.scale(scale, scale);
-      ctx.drawImage(img, 0, 0);
-      URL.revokeObjectURL(url);
+    setExportLoading(true);
 
-      const imgData = canvas.toDataURL('image/png');
-      const ratio   = vb.height / vb.width;
-      const pdf     = new jsPDF('l', 'mm', 'a4');
+    try {
+      // Render SVG → canvas → PNG
+      const imgData = await new Promise<string>((resolve, reject) => {
+        const data = new XMLSerializer().serializeToString(svg);
+        const blob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
+        const url  = URL.createObjectURL(blob);
+        const img  = new window.Image();
+        img.onload = () => {
+          const scale  = 2;
+          const vb     = svg.viewBox.baseVal;
+          const canvas = document.createElement('canvas');
+          canvas.width  = vb.width  * scale;
+          canvas.height = vb.height * scale;
+          const ctx = canvas.getContext('2d')!;
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.scale(scale, scale);
+          ctx.drawImage(img, 0, 0);
+          URL.revokeObjectURL(url);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = reject;
+        img.src = url;
+      });
+
+      // Build jsPDF document (visual layer — unchanged)
+      const vb    = svg.viewBox.baseVal;
+      const ratio = vb.height / vb.width;
+      const pdf   = new jsPDF('l', 'mm', 'a4');
       const pW = 287, pH = 200;
       let dW = pW - 20, dH = dW * ratio;
       if (dH > pH - 30) { dH = pH - 30; dW = dH / ratio; }
@@ -376,9 +429,99 @@ export default function GraficoVidaPsiquiatricaPage() {
       }
       pdf.setFontSize(6.5); pdf.setTextColor(160);
       pdf.text('Herramienta de uso exclusivo para profesionales sanitarios. No contiene datos personales identificativos.', 10, pH - 2);
-      window.open(pdf.output('bloburl'), '_blank');
-    };
-    img.src = url;
+
+      // Embed structured data with pdf-lib
+      const { PDFDocument } = await import('pdf-lib');
+      const jspdfBytes = pdf.output('arraybuffer') as ArrayBuffer;
+      const pdfDoc = await PDFDocument.load(jspdfBytes);
+
+      const payload: LineaVidaData = {
+        schemaVersion: CURRENT_SCHEMA,
+        exportedAt: new Date().toISOString(),
+        birthYear,
+        episodes,
+        treatments,
+        lifeEvents,
+      };
+
+      const jsonString  = JSON.stringify(payload);
+      const jsonBytes   = new TextEncoder().encode(jsonString);
+
+      // 1. Native PDF file attachment (standard, survives PDF viewers/tools)
+      await pdfDoc.attach(jsonBytes, 'lineavida-data.json', {
+        mimeType: 'application/json',
+        description: 'Datos recuperables – Línea de Vida Psiquiátrica',
+        creationDate: new Date(),
+        modificationDate: new Date(),
+      });
+
+      // 2. Subject metadata field (primary extraction path — pdf-lib public API)
+      pdfDoc.setSubject(EMBED_MARKER + toBase64(jsonString));
+
+      const finalBytes = await pdfDoc.save();
+      const finalBlob  = new Blob([finalBytes.buffer as ArrayBuffer], { type: 'application/pdf' });
+      const finalUrl   = URL.createObjectURL(finalBlob);
+      window.open(finalUrl, '_blank');
+      setTimeout(() => URL.revokeObjectURL(finalUrl), 60_000);
+
+    } catch (err) {
+      console.error('Error exportando PDF:', err);
+      alert('Error al exportar el PDF. Intenta de nuevo.');
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  // ── PDF import ────────────────────────────────────────────────────────────────
+
+  const importFromPDF = async (file: File) => {
+    setImportStatus(null);
+    setImportLoading(true);
+
+    try {
+      const bytes = await file.arrayBuffer();
+      const { PDFDocument } = await import('pdf-lib');
+      const pdfDoc = await PDFDocument.load(bytes);
+
+      const subject = pdfDoc.getSubject() ?? '';
+
+      if (!subject.startsWith(EMBED_MARKER)) {
+        setImportStatus({
+          ok: false,
+          msg: 'Este PDF no contiene datos recuperables. Puede que se haya generado con una versión anterior de la herramienta.',
+        });
+        return;
+      }
+
+      const json = fromBase64(subject.slice(EMBED_MARKER.length));
+      const raw  = JSON.parse(json) as LineaVidaData;
+
+      if (typeof raw.schemaVersion !== 'number') {
+        setImportStatus({ ok: false, msg: 'El archivo no tiene un formato reconocible.' });
+        return;
+      }
+
+      const data = migrateData(raw);
+
+      setBirthYear(data.birthYear);
+      setEpisodes(data.episodes);
+      setTreatments(data.treatments);
+      setLifeEvents(data.lifeEvents);
+
+      setImportStatus({
+        ok: true,
+        msg: `Datos cargados: ${data.episodes.length} episodios, ${data.treatments.length} tratamientos, ${data.lifeEvents.length} eventos.`,
+      });
+      setTimeout(() => setImportStatus(null), 5000);
+
+    } catch {
+      setImportStatus({
+        ok: false,
+        msg: 'No se pudo leer el archivo. Verifica que sea un PDF válido exportado desde esta herramienta.',
+      });
+    } finally {
+      setImportLoading(false);
+    }
   };
 
   // ─── SVG chart ─────────────────────────────────────────────────────────────────
@@ -554,6 +697,23 @@ export default function GraficoVidaPsiquiatricaPage() {
           </p>
         </div>
 
+        {/* Toast de importación */}
+        {importStatus && (
+          <div className={`rounded-lg p-3 flex items-center gap-3 text-sm ${
+            importStatus.ok
+              ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+              : 'bg-amber-50 border border-amber-200 text-amber-800'
+          }`}>
+            {importStatus.ok
+              ? <CheckCircle className="w-4 h-4 shrink-0" />
+              : <AlertTriangle className="w-4 h-4 shrink-0" />}
+            <span className="flex-1 text-xs">{importStatus.msg}</span>
+            <button onClick={() => setImportStatus(null)} className="shrink-0 opacity-60 hover:opacity-100">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
         {/* Encabezado */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -571,10 +731,36 @@ export default function GraficoVidaPsiquiatricaPage() {
             </button>
             <button
               onClick={exportPDF}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50"
+              disabled={exportLoading}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <FileDown className="w-4 h-4" /> PDF
+              {exportLoading
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <FileDown className="w-4 h-4" />}
+              PDF
             </button>
+            <button
+              onClick={() => importRef.current?.click()}
+              disabled={importLoading}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Recuperar datos de un PDF exportado previamente"
+            >
+              {importLoading
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <Upload className="w-4 h-4" />}
+              Importar
+            </button>
+            <input
+              ref={importRef}
+              type="file"
+              accept=".pdf"
+              className="hidden"
+              onChange={e => {
+                const file = e.target.files?.[0];
+                if (file) importFromPDF(file);
+                e.target.value = '';
+              }}
+            />
             <button
               onClick={clearAll}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-red-100 bg-white text-red-600 text-sm font-medium hover:bg-red-50"

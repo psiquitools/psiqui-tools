@@ -197,7 +197,7 @@ export default function Prueba4() {
           </Link>
 
           <Link
-            href="/recursos-psicoeducacion"
+            href="/tools/psicoeducacion"
             className="group rounded-xl border border-[#DBEAFE] p-6 text-left transition-all duration-200 hover:border-[#2563EB] hover:shadow-[0_4px_20px_rgba(37,99,235,0.15)]"
             style={{ backgroundColor: "#FFFFFF" }}
           >
@@ -208,10 +208,10 @@ export default function Prueba4() {
               <ArrowRight className="h-4 w-4 transition-all group-hover:translate-x-0.5 text-[#93C5FD] group-hover:text-[#1D4ED8]" />
             </div>
             <h3 className="mt-4 mb-1 text-base font-semibold" style={{ color: "#1E3A5F" }}>
-              Recursos de Psicoeducación
+              Psicoeducación
             </h3>
             <p className="text-sm" style={{ color: "rgba(29, 78, 216, 0.7)" }}>
-              Material educativo para pacientes y familiares listo para entregar en consulta.
+              Genera documentos de psicoeducación personalizados según el tema y el perfil del paciente.
             </p>
           </Link>
 

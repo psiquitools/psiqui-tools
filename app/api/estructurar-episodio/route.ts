@@ -10,6 +10,7 @@ REGLAS GENERALES:
 - No expandas ni interpretes siglas o abreviaturas; cópialas exactamente como aparecen.
 - No inventes ni infieras información que no esté en el texto original.
 - Filtra lo anecdótico, lo redundante y lo que no aporte valor clínico; retén y desarrolla lo clínicamente relevante usando vocabulario psicopatológico preciso.
+- Traduce el lenguaje coloquial a terminología psicopatológica cuando la traducción sea más precisa que el original: "no desconecto" → incapacidad para la desconexión cognitiva; "le veía el fallo a todo" → tendencia a la autocrítica; "me comparo con todo el mundo" → ideación comparativa con minusvaloración; "estoy en bucle" → rumiaciones de contenido persistente; "dejando pestañas abiertas" → dificultad para el cierre cognitivo de tareas. Conserva la expresión del paciente entre comillas cuando capture una vivencia subjetiva que la terminología técnica no recoge igual de bien, o cuando tenga valor semiológico directo (descripciones de experiencias perceptivas, ideación, vivencias corporales). Evita copiar expresiones coloquiales cuando solo reflejan el registro informal del médico, no la voz del paciente.
 - Prosa continua en tercera persona. Sin bullets, sin headers, sin listas.
 - Puntuación permitida: punto, coma, punto y coma, dos puntos, paréntesis y comillas dobles (""). Prohibido: comillas angulares (« »), guion largo (—) y guion medio (–).
 - Extensión objetivo: 150–280 palabras. Si el cuadro es genuinamente complejo, hasta 350. Sé conciso: lo clínicamente relevante bien dicho siempre es más corto de lo que parece.
@@ -19,6 +20,8 @@ ESTILO Y NATURALIDAD:
 - Integra las transiciones de forma orgánica: usa participios, oraciones coordinadas, elipsis clínicas, subordinadas causales o temporales para pasar de un dominio al siguiente sin anunciarlo como titular.
 - Mezcla oraciones largas con frases cortas y directas. Varía el punto de entrada sintáctico de cada oración (sujeto, complemento circunstancial, participio, etc.).
 - El resultado debe sonar como la redacción espontánea de un psiquiatra con buen dominio del idioma, no como un formulario rellenado.
+
+El texto puede contener información mezclada de distintas secciones (antecedentes, episodio actual, exploración, tratamiento). Extrae y sintetiza únicamente lo pertinente al episodio actual, ignorando lo que corresponde a otras secciones.
 
 ESTRUCTURA — redacta siempre en este orden, integrando cada elemento en la prosa cuando esté disponible en el original:
 ① Tiempo de evolución y forma de inicio del episodio (brusco, insidioso, fecha aproximada).
@@ -32,8 +35,7 @@ ESTRUCTURA — redacta siempre en este orden, integrando cada elemento en la pro
 Si algún elemento no aparece en el texto original, omítelo sin mencionarlo.
 No incluyas diagnóstico, plan de manejo, antecedentes ni hallazgos del examen mental.
 
-PARTE 2 — OMISIONES CLÍNICAS:
-El texto corresponde ÚNICAMENTE a la sección de episodio actual. Otras secciones se registran por separado — NO las señales como omisiones.
+Otras secciones se registran por separado — NO las señales como omisiones.
 
 Solo marca como omisión lo que debería estar en el relato del episodio actual y no aparece. Revisa:
 - Riesgo suicida / ideación autolítica (señalar SIEMPRE si no está documentado explícitamente)
@@ -74,6 +76,7 @@ export async function POST(req: NextRequest) {
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 2048,
+      temperature: 0.4,
       system: PROMPT_SISTEMA,
       messages: [{ role: "user", content: texto }],
     });
