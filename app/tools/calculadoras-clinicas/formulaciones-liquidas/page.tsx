@@ -84,6 +84,32 @@ const FARMACOS: Farmaco[] = [
         medida: "jeringa",
         notas: "Administrar con jeringa oral graduada. Diluir en agua, zumo de naranja, de manzana o limonada inmediatamente antes de tomar.",
     },
+    {
+        id: "sertralina-gotas",
+        nombre: "Sertralina gotas",
+        marca: "Sertralina EFG gotas 20 mg/mL",
+        concMgMl: 20,
+        medida: "gotas",
+        gotasPorMl: 20,
+        notas: "Presentación con cuentagotas en marcas EFG. Diluir en agua, zumo o leche inmediatamente antes de tomar. Verificar el número de gotas/mL en el envase dispensado, puede variar según fabricante.",
+    },
+    {
+        id: "escitalopram-gotas",
+        nombre: "Escitalopram gotas",
+        marca: "Cipralex® / Esertia® gotas 20 mg/mL",
+        concMgMl: 20,
+        medida: "gotas",
+        gotasPorMl: 20,
+        notas: "1 gota = 1 mg. Puede diluirse en agua antes de administrar.",
+    },
+    {
+        id: "fluoxetina-solucion",
+        nombre: "Fluoxetina sol.",
+        marca: "Fluoxetina EFG solución oral 20 mg/5 mL",
+        concMgMl: 4,
+        medida: "jeringa",
+        notas: "Administrar con jeringa oral graduada o cuchara dosificadora. Concentración: 4 mg/mL (20 mg en 5 mL).",
+    },
 ];
 
 function r3(n: number) {

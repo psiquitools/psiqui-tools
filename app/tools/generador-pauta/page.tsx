@@ -11,6 +11,7 @@ import {
     XCircle,
     FileText,
     RotateCcw,
+    Droplets,
 } from "lucide-react";
 
 // ─── TIPOS ───────────────────────────────────────────────────────────────────
@@ -42,6 +43,12 @@ type Farmaco = {
     contraindicacionesAbsolutas: string[];
     contraindicacionesRelativas: string[];
     notasGenerales?: string;
+    presentacionLiquida?: {
+        marca: string;
+        concMgMl: number;
+        gotasPorMl?: number;
+        notas?: string;
+    };
 };
 
 // ─── DATOS DE FÁRMACOS ───────────────────────────────────────────────────────
@@ -81,6 +88,12 @@ const FARMACOS: Farmaco[] = [
             { id: "panico", nombre: "Trastorno de pánico", dosisMinima: 25, dosisInicialEstandar: 25, dosisInicialLenta: 12.5, dosisObjetivo: 100, dosisMaxima: 200, notas: "Iniciar a dosis baja por riesgo de exacerbación inicial de la ansiedad" },
             { id: "tept", nombre: "Trastorno de estrés postraumático", dosisMinima: 50, dosisInicialEstandar: 25, dosisInicialLenta: 25, dosisObjetivo: 100, dosisMaxima: 200 },
         ],
+        presentacionLiquida: {
+            marca: "Besitran® sol. oral / Sertralina EFG gotas, 20 mg/mL",
+            concMgMl: 20,
+            gotasPorMl: 20,
+            notas: "Diluir en agua, zumo de naranja, de manzana o limonada inmediatamente antes de tomar.",
+        },
     },
     {
         id: "escitalopram",
@@ -118,6 +131,12 @@ const FARMACOS: Farmaco[] = [
             { id: "panico", nombre: "Trastorno de pánico", dosisMinima: 5, dosisInicialEstandar: 5, dosisInicialLenta: 5, dosisObjetivo: 10, dosisMaxima: 20, notas: "Iniciar a 5 mg/día por riesgo de exacerbación inicial" },
             { id: "tas", nombre: "Trastorno de ansiedad social", dosisMinima: 10, dosisInicialEstandar: 10, dosisInicialLenta: 5, dosisObjetivo: 10, dosisMaxima: 20 },
         ],
+        presentacionLiquida: {
+            marca: "Cipralex® / Esertia® gotas 20 mg/mL",
+            concMgMl: 20,
+            gotasPorMl: 20,
+            notas: "1 gota = 1 mg. Puede diluirse en agua antes de tomar.",
+        },
     },
     {
         id: "fluoxetina",
@@ -152,6 +171,11 @@ const FARMACOS: Farmaco[] = [
             { id: "toc", nombre: "Trastorno obsesivo-compulsivo", dosisMinima: 40, dosisInicialEstandar: 20, dosisInicialLenta: 20, dosisObjetivo: 60, dosisMaxima: 80, notas: "TOC requiere dosis altas" },
             { id: "bulimia", nombre: "Bulimia nerviosa", dosisMinima: 60, dosisInicialEstandar: 60, dosisInicialLenta: 20, dosisObjetivo: 60, dosisMaxima: 80 },
         ],
+        presentacionLiquida: {
+            marca: "Fluoxetina EFG sol. oral 20 mg/5 mL",
+            concMgMl: 4,
+            notas: "Administrar con jeringa oral graduada. 4 mg/mL (20 mg en 5 mL).",
+        },
     },
     {
         id: "paroxetina",
@@ -1363,6 +1387,113 @@ const FARMACOS: Farmaco[] = [
             { id: "tdah-adulto", nombre: "TDAH adultos", dosisMinima: 40, dosisInicialEstandar: 40, dosisInicialLenta: 25, dosisObjetivo: 80, dosisMaxima: 100, notas: "Iniciar 40 mg/día; tras 4 semanas sin respuesta suficiente, aumentar a 80-100 mg/día" },
         ],
     },
+    // ─── ESTABILIZADORES (adicional) ───
+    {
+        id: "topiramato",
+        nombre: "Topiramato",
+        marcaEspana: "Topamax®, Topiramato EFG",
+        familia: "Estabilizador del ánimo",
+        presentaciones: [25, 50, 100, 200],
+        presentacionesVirtuales: [75, 150],  // 25+50, 50+100
+        momentoToma: "2 veces al día (repartir dosis entre mañana y noche)",
+        efectosAdversosInicio: [
+            "Enlentecimiento cognitivo y dificultad de concentración ('Dopamax')",
+            "Parestesias en manos y pies (frecuentes; suelen tolerarse)",
+            "Pérdida de apetito y peso",
+            "Mareo y somnolencia",
+            "Cálculos renales (aumentar ingesta hídrica)",
+            "Acidosis metabólica (hipobicarbonatemia; controlar en analítica)",
+            "Oligohidrosis (reducción de sudoración; riesgo de golpe de calor)",
+        ],
+        tiempoRespuesta: "Efecto terapéutico a las 4-8 semanas según indicación",
+        notasGenerales: "Anticonvulsivante con usos off-label relevantes en psiquiatría. Evidencia nivel A en trastorno por uso de alcohol. Causa pérdida de peso — útil en pacientes con sobrepeso por psicofármacos. Alto riesgo teratogénico (fisura palatina, hipospadias) — asegurar anticoncepción eficaz. Monitorizar bicarbonato sérico periódicamente.",
+        contraindicacionesAbsolutas: [
+            "Embarazo (teratogénico: fisura palatina, hipospadias)",
+            "Urolitiasis activa o antecedentes de cálculos renales",
+            "Glaucoma de ángulo cerrado agudo (síndrome idiosincrásico — suspender inmediatamente si aparece dolor ocular/pérdida visual)",
+            "Hipersensibilidad conocida",
+        ],
+        contraindicacionesRelativas: [
+            "Pacientes con requerimiento cognitivo elevado (puede comprometer trabajo o estudios)",
+            "Inhibidores de la anhidrasa carbónica concomitantes (acetazolamida: riesgo de acidosis y litiasis)",
+            "Hepatopatía o nefropatía (ajustar dosis)",
+            "Antecedentes de episodio maníaco sin estabilizador",
+            "Lactancia",
+        ],
+        indicaciones: [
+            { id: "alcohol", nombre: "Trastorno por uso de alcohol", dosisMinima: 75, dosisInicialEstandar: 25, dosisInicialLenta: 25, dosisObjetivo: 150, dosisMaxima: 300, notas: "Titulación semanal de 25-50 mg. Rango habitual 75-300 mg/día repartido en 2 tomas. Evidencia nivel A para reducción del consumo y del craving." },
+            { id: "bulimia", nombre: "Bulimia nerviosa", dosisMinima: 50, dosisInicialEstandar: 25, dosisInicialLenta: 25, dosisObjetivo: 100, dosisMaxima: 250, notas: "Reduce frecuencia de atracones y purgas. Uso off-label con evidencia moderada." },
+            { id: "tept", nombre: "Trastorno de estrés postraumático", dosisMinima: 50, dosisInicialEstandar: 25, dosisInicialLenta: 25, dosisObjetivo: 100, dosisMaxima: 200, notas: "Evidencia limitada. Puede reducir pesadillas y síntomas de hiperactivación. Uso off-label." },
+        ],
+    },
+    // ─── HIPNÓTICOS / SUEÑO ───
+    {
+        id: "prazosin",
+        nombre: "Prazosin",
+        marcaEspana: "Minipress®",
+        familia: "Hipnótico / Sueño",
+        presentaciones: [1, 2, 5],
+        momentoToma: "1 vez al día, al acostarse (tumbado en cama)",
+        efectosAdversosInicio: [
+            "Hipotensión grave con la primera dosis — administrar siempre ya tumbado en cama",
+            "Mareo y síncope ortostático (especialmente al levantarse por la noche)",
+            "Cefalea",
+            "Congestión nasal",
+            "Palpitaciones",
+            "Priapismo (raro)",
+        ],
+        tiempoRespuesta: "Reducción de pesadillas perceptible en 1-2 semanas; efecto completo a las 4-6 semanas",
+        notasGenerales: "Alfa-1 bloqueante. Reduce la hiperactivación noradrenérgica nocturna responsable de las pesadillas en el TEPT. PRIMERA DOSIS siempre a 1 mg con el paciente ya tumbado en cama — riesgo de hipotensión grave. Medir TA basal antes de iniciar y en cada visita. Hombres con TEPT suelen requerir dosis más altas (6-10 mg/noche); mujeres suelen responder a 4-6 mg.",
+        contraindicacionesAbsolutas: [
+            "Hipotensión arterial sintomática",
+            "Hipersensibilidad conocida a prazosina u otras quinazolinas",
+        ],
+        contraindicacionesRelativas: [
+            "Medicación antihipertensiva concomitante (efecto hipotensor aditivo)",
+            "Insuficiencia cardiaca (puede precipitar hipotensión)",
+            "Angina de pecho inestable",
+            "Insuficiencia renal o hepática grave",
+            "Embarazo y lactancia",
+            "Conducción al inicio del tratamiento (mareo, somnolencia)",
+        ],
+        indicaciones: [
+            { id: "pesadillas-tept", nombre: "Pesadillas en el TEPT / trastorno por pesadillas", dosisMinima: 1, dosisInicialEstandar: 1, dosisInicialLenta: 1, dosisObjetivo: 4, dosisMaxima: 15, notas: "Iniciar siempre a 1 mg. Hombres pueden requerir 6-10 mg; mujeres suelen responder a 4-6 mg. Verificar TA basal. Primera toma ya en cama." },
+        ],
+    },
+    {
+        id: "doxepina-hipnotico",
+        nombre: "Doxepina hipnótica",
+        marcaEspana: "Sinequan® — ver nota sobre disponibilidad",
+        familia: "Hipnótico / Sueño",
+        presentaciones: [3, 6],
+        momentoToma: "1 vez al día, 30 minutos antes de acostarse",
+        efectosAdversosInicio: [
+            "Somnolencia residual al despertar (el efecto deseado puede persistir)",
+            "Mareo leve",
+            "Boca seca leve (menor que a dosis antidepresivas)",
+            "Náuseas leves",
+        ],
+        tiempoRespuesta: "Efecto hipnótico desde la primera toma; mejoría sostenida en 1-2 semanas",
+        notasGenerales: "A 3-6 mg actúa como antagonista selectivo H1 con efectos anticolinérgicos y adrenérgicos mínimos. Aprobada como hipnótico (Silenor® 3 mg / 6 mg) en EE.UU. para insomnio de mantenimiento. PRESENTACIÓN HIPNÓTICA NO COMERCIALIZADA EN ESPAÑA: Sinequan® solo está disponible en cápsulas de 25 mg y 75 mg (indicación antidepresiva). Para uso hipnótico en España requiere formulación magistral.",
+        contraindicacionesAbsolutas: [
+            "IMAOs (riesgo de síndrome serotoninérgico; lavado de 14 días)",
+            "Glaucoma de ángulo cerrado",
+            "Retención urinaria e hipertrofia prostática grave",
+            "Síndrome de QT largo congénito",
+            "Hipersensibilidad conocida a doxepina u otros tricíclicos",
+        ],
+        contraindicacionesRelativas: [
+            "Adultos mayores (ajustar a 3 mg; mayor riesgo de caídas por sedación residual)",
+            "Cardiopatía con riesgo de arritmias",
+            "Hepatopatía (metabolismo hepático intenso)",
+            "Insuficiencia renal grave",
+            "Embarazo y lactancia",
+            "Alcohol (potencia la sedación; evitar)",
+        ],
+        indicaciones: [
+            { id: "insomnio", nombre: "Insomnio crónico de mantenimiento (dificultad para mantener el sueño)", dosisMinima: 3, dosisInicialEstandar: 3, dosisInicialLenta: 3, dosisObjetivo: 6, dosisMaxima: 6, notas: "Presentación de 3 mg y 6 mg NO disponible comercialmente en España (requiere formulación magistral). Sinequan® en España = 25/75 mg, indicación antidepresiva." },
+        ],
+    },
 ];
 
 const VELOCIDAD_CONFIG: Record<Velocidad, { label: string; descripcion: string }> = {
@@ -1421,6 +1552,16 @@ function generarPasos(
         return [
             { desde: 1, hasta: diasPrimerEscalon, dosis: 400, descripcion: `Días 1-${diasPrimerEscalon}: 400 mg/día (1 comp de 400 mg)` },
             { desde: diasPrimerEscalon + 1, hasta: null, dosis: 800, descripcion: `Día ${diasPrimerEscalon + 1} en adelante: 800 mg/día — ajustar según niveles plasmáticos cada 5-7 días (objetivo ${nivelObjetivo})` },
+        ];
+    }
+
+    // Caso especial prazosin: intervalos mínimo semanales por hipotensión de primera dosis
+    if (farmaco.id === "prazosin") {
+        const d = velocidad === "rapida" ? 7 : velocidad === "lenta" ? 21 : 14;
+        return [
+            { desde: 1,       hasta: d,     dosis: 1, descripcion: `Días 1-${d}: 1 mg cada noche (primera toma en cama)` },
+            { desde: d + 1,   hasta: d * 2, dosis: 2, descripcion: `Días ${d+1}-${d*2}: 2 mg cada noche` },
+            { desde: d*2 + 1, hasta: null,  dosis: 4, descripcion: `Día ${d*2+1} en adelante: 4 mg/noche (ajustar según respuesta; hombres pueden necesitar 6-10 mg)` },
         ];
     }
 
@@ -1771,6 +1912,42 @@ export default function GeneradorPautaPage() {
                         </div>
                     </div>
                 </div>
+
+                {/* Presentación líquida */}
+                {farmaco.presentacionLiquida && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Droplets className="w-4 h-4 text-blue-600 shrink-0" />
+                            <p className="text-sm font-semibold text-blue-800">Presentación líquida disponible</p>
+                        </div>
+                        <p className="text-xs text-blue-600 mb-3">{farmaco.presentacionLiquida.marca}</p>
+                        <div className="flex flex-wrap gap-x-6 gap-y-1.5">
+                            {pasos.map((paso, idx) => {
+                                const liq = farmaco.presentacionLiquida!;
+                                const ml = Math.round((paso.dosis / liq.concMgMl) * 100) / 100;
+                                const gotas = liq.gotasPorMl
+                                    ? Math.round((ml * liq.gotasPorMl) * 10) / 10
+                                    : null;
+                                return (
+                                    <div key={idx} className="flex items-center gap-2 text-xs text-blue-700">
+                                        <span className="font-semibold w-14 shrink-0">{formatDosis(paso.dosis)} mg</span>
+                                        <span className="text-blue-400">→</span>
+                                        <span>{ml} mL</span>
+                                        {gotas !== null && (
+                                            <>
+                                                <span className="text-blue-400">=</span>
+                                                <span className="font-semibold">{gotas} gotas</span>
+                                            </>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        {farmaco.presentacionLiquida.notas && (
+                            <p className="text-xs text-blue-500 italic mt-3">{farmaco.presentacionLiquida.notas}</p>
+                        )}
+                    </div>
+                )}
 
                 {/* Contraindicaciones */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
