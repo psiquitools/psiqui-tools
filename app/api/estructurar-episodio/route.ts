@@ -24,16 +24,17 @@ ESTILO Y NATURALIDAD:
 El texto puede contener información mezclada de distintas secciones (antecedentes, episodio actual, exploración, tratamiento). Extrae y sintetiza únicamente lo pertinente al episodio actual, ignorando lo que corresponde a otras secciones.
 
 ESTRUCTURA — redacta siempre en este orden, integrando cada elemento en la prosa cuando esté disponible en el original:
-① Tiempo de evolución y forma de inicio del episodio (brusco, insidioso, fecha aproximada).
-② Motivo de consulta o síntoma principal, en una frase.
+① Frase de apertura (OBLIGATORIA, siempre la primera oración): "[Sexo] de [edad] años que acude [forma de llegada], [acompañado/solo si se menciona], [referente si se menciona] por [motivo principal]." Extrae estos datos del texto disponible — pueden estar en el motivo de consulta, la psicobiografía o el propio relato del episodio. Reglas: si no se menciona el sexo, usa "Paciente"; si no hay edad, omítela; forma de llegada habitual: "de forma voluntaria", "traído por familiares", "remitido desde urgencias", etc.; si hay referente (MAP, psiquiatra, urgencias, médico de zona), menciónalo ("tras derivación de su médico de atención primaria", "remitido por su psiquiatra", etc.); el motivo cierra la frase con "por [síntoma o razón principal]". Ejemplo: "Varón de 48 años que acude de forma voluntaria, acompañado, tras derivación por su MAP por sintomatología depresiva de meses de evolución."
+② Tiempo de evolución y forma de inicio del episodio (brusco, insidioso, fecha aproximada).
 ③ Síntomas actuales organizados por dominio: afectivo → cognitivo → conductual → neurovegetativo. Usa terminología psicopatológica cuando corresponda (hipotimia, anhedonia, bradipsiquia, ideofugalidad, etc.).
 ④ Intensidad y evolución del cuadro desde el inicio.
 ⑤ Repercusión funcional concreta en áreas laboral, social o familiar.
 ⑥ Desencadenantes o estresores identificables relacionados con el episodio.
 ⑦ Riesgo autolítico u otros factores de riesgo activos, solo si aparecen explícitamente en el texto.
+⑧ Cierre de consulta (solo si el médico lo menciona explícitamente): una frase final con los acuerdos terapéuticos o decisiones tomadas en la consulta. Ejemplos: ajuste de medicación, inicio de nuevo fármaco, derivación a psicología, planificación de ingreso, próxima cita, etc. Formula con "Se acuerda...", "Se decide..." o "Se propone..." Esto no es un plan de manejo completo — solo recoge lo que el médico indica explícitamente como decisión tomada.
 
 Si algún elemento no aparece en el texto original, omítelo sin mencionarlo.
-No incluyas diagnóstico, plan de manejo, antecedentes ni hallazgos del examen mental.
+No incluyas diagnóstico formal, antecedentes ni hallazgos del examen mental. El plan de manejo detallado se registra en su sección propia — pero si el médico menciona acuerdos o decisiones concretas tomadas en la consulta, consérvelos como frase de cierre (punto ⑧).
 
 Otras secciones se registran por separado — NO las señales como omisiones.
 
@@ -59,11 +60,17 @@ RESPONDE ÚNICAMENTE con JSON válido en este formato exacto, sin texto adiciona
 Si no hay omisiones relevantes, devuelve "omisiones": [].`;
 
 export async function POST(req: NextRequest) {
-  const { texto } = await req.json();
+  const { texto, motivoConsulta, psicobiografia } = await req.json();
 
   if (!texto?.trim()) {
     return NextResponse.json({ error: "Texto vacío" }, { status: 400 });
   }
+
+  const partes: string[] = [];
+  if (motivoConsulta?.trim()) partes.push(`MOTIVO DE CONSULTA:\n${motivoConsulta.trim()}`);
+  if (psicobiografia?.trim()) partes.push(`PSICOBIOGRAFÍA / DATOS DE FILIACIÓN:\n${psicobiografia.trim()}`);
+  partes.push(`EPISODIO ACTUAL:\n${texto.trim()}`);
+  const contenidoCompleto = partes.join("\n\n");
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -78,7 +85,7 @@ export async function POST(req: NextRequest) {
       max_tokens: 2048,
       temperature: 0.4,
       system: PROMPT_SISTEMA,
-      messages: [{ role: "user", content: texto }],
+      messages: [{ role: "user", content: contenidoCompleto }],
     });
 
     const raw = (message.content[0] as { type: string; text: string }).text;

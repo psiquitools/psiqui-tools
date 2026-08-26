@@ -35,6 +35,7 @@ interface HistoriaClinica {
             estado: "no" | "si";
             descripcion: string;
         };
+        tratamientosPrevios: string;
         tratamientoHabitual: string;
         familiaresSaludMental: string;
         suicidioFamiliar: { estado: "no" | "si"; descripcion: string };
@@ -49,8 +50,8 @@ interface HistoriaClinica {
 /* ===================== SECCIONES ===================== */
 
 const secciones = [
-    { id: 0, titulo: "Identificación y Episodio Actual", icon: FileText },
-    { id: 1, titulo: "Antecedentes Personales", icon: ClipboardList },
+    { id: 0, titulo: "Identificación", icon: FileText },
+    { id: 1, titulo: "Antecedentes", icon: ClipboardList },
     { id: 2, titulo: "Evaluación y Plan", icon: Brain },
 ];
 
@@ -112,7 +113,11 @@ export default function HistoriaClinicaPage() {
             const res = await fetch("/api/estructurar-episodio", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ texto: historia.enfermedadActual }),
+                body: JSON.stringify({
+                    texto: historia.enfermedadActual,
+                    motivoConsulta: historia.motivoConsulta,
+                    psicobiografia: historia.psicobiografia,
+                }),
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error ?? "Error desconocido");
@@ -180,6 +185,7 @@ export default function HistoriaClinicaPage() {
             saludMental: "",
             ingresosPsiq: { estado: "no", descripcion: "" },
             intentosAutoliticos: { estado: "no", descripcion: "" },
+            tratamientosPrevios: "",
             tratamientoHabitual: "",
             familiaresSaludMental: "",
             suicidioFamiliar: { estado: "no", descripcion: "" },
@@ -244,10 +250,13 @@ export default function HistoriaClinicaPage() {
 
   ${seccion("Antecedentes personales en salud mental:")}
   ${parrafos(antecedentes.saludMental)}
+  ${antecedentes.tratamientosPrevios.trim() ? `<p class="sub">Tratamientos previos:</p>${parrafos(antecedentes.tratamientosPrevios)}` : ""}
   <p>${esc(ingresoTexto)}</p>
   <p>${esc(autoliticosTexto)}</p>
   <p class="sub">Tratamiento habitual:</p>
   ${parrafos(antecedentes.tratamientoHabitual)}
+  <p class="sub">Hábitos tóxicos:</p>
+  ${parrafos(antecedentes.habitosToxicos)}
 
   ${seccion("Antecedentes familiares en salud mental:")}
   ${parrafos(antecedentes.familiaresSaludMental)}
@@ -255,8 +264,6 @@ export default function HistoriaClinicaPage() {
                 ? "Niega antecedentes familiares de suicidio consumado."
                 : "Antecedentes familiares de suicidio consumado" + (antecedentes.suicidioFamiliar.descripcion.trim() ? ": " + antecedentes.suicidioFamiliar.descripcion.trim() : "") + "."
             }</p>
-  <p class="sub">Hábitos tóxicos:</p>
-  ${parrafos(antecedentes.habitosToxicos)}
 
   ${seccion("Episodio actual:")}
   ${parrafos(historia.enfermedadActual)}
@@ -325,7 +332,7 @@ export default function HistoriaClinicaPage() {
         "placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500";
 
     const textarea =
-        "w-full px-3 py-2 border border-gray-300 rounded-lg min-h-[120px] text-slate-800 " +
+        "w-full px-3 py-2 border border-gray-300 rounded-lg min-h-[120px] text-sm font-sans text-slate-800 " +
         "placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500";
 
     /* ===================== CONTENIDO ===================== */
@@ -336,7 +343,7 @@ export default function HistoriaClinicaPage() {
                 return (
                     <>
                         <h2 className="text-xl font-bold text-slate-800 mb-6 border-b border-slate-200 pb-2">
-                            Identificación y Episodio Actual
+                            Identificación
                         </h2>
 
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
@@ -389,125 +396,6 @@ export default function HistoriaClinicaPage() {
                             }
                         />
 
-                        <h3 className="text-slate-800 font-semibold mt-6 mb-2">
-                            Episodio Actual
-                        </h3>
-                        <textarea
-                            className={`${textarea} min-h-[280px]`}
-                            value={historia.enfermedadActual}
-                            onChange={(e) =>
-                                setHistoria({
-                                    ...historia,
-                                    enfermedadActual: e.target.value,
-                                })
-                            }
-                        />
-
-                        {/* Botón IA */}
-                        <div className="mt-2 flex items-center gap-3">
-                            <button
-                                type="button"
-                                onClick={estructurarEpisodio}
-                                disabled={iaLoading || !historia.enfermedadActual.trim()}
-                                className="inline-flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700 transition-colors hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-40"
-                            >
-                                <Sparkles className="h-3.5 w-3.5" />
-                                {iaLoading ? "Estructurando..." : "Estructurar con IA"}
-                            </button>
-                            {iaError && (
-                                <p className="text-xs text-red-500">{iaError}</p>
-                            )}
-                        </div>
-                        <p className="mt-1.5 text-xs text-slate-400">
-                            Esta función envía únicamente el contenido del apartado &quot;Episodio Actual&quot; a un proveedor de IA para generar una propuesta de redacción. No introduzca datos identificativos de pacientes.
-                        </p>
-
-                        {/* Panel propuesta IA */}
-                        {iaPanel && (
-                            <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50 p-4">
-                                <div className="mb-3 flex items-center justify-between">
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">
-                                        Propuesta de IA
-                                    </p>
-                                    <button
-                                        type="button"
-                                        onClick={descartarPropuesta}
-                                        className="rounded-md p-1 text-violet-400 hover:bg-violet-100 hover:text-violet-700"
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </button>
-                                </div>
-
-                                {iaOmisiones.length > 0 && (
-                                    <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
-                                        <div className="flex items-start gap-2">
-                                            <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-                                            <div>
-                                                <p className="text-xs font-semibold text-amber-800 mb-1.5">
-                                                    Elementos no documentados a evaluar
-                                                </p>
-                                                <ul className="space-y-1">
-                                                    {iaOmisiones.map((o, i) => (
-                                                        <li key={i} className="text-xs text-amber-700">• {o}</li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <textarea
-                                    className="min-h-[160px] w-full rounded-lg border border-violet-300 bg-white p-3 text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-300"
-                                    value={iaPropuesta}
-                                    onChange={(e) => setIaPropuesta(e.target.value)}
-                                />
-
-                                {/* Retroalimentación — un único envío */}
-                                {!iaFeedbackUsado && (
-                                    <div className="mt-3 rounded-lg border border-violet-200 bg-white p-3">
-                                        <p className="mb-1.5 text-xs font-medium text-violet-700">
-                                            Indicaciones de ajuste
-                                        </p>
-                                        <textarea
-                                            value={iaFeedback}
-                                            onChange={(e) => setIaFeedback(e.target.value)}
-                                            rows={2}
-                                            placeholder="Ej: acortar el texto, añadir que el inicio fue insidioso, quitar la mención al sueño…"
-                                            className="w-full resize-none rounded-md border border-violet-200 bg-violet-50 px-3 py-2 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-violet-300"
-                                        />
-                                        <div className="mt-2 flex justify-end">
-                                            <button
-                                                type="button"
-                                                onClick={refinarPropuesta}
-                                                disabled={iaFeedbackLoading || !iaFeedback.trim()}
-                                                className="inline-flex items-center gap-1.5 rounded-md bg-violet-100 px-3 py-1.5 text-xs font-medium text-violet-700 hover:bg-violet-200 disabled:cursor-not-allowed disabled:opacity-40"
-                                            >
-                                                <Sparkles className="h-3 w-3" />
-                                                {iaFeedbackLoading ? "Ajustando…" : "Ajustar propuesta"}
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="mt-3 flex justify-end gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={descartarPropuesta}
-                                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50"
-                                    >
-                                        Descartar
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={aceptarPropuesta}
-                                        className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-xs font-medium text-white hover:bg-violet-700"
-                                    >
-                                        <Check className="h-3.5 w-3.5" />
-                                        Aceptar propuesta
-                                    </button>
-                                </div>
-                            </div>
-                        )}
                     </>
                 );
 
@@ -633,7 +521,25 @@ export default function HistoriaClinicaPage() {
                             </div>
                         )}
 
-                        <label className="block text-sm font-medium text-slate-800 mt-3 mb-1">
+                        <h4 className="text-sm font-semibold text-slate-700 mt-5 mb-1">
+                            Tratamientos previos
+                        </h4>
+                        <textarea
+                            className={textarea}
+                            placeholder="Tratamientos farmacológicos y psicoterapéuticos anteriores, respuesta y tolerancia..."
+                            value={historia.antecedentes.tratamientosPrevios}
+                            onChange={(e) =>
+                                setHistoria({
+                                    ...historia,
+                                    antecedentes: {
+                                        ...historia.antecedentes,
+                                        tratamientosPrevios: e.target.value,
+                                    },
+                                })
+                            }
+                        />
+
+                        <label className="block text-sm font-medium text-slate-800 mt-4 mb-1">
                             Ingresos psiquiátricos
                         </label>
 
@@ -776,6 +682,26 @@ export default function HistoriaClinicaPage() {
                             }
                         />
 
+                        <h3 className="text-slate-800 font-semibold mt-6 mb-1">
+                            Hábitos Tóxicos
+                        </h3>
+                        <p className="text-xs text-slate-500 mb-2 leading-relaxed">
+                            Para cada sustancia: <span className="font-medium text-slate-600">primer consumo · frecuencia actual · último consumo · cantidad habitual · periodos de abstinencia · tratamientos previos</span>
+                        </p>
+                        <textarea
+                            className={textarea}
+                            value={historia.antecedentes.habitosToxicos}
+                            onChange={(e) =>
+                                setHistoria({
+                                    ...historia,
+                                    antecedentes: {
+                                        ...historia.antecedentes,
+                                        habitosToxicos: e.target.value,
+                                    },
+                                })
+                            }
+                        />
+
                         <h3 className="text-slate-800 font-semibold mt-6 mb-2">
                             Antecedentes Familiares en Salud Mental
                         </h3>
@@ -855,26 +781,6 @@ export default function HistoriaClinicaPage() {
                                 }
                             />
                         )}
-
-                        <h3 className="text-slate-800 font-semibold mt-6 mb-1">
-                            Hábitos Tóxicos
-                        </h3>
-                        <p className="text-xs text-slate-500 mb-2 leading-relaxed">
-                            Para cada sustancia: <span className="font-medium text-slate-600">primer consumo · frecuencia actual · último consumo · cantidad habitual · periodos de abstinencia · tratamientos previos</span>
-                        </p>
-                        <textarea
-                            className={textarea}
-                            value={historia.antecedentes.habitosToxicos}
-                            onChange={(e) =>
-                                setHistoria({
-                                    ...historia,
-                                    antecedentes: {
-                                        ...historia.antecedentes,
-                                        habitosToxicos: e.target.value,
-                                    },
-                                })
-                            }
-                        />
                     </>
                 );
 
@@ -882,9 +788,7 @@ export default function HistoriaClinicaPage() {
                 return (
                     <>
                         <div className="flex items-center justify-between mb-4 border-b border-slate-200 pb-2">
-                            <h2 className="text-xl font-bold text-slate-800">
-                                Examen Mental
-                            </h2>
+                            <h2 className="text-xl font-bold text-slate-800">Examen Mental</h2>
                             <Link
                                 href="/tools/examen-mental"
                                 target="_blank"
@@ -903,11 +807,11 @@ export default function HistoriaClinicaPage() {
                             }
                         />
 
-                        <h2 className="text-xl font-bold text-slate-800 mt-8 mb-4 border-b border-slate-200 pb-2">
-                            Juicio Clínico
-                        </h2>
+                        <div className="flex items-center justify-between mt-8 mb-4 border-b border-slate-200 pb-2">
+                            <h2 className="text-xl font-bold text-slate-800">Juicio Clínico</h2>
+                        </div>
                         <textarea
-                            className={textarea}
+                            className={`${textarea} min-h-[200px]`}
                             placeholder="Integración clínica, hipótesis diagnóstica, factores de riesgo, gravedad, juicio profesional..."
                             value={historia.juicioClinico}
                             onChange={(e) =>
@@ -916,9 +820,7 @@ export default function HistoriaClinicaPage() {
                         />
 
                         <div className="flex items-center justify-between mt-8 mb-4 border-b border-slate-200 pb-2">
-                            <h2 className="text-xl font-bold text-slate-800">
-                                Plan de Manejo
-                            </h2>
+                            <h2 className="text-xl font-bold text-slate-800">Plan de Manejo</h2>
                             <Link
                                 href="/tools/generador-pauta"
                                 target="_blank"
@@ -929,7 +831,7 @@ export default function HistoriaClinicaPage() {
                             </Link>
                         </div>
                         <textarea
-                            className={textarea}
+                            className={`${textarea} min-h-[200px]`}
                             placeholder="Conducta, tratamiento farmacológico, contención, interconsultas, seguimiento..."
                             value={historia.planManejo}
                             onChange={(e) =>
@@ -973,7 +875,7 @@ export default function HistoriaClinicaPage() {
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                     <aside className="lg:col-span-1">
                         <div className="bg-white rounded-lg shadow p-4 sticky top-[60px]">
                             <h3 className="text-sm font-semibold text-slate-800 mb-3 border-b pb-2">
@@ -1002,7 +904,7 @@ export default function HistoriaClinicaPage() {
                         </div>
                     </aside>
 
-                    <main className="lg:col-span-3">
+                    <main className="lg:col-span-2">
                         <div className="bg-white rounded-lg shadow p-6 min-h-[400px]">
                             {renderSeccion()}
 
@@ -1033,6 +935,128 @@ export default function HistoriaClinicaPage() {
                             </div>
                         </div>
                     </main>
+
+                    {/* Panel lateral fijo: Episodio Actual */}
+                    <aside className="lg:col-span-2">
+                        <div className="bg-white rounded-lg shadow p-6 sticky top-[60px] self-start">
+                            <h3 className="text-slate-800 font-semibold mb-3 border-b border-slate-200 pb-2">
+                                Episodio Actual
+                            </h3>
+                            <textarea
+                                className={`${textarea} min-h-[280px]`}
+                                value={historia.enfermedadActual}
+                                onChange={(e) =>
+                                    setHistoria({
+                                        ...historia,
+                                        enfermedadActual: e.target.value,
+                                    })
+                                }
+                            />
+
+                            <div className="mt-2 flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={estructurarEpisodio}
+                                    disabled={iaLoading || !historia.enfermedadActual.trim()}
+                                    className="inline-flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700 transition-colors hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    <Sparkles className="h-3.5 w-3.5" />
+                                    {iaLoading ? "Estructurando..." : "Estructurar con IA"}
+                                </button>
+                                {iaError && (
+                                    <p className="text-xs text-red-500">{iaError}</p>
+                                )}
+                            </div>
+                            <p className="mt-1.5 text-xs text-slate-400">
+                                Esta función envía únicamente el contenido de &quot;Episodio Actual&quot; a un proveedor de IA. No introduzca datos identificativos de pacientes.
+                            </p>
+
+                            {iaPanel && (
+                                <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50 p-4">
+                                    <div className="mb-3 flex items-center justify-between">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">
+                                            Propuesta de IA
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={descartarPropuesta}
+                                            className="rounded-md p-1 text-violet-400 hover:bg-violet-100 hover:text-violet-700"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    </div>
+
+                                    {iaOmisiones.length > 0 && (
+                                        <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                                            <div className="flex items-start gap-2">
+                                                <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                                                <div>
+                                                    <p className="text-xs font-semibold text-amber-800 mb-1.5">
+                                                        Elementos no documentados a evaluar
+                                                    </p>
+                                                    <ul className="space-y-1">
+                                                        {iaOmisiones.map((o, i) => (
+                                                            <li key={i} className="text-xs text-amber-700">• {o}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <textarea
+                                        className="min-h-[160px] w-full rounded-lg border border-violet-300 bg-white p-3 text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-300"
+                                        value={iaPropuesta}
+                                        onChange={(e) => setIaPropuesta(e.target.value)}
+                                    />
+
+                                    {!iaFeedbackUsado && (
+                                        <div className="mt-3 rounded-lg border border-violet-200 bg-white p-3">
+                                            <p className="mb-1.5 text-xs font-medium text-violet-700">
+                                                Indicaciones de ajuste
+                                            </p>
+                                            <textarea
+                                                value={iaFeedback}
+                                                onChange={(e) => setIaFeedback(e.target.value)}
+                                                rows={2}
+                                                placeholder="Ej: acortar el texto, añadir que el inicio fue insidioso..."
+                                                className="w-full resize-none rounded-md border border-violet-200 bg-violet-50 px-3 py-2 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-violet-300"
+                                            />
+                                            <div className="mt-2 flex justify-end">
+                                                <button
+                                                    type="button"
+                                                    onClick={refinarPropuesta}
+                                                    disabled={iaFeedbackLoading || !iaFeedback.trim()}
+                                                    className="inline-flex items-center gap-1.5 rounded-md bg-violet-100 px-3 py-1.5 text-xs font-medium text-violet-700 hover:bg-violet-200 disabled:cursor-not-allowed disabled:opacity-40"
+                                                >
+                                                    <Sparkles className="h-3 w-3" />
+                                                    {iaFeedbackLoading ? "Ajustando…" : "Ajustar propuesta"}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="mt-3 flex justify-end gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={descartarPropuesta}
+                                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                                        >
+                                            Descartar
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={aceptarPropuesta}
+                                            className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-xs font-medium text-white hover:bg-violet-700"
+                                        >
+                                            <Check className="h-3.5 w-3.5" />
+                                            Aceptar propuesta
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </aside>
                 </div>
             </div>
         </div>
