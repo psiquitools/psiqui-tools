@@ -26,6 +26,8 @@ const ESCALAS: Escala[] = [
     { id: "ciwa-ar", title: "CIWA-Ar",  area: "Alcohol y sustancias", tag: "Clínico",           href: "/tools/escalas-clinicas/ciwa-ar", description: "Evaluación del síndrome de abstinencia alcohólica. Orienta la gravedad y el manejo." },
     { id: "c-ssrs",  title: "C-SSRS",   area: "Suicidio",            tag: "Clínico",           href: "/tools/escalas-clinicas/c-ssrs",  description: "Escala de Gravedad de la Conducta Suicida de Columbia. Evalúa ideación (tipos 1–5) y conducta suicida." },
     { id: "cgi",     title: "CGI",      area: "Global",              tag: "Clínico",           href: "/tools/escalas-clinicas/cgi",     description: "Impresión Clínica Global. CGI-S evalúa gravedad (1–7) y CGI-I el cambio respecto a evaluación previa." },
+    { id: "mmse",    title: "MMSE",     area: "Cognitivo",           tag: "Clínico",           href: "/tools/escalas-clinicas/mmse",    description: "Mini-Mental State Examination (Folstein). Cribado cognitivo breve de 30 puntos organizado por dominios." },
+    { id: "moca",    title: "MoCA",     area: "Cognitivo",           tag: "Clínico",           href: "/tools/escalas-clinicas/moca",    description: "Montreal Cognitive Assessment. Mayor sensibilidad para deterioro leve. Incluye ajuste por escolaridad." },
 ];
 
 const AREAS = ["Todas", ...Array.from(new Set(ESCALAS.map(e => e.area)))];
