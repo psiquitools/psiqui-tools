@@ -61,6 +61,7 @@ const FARMACOS: Farmaco[] = [
         marcaEspana: "Besitran®, Aremis®",
         familia: "ISRS",
         presentaciones: [50, 100],
+        presentacionesVirtuales: [25],  // ½ comprimido de 50 mg
         momentoToma: "1 vez al día, preferiblemente por la mañana con o sin alimentos",
         efectosAdversosInicio: [
             "Náuseas y molestias gastrointestinales",
@@ -121,7 +122,7 @@ const FARMACOS: Farmaco[] = [
             "Hipopotasemia o hipomagnesemia (riesgo adicional de prolongación QT)",
             "Cardiopatía con tendencia a arritmias",
             "Hepatopatía (dosis máxima 10 mg/día)",
-            "Mayores de 65 años (dosis máxima 10–20 mg/día)",
+            "Mayores de 65 años (dosis máxima 10 mg/día)",
             "Embarazo tercer trimestre (hipertensión pulmonar persistente neonatal)",
         ],
         indicaciones: [
@@ -144,7 +145,7 @@ const FARMACOS: Farmaco[] = [
         marcaEspana: "Prozac®, Adofen®",
         familia: "ISRS",
         presentaciones: [20],
-        presentacionesVirtuales: [40],  // 2 × 20 mg
+        presentacionesVirtuales: [40, 60, 80],  // 2×20, 3×20, 4×20 mg
         momentoToma: "1 vez al día por la mañana (efecto activador)",
         efectosAdversosInicio: [
             "Náuseas",
@@ -228,7 +229,7 @@ const FARMACOS: Farmaco[] = [
             "Insomnio o somnolencia",
         ],
         tiempoRespuesta: "Inicio del efecto terapéutico a las 2-4 semanas; respuesta máxima a las 6-8 semanas",
-        notasGenerales: "Dosis máxima de 20 mg/día en mayores de 65 años o insuficiencia hepática. Vigilar QT a dosis altas.",
+        notasGenerales: "Dosis máxima de 10 mg/día en mayores de 65 años o insuficiencia hepática. Vigilar QT a dosis altas.",
         contraindicacionesAbsolutas: [
             "IMAOs (síndrome serotoninérgico)",
             "Síndrome de QT largo congénito o QTc > 500 ms",
@@ -277,6 +278,7 @@ const FARMACOS: Farmaco[] = [
             "Tabaquismo (induce CYP1A2: los fumadores pueden necesitar dosis mayores)",
             "Adultos mayores (empezar con 50 mg/día)",
         ],
+        presentacionesVirtuales: [150, 200, 250, 300],  // 50+100, 2×100, 2×100+50, 3×100
         indicaciones: [
             { id: "toc", nombre: "Trastorno obsesivo-compulsivo", dosisMinima: 50, dosisInicialEstandar: 50, dosisInicialLenta: 50, dosisObjetivo: 200, dosisMaxima: 300, notas: "Principal indicación. Subir 50 mg cada 4-7 días según tolerancia. Dosis elevadas son frecuentemente necesarias" },
             { id: "depresion", nombre: "Trastorno depresivo mayor", dosisMinima: 100, dosisInicialEstandar: 50, dosisInicialLenta: 50, dosisObjetivo: 150, dosisMaxima: 300 },
@@ -315,7 +317,7 @@ const FARMACOS: Farmaco[] = [
             "AINEs o anticoagulantes (aumento del riesgo de sangrado)",
         ],
         indicaciones: [
-            { id: "depresion", nombre: "Trastorno depresivo mayor", dosisMinima: 75, dosisInicialEstandar: 75, dosisInicialLenta: 37.5, dosisObjetivo: 150, dosisMaxima: 375 },
+            { id: "depresion", nombre: "Trastorno depresivo mayor", dosisMinima: 75, dosisInicialEstandar: 75, dosisInicialLenta: 37.5, dosisObjetivo: 150, dosisMaxima: 225 },
             { id: "tag", nombre: "Trastorno de ansiedad generalizada", dosisMinima: 75, dosisInicialEstandar: 75, dosisInicialLenta: 37.5, dosisObjetivo: 75, dosisMaxima: 225 },
             { id: "tas", nombre: "Trastorno de ansiedad social", dosisMinima: 75, dosisInicialEstandar: 75, dosisInicialLenta: 37.5, dosisObjetivo: 75, dosisMaxima: 225 },
             { id: "panico", nombre: "Trastorno de pánico", dosisMinima: 37.5, dosisInicialEstandar: 37.5, dosisInicialLenta: 37.5, dosisObjetivo: 75, dosisMaxima: 225 },
@@ -888,7 +890,7 @@ const FARMACOS: Farmaco[] = [
             "Cardiopatía con trastornos del ritmo",
         ],
         indicaciones: [
-            { id: "mania", nombre: "Episodio maníaco agudo", dosisMinima: 400, dosisInicialEstandar: 400, dosisInicialLenta: 400, dosisObjetivo: 800, dosisMaxima: 1800, notas: "Guiar por niveles plasmáticos (objetivo 0.8-1.2 mEq/L en agudo). Ajuste posterior a la dosis inicial según niveles a los 5-7 días — no por escalones fijos." },
+            { id: "mania", nombre: "Episodio maníaco agudo", dosisMinima: 400, dosisInicialEstandar: 400, dosisInicialLenta: 400, dosisObjetivo: 800, dosisMaxima: 1600, notas: "Guiar por niveles plasmáticos (objetivo 0.8-1.2 mEq/L en agudo). Ajuste posterior a la dosis inicial según niveles a los 5-7 días — no por escalones fijos. Dosis máxima con Plenur® 400 mg: 1600 mg/día (4 comprimidos)." },
             { id: "mantenimiento", nombre: "Mantenimiento trastorno bipolar", dosisMinima: 400, dosisInicialEstandar: 400, dosisInicialLenta: 400, dosisObjetivo: 800, dosisMaxima: 1200, notas: "Guiar por niveles plasmáticos (objetivo 0.6-0.8 mEq/L en mantenimiento)" },
         ],
     },
@@ -940,7 +942,7 @@ const FARMACOS: Farmaco[] = [
             "Diplopía",
         ],
         tiempoRespuesta: "Efecto antidepresivo a las 6-8 semanas",
-        notasGenerales: "OBLIGADA titulación lenta por riesgo de exantema grave (Stevens-Johnson). Si el paciente toma valproato, reducir la dosis de lamotrigina a la mitad. Si toma carbamazepina, duplicarla.",
+        notasGenerales: "OBLIGADA titulación lenta por riesgo de exantema grave (Stevens-Johnson). LA PAUTA GENERADA ES PARA MONOTERAPIA — si hay medicación concomitante ajustar: con valproato → reducir TODAS las dosis a la mitad (semanas 1-2: 12.5 mg/día, semanas 3-4: 25 mg, semana 5: 50 mg, mantenimiento: 100 mg); con carbamazepina u otros inductores → doblar TODAS las dosis (semanas 1-2: 50 mg, semanas 3-4: 100 mg, semana 5: 200 mg, mantenimiento: 400 mg).",
         contraindicacionesAbsolutas: [
             "Hipersensibilidad conocida (especialmente si hubo síndrome de Stevens-Johnson o NET previos con lamotrigina)",
         ],
@@ -1095,7 +1097,7 @@ const FARMACOS: Farmaco[] = [
         nombre: "Lorazepam",
         marcaEspana: "Orfidal®, Ativan®",
         familia: "Benzodiacepina",
-        presentaciones: [0.5, 1, 2.5],
+        presentaciones: [0.5, 1],
         momentoToma: "1-2 veces al día (o nocturno para insomnio)",
         efectosAdversosInicio: [
             "Somnolencia y sedación",
@@ -1104,7 +1106,7 @@ const FARMACOS: Farmaco[] = [
             "Síndrome de retirada al suspender",
         ],
         tiempoRespuesta: "Efecto ansiolítico rápido (15-30 min oral; inmediato sublingual)",
-        notasGenerales: "Vida media intermedia (10-20 h). Sin metabolitos activos — preferible en hepatopatía y adultos mayores. Puede usarse sublingual para acción más rápida. Uso máximo 4 semanas.",
+        notasGenerales: "Vida media intermedia (10-20 h). Sin metabolitos activos — preferible en hepatopatía y adultos mayores. Comprimido oral disponible en España: Orfidal® 1 mg. Para uso sublingual existe Orfidal Expidet® 2.5 mg (liofilizado oral — no es un comprimido partido). Uso máximo 4 semanas.",
         contraindicacionesAbsolutas: [
             "Miastenia gravis",
             "Apnea del sueño grave",
@@ -1118,8 +1120,8 @@ const FARMACOS: Farmaco[] = [
             "Embarazo (síndrome de abstinencia neonatal; evitar en primer trimestre)",
         ],
         indicaciones: [
-            { id: "ansiedad", nombre: "Ansiedad aguda / crisis de ansiedad", dosisMinima: 0.5, dosisInicialEstandar: 1, dosisInicialLenta: 0.5, dosisObjetivo: 1, dosisMaxima: 4, notas: "Puede usarse sublingual para mayor rapidez de acción" },
-            { id: "insomnio", nombre: "Insomnio (corto plazo)", dosisMinima: 0.5, dosisInicialEstandar: 1, dosisInicialLenta: 0.5, dosisObjetivo: 1, dosisMaxima: 2.5, notas: "Dosis única nocturna; máximo 4 semanas" },
+            { id: "ansiedad", nombre: "Ansiedad aguda / crisis de ansiedad", dosisMinima: 0.5, dosisInicialEstandar: 1, dosisInicialLenta: 0.5, dosisObjetivo: 1, dosisMaxima: 4, notas: "Puede usarse sublingual (Orfidal Expidet® 2.5 mg) para mayor rapidez de acción" },
+            { id: "insomnio", nombre: "Insomnio (corto plazo)", dosisMinima: 0.5, dosisInicialEstandar: 1, dosisInicialLenta: 0.5, dosisObjetivo: 1, dosisMaxima: 2, notas: "Dosis única nocturna; máximo 4 semanas" },
         ],
     },
     {
@@ -1239,7 +1241,8 @@ const FARMACOS: Farmaco[] = [
         nombre: "Metilfenidato LP 50/50",
         marcaEspana: "Medikinet®",
         familia: "Estimulante (TDAH)",
-        presentaciones: [5, 10, 20, 30, 40, 50, 60],
+        presentaciones: [5, 10, 20, 30, 40],
+        presentacionesVirtuales: [60, 80],  // 20+40, 40+40 mg — presentaciones de 50 y 60 mg no comercializadas en España
         momentoToma: "1 vez al día con el desayuno; la cápsula puede abrirse y mezclarse con alimentos blandos sin masticar las microesferas",
         efectosAdversosInicio: [
             "Disminución del apetito y pérdida de peso",
@@ -1249,7 +1252,7 @@ const FARMACOS: Farmaco[] = [
             "Elevación de frecuencia cardíaca y tensión arterial",
         ],
         tiempoRespuesta: "Efecto en 30-60 min; duración 6-8 horas (50% liberación inmediata + 50% liberación prolongada)",
-        notasGenerales: "Perfil bimodal 50/50: inicio de acción rápido + segunda fase que prolonga el efecto. Administrar siempre con el desayuno. La cápsula puede abrirse y mezclarse — nunca masticar las microesferas.",
+        notasGenerales: "Perfil bimodal 50/50: inicio de acción rápido + segunda fase que prolonga el efecto. Administrar siempre con el desayuno. La cápsula puede abrirse y mezclarse — nunca masticar las microesferas. En España la cápsula máxima disponible es de 40 mg; dosis superiores se alcanzan combinando dos cápsulas.",
         contraindicacionesAbsolutas: [
             "Cardiopatía estructural significativa o arritmias graves",
             "Hipertiroidismo o tirotoxicosis",
