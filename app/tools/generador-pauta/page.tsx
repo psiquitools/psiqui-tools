@@ -49,6 +49,7 @@ type Farmaco = {
         gotasPorMl?: number;
         notas?: string;
     };
+    laiHref?: string;  // ruta a la calculadora LAI si existe presentación depot
 };
 
 // ─── DATOS DE FÁRMACOS ───────────────────────────────────────────────────────
@@ -126,11 +127,11 @@ const FARMACOS: Farmaco[] = [
             "Embarazo tercer trimestre (hipertensión pulmonar persistente neonatal)",
         ],
         indicaciones: [
-            { id: "depresion", nombre: "Trastorno depresivo mayor", dosisMinima: 10, dosisInicialEstandar: 10, dosisInicialLenta: 5, dosisObjetivo: 10, dosisMaxima: 20 },
-            { id: "tag", nombre: "Trastorno de ansiedad generalizada", dosisMinima: 10, dosisInicialEstandar: 10, dosisInicialLenta: 5, dosisObjetivo: 10, dosisMaxima: 20 },
-            { id: "toc", nombre: "Trastorno obsesivo-compulsivo", dosisMinima: 10, dosisInicialEstandar: 10, dosisInicialLenta: 5, dosisObjetivo: 20, dosisMaxima: 20 },
+            { id: "depresion", nombre: "Trastorno depresivo mayor", dosisMinima: 10, dosisInicialEstandar: 5, dosisInicialLenta: 5, dosisObjetivo: 10, dosisMaxima: 20 },
+            { id: "tag", nombre: "Trastorno de ansiedad generalizada", dosisMinima: 10, dosisInicialEstandar: 5, dosisInicialLenta: 5, dosisObjetivo: 10, dosisMaxima: 20 },
+            { id: "toc", nombre: "Trastorno obsesivo-compulsivo", dosisMinima: 10, dosisInicialEstandar: 5, dosisInicialLenta: 5, dosisObjetivo: 20, dosisMaxima: 20 },
             { id: "panico", nombre: "Trastorno de pánico", dosisMinima: 5, dosisInicialEstandar: 5, dosisInicialLenta: 5, dosisObjetivo: 10, dosisMaxima: 20, notas: "Iniciar a 5 mg/día por riesgo de exacerbación inicial" },
-            { id: "tas", nombre: "Trastorno de ansiedad social", dosisMinima: 10, dosisInicialEstandar: 10, dosisInicialLenta: 5, dosisObjetivo: 10, dosisMaxima: 20 },
+            { id: "tas", nombre: "Trastorno de ansiedad social", dosisMinima: 10, dosisInicialEstandar: 5, dosisInicialLenta: 5, dosisObjetivo: 10, dosisMaxima: 20 },
         ],
         presentacionLiquida: {
             marca: "Cipralex® / Esertia® gotas 20 mg/mL",
@@ -604,7 +605,7 @@ const FARMACOS: Farmaco[] = [
             "Cefalea",
         ],
         tiempoRespuesta: "Efecto antipsicótico en 1-2 semanas; respuesta completa en 4-6 semanas",
-        notasGenerales: "Baja carga metabólica. Frecuente acatisia al inicio — informar al paciente.",
+        notasGenerales: "Baja carga metabólica. Frecuente acatisia al inicio — informar al paciente. Disponible también como inyectable de acción prolongada mensual (Abilify Maintena®).",
         contraindicacionesAbsolutas: [
             "Hipersensibilidad conocida",
         ],
@@ -619,6 +620,7 @@ const FARMACOS: Farmaco[] = [
             { id: "mania", nombre: "Episodio maníaco", dosisMinima: 10, dosisInicialEstandar: 15, dosisInicialLenta: 10, dosisObjetivo: 15, dosisMaxima: 30 },
             { id: "potenciacion", nombre: "Potenciación en depresión mayor", dosisMinima: 2, dosisInicialEstandar: 2, dosisInicialLenta: 2, dosisObjetivo: 5, dosisMaxima: 15, notas: "A dosis muy bajas (2-10 mg); iniciar con 2 mg y ajustar; frecuente acatisia incluso a dosis bajas" },
         ],
+        laiHref: "/tools/calculadoras-clinicas/depot-lai",
     },
     {
         id: "brexpiprazol",
@@ -1950,6 +1952,24 @@ export default function GeneradorPautaPage() {
                             <p className="text-xs text-blue-500 italic mt-3">{farmaco.presentacionLiquida.notas}</p>
                         )}
                     </div>
+                )}
+
+                {/* Inyectable LAI */}
+                {farmaco.laiHref && (
+                    <Link
+                        href={farmaco.laiHref}
+                        target="_blank"
+                        className="flex items-center justify-between bg-purple-50 border border-purple-200 rounded-lg p-4 hover:bg-purple-100 transition-colors group"
+                    >
+                        <div className="flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-purple-600 shrink-0" />
+                            <div>
+                                <p className="text-sm font-semibold text-purple-800">Disponible como inyectable de acción prolongada</p>
+                                <p className="text-xs text-purple-600 mt-0.5">Abilify Maintena® — ver calculadora LAI</p>
+                            </div>
+                        </div>
+                        <span className="text-xs text-purple-500 group-hover:text-purple-700 font-medium shrink-0">Abrir →</span>
+                    </Link>
                 )}
 
                 {/* Contraindicaciones */}
