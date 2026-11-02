@@ -7,6 +7,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
+  FileText,
+  Upload,
   AlertCircle,
   Settings,
   Calendar,
@@ -48,6 +50,7 @@ type AppState = {
   vacaciones: { [residenteId: string]: Vacacion[] };
   superFestivos: string[];
   festivosPersonalizados: string[];
+  nombreHospital: string;
 };
 
 const ESTADO_INICIAL: AppState = {
@@ -57,6 +60,7 @@ const ESTADO_INICIAL: AppState = {
   vacaciones: {},
   superFestivos: [],
   festivosPersonalizados: [],
+  nombreHospital: "",
 };
 
 const DIAS_SEMANA = ["L", "M", "X", "J", "V", "S", "D"];
@@ -94,6 +98,7 @@ export default function OrganizadorGuardiasPage() {
   const [vacacionInputs, setVacacionInputs] = useState<Record<string, { inicio: string; fin: string }>>({});
   const [historial, setHistorial] = useState<Asignacion[]>([]);
   const calRef = useRef<HTMLDivElement>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     try {
@@ -351,18 +356,270 @@ export default function OrganizadorGuardiasPage() {
     }
   };
 
-  const exportarImagen = async () => {
-    if (!calRef.current) return;
-    try {
-      const { default: html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(calRef.current, { scale: 2, backgroundColor: "#ffffff" });
-      const link = document.createElement("a");
-      link.download = `guardias-${MESES[mesActual.mes]}-${mesActual.anio}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    } catch {
-      alert("Instala html2canvas: npm install html2canvas");
-    }
+  const importarDocumento = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const html = ev.target?.result as string;
+        const match = html.match(/<script id="psiqui-guardias-state" type="application\/json">([\s\S]*?)<\/script>/);
+        if (!match) { alert("El archivo no contiene datos de guardias exportados desde esta app."); return; }
+        const importado = JSON.parse(match[1]) as Partial<AppState>;
+        guardarHistorial();
+        setEstado({ ...ESTADO_INICIAL, ...importado });
+      } catch {
+        alert("No se pudo leer el archivo.");
+      }
+      e.target.value = "";
+    };
+    reader.readAsText(file);
+  };
+
+  const exportarImagen = () => {
+    const { anio, mes } = mesActual;
+    const total = diasEnMes(anio, mes);
+    const nombreMes = MESES[mes];
+    const primero = primerDiaSemana(anio, mes);
+
+    const celdas: (number | null)[] = Array(primero).fill(null);
+    for (let i = 1; i <= total; i++) celdas.push(i);
+    while (celdas.length % 7 !== 0) celdas.push(null);
+
+    const celdasHtml = celdas.map((dia, idx) => {
+      if (!dia) return `<div class="cal-cell empty"></div>`;
+      const fecha = fechaStr(anio, mes, dia);
+      const isSF = estado.superFestivos.includes(fecha);
+      const isF = estado.festivosPersonalizados.includes(fecha);
+      const isWE = idx % 7 >= 5;
+      const resId = estado.asignaciones[fecha] ?? null;
+      const res = resId ? estado.residentes.find(r => r.id === resId) : null;
+      const color = resId ? colorResidente(resId) : null;
+      const cellClass = isSF ? "cal-cell sf" : isF ? "cal-cell festivo" : isWE ? "cal-cell weekend" : "cal-cell";
+      const numClass = isSF ? "day-num sf" : isF ? "day-num festivo" : isWE ? "day-num weekend" : "day-num";
+      const mark = isSF ? `<span style="font-size:8px;color:#b91c1c">★</span>` : isF ? `<span style="font-size:8px;color:#c2410c">◆</span>` : "";
+      const chip = res && color
+        ? `<span class="chip" style="background:${color}">R${res.anio} ${res.nombre.split(" ")[0]}</span>`
+        : "";
+      return `<div class="${cellClass}"><div class="${numClass}">${dia}${mark}</div>${chip}</div>`;
+    }).join("");
+
+    const legendaHtml = [...estado.residentes].sort((a, b) => b.anio - a.anio).map(r => {
+      const n = guardiasEnMes(r.id, anio, mes);
+      return `<span class="legend-item"><span class="legend-dot" style="background:${colorResidente(r.id)}"></span>R${r.anio} ${r.nombre.split(" ")[0]} (${n}/${r.guardiasmes})</span>`;
+    }).join("");
+
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Guardias ${nombreMes} ${anio}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:12px;color:#1e293b;background:#fff;padding:10mm}
+  @media print{body{padding:6mm}button{display:none!important}}
+  .print-btn{display:block;margin:0 auto 12px;padding:8px 20px;background:#1e293b;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer}
+  .cal-wrap{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}
+  .cal-hdr{background:#1e293b;color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+  .cal-hdr h1{font-size:14px;font-weight:700}
+  .cal-hdr span{font-size:11px;color:#94a3b8}
+  .cal-dow{display:grid;grid-template-columns:repeat(7,1fr);background:#f1f5f9;border-bottom:1px solid #e2e8f0}
+  .cal-dow div{text-align:center;font-size:10px;font-weight:600;padding:6px;color:#64748b}
+  .cal-dow .we{color:#ef4444}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+  .cal-cell{border-right:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;min-height:64px;padding:4px 5px}
+  .cal-cell.empty{background:#f8fafc}
+  .cal-cell.weekend{background:#f8fafc}
+  .cal-cell.sf{background:#fef2f2}
+  .cal-cell.festivo{background:#fff7ed}
+  .day-num{font-size:11px;font-weight:600;color:#475569;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+  .day-num.sf{color:#b91c1c}
+  .day-num.festivo{color:#c2410c}
+  .day-num.weekend{color:#ef4444}
+  .chip{display:inline-block;color:#fff;font-size:9px;font-weight:600;padding:2px 6px;border-radius:10px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .legend{padding:8px 12px;border-top:1px solid #e2e8f0;display:flex;flex-wrap:wrap;gap:10px}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#475569}
+  .legend-dot{width:10px;height:10px;border-radius:3px;display:inline-block;flex-shrink:0}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">Guardar / Imprimir</button>
+<div class="cal-wrap">
+  <div class="cal-hdr">
+    <h1>Guardias de Psiquiatría · ${nombreMes} ${anio}</h1>
+    ${estado.nombreHospital ? `<span>${estado.nombreHospital}</span>` : ""}
+  </div>
+  <div class="cal-dow">
+    <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div class="we">Sáb</div><div class="we">Dom</div>
+  </div>
+  <div class="cal-grid">${celdasHtml}</div>
+  <div class="legend">${legendaHtml}</div>
+</div>
+</body></html>`;
+
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  };
+
+  const exportarResumen = () => {
+    const { anio, mes } = mesActual;
+    const total = diasEnMes(anio, mes);
+    const nombreMes = MESES[mes];
+    const mesStr = `${anio}-${String(mes + 1).padStart(2, "0")}`;
+    const primero = primerDiaSemana(anio, mes);
+
+    const fmt = (f: string) => {
+      const d = new Date(f + "T12:00:00");
+      return `${d.getDate()} ${MESES[d.getMonth()].slice(0, 3)}`;
+    };
+
+    // ── PÁGINA 1: Calendario ──────────────────────────────────────────
+    const celdas: (number | null)[] = Array(primero).fill(null);
+    for (let i = 1; i <= total; i++) celdas.push(i);
+    while (celdas.length % 7 !== 0) celdas.push(null);
+
+    const celdasHtml = celdas.map((dia, idx) => {
+      if (!dia) return `<div class="cal-cell empty"></div>`;
+      const fecha = fechaStr(anio, mes, dia);
+      const isSF = estado.superFestivos.includes(fecha);
+      const isF = estado.festivosPersonalizados.includes(fecha);
+      const isWE = idx % 7 >= 5;
+      const resId = estado.asignaciones[fecha] ?? null;
+      const res = resId ? estado.residentes.find(r => r.id === resId) : null;
+      const color = resId ? colorResidente(resId) : null;
+      const cellClass = isSF ? "cal-cell sf" : isF ? "cal-cell festivo" : isWE ? "cal-cell weekend" : "cal-cell";
+      const numClass = isSF ? "day-num sf" : isF ? "day-num festivo" : isWE ? "day-num weekend" : "day-num";
+      const sfMark = isSF ? `<span class="day-mark sf-mark">★</span>` : isF ? `<span class="day-mark f-mark">◆</span>` : "";
+      const chip = res && color
+        ? `<span class="chip" style="background:${color}">R${res.anio} ${res.nombre.split(" ")[0]}</span>`
+        : "";
+      return `<div class="${cellClass}"><div class="${numClass}">${dia}${sfMark}</div>${chip}</div>`;
+    }).join("");
+
+    const legendaHtml = [...estado.residentes].sort((a, b) => b.anio - a.anio).map(r => {
+      const n = guardiasEnMes(r.id, anio, mes);
+      return `<span class="legend-item"><span class="legend-dot" style="background:${colorResidente(r.id)}"></span>R${r.anio} ${r.nombre.split(" ")[0]} (${n}/${r.guardiasmes})</span>`;
+    }).join("");
+
+    // ── PÁGINA 2: Configuración ───────────────────────────────────────
+    const superDelMes = estado.superFestivos.filter(f => f.startsWith(mesStr));
+    const festDelMes = estado.festivosPersonalizados.filter(f => f.startsWith(mesStr));
+    const diasEspecialesHtml = (superDelMes.length > 0 || festDelMes.length > 0) ? `
+      <div class="special-row">
+        ${superDelMes.length > 0 ? `<span><strong>Superfestivos:</strong> ${superDelMes.sort().map(fmt).join(", ")}</span>` : ""}
+        ${festDelMes.length > 0 ? `<span><strong>Festivos:</strong> ${festDelMes.sort().map(fmt).join(", ")}</span>` : ""}
+      </div>` : "";
+
+    const filas = estado.residentes.map(res => {
+      const bloqueos = (estado.bloqueos[res.id] || []).filter(f => f.startsWith(mesStr));
+      const vacs = (estado.vacaciones[res.id] || []).filter(v => v.inicio.slice(0, 7) <= mesStr && v.fin.slice(0, 7) >= mesStr);
+      const asignadas = Object.entries(estado.asignaciones)
+        .filter(([f, v]) => v === res.id && f.startsWith(mesStr))
+        .map(([f]) => f).sort();
+      const color = colorResidente(res.id);
+      return `<tr>
+        <td><span class="res-name"><span class="res-dot" style="background:${color}"></span>${res.nombre}</span></td>
+        <td>R${res.anio}</td>
+        <td style="text-align:center">${res.guardiasmes}</td>
+        <td>${res.restriccion?.espaciadoMinDias ? res.restriccion.espaciadoMinDias + " días" : "—"}</td>
+        <td>${res.restriccion?.aceptaDobletes ? "Sí" : "No"}</td>
+        <td>${bloqueos.length > 0 ? bloqueos.sort().map(fmt).join(", ") : "—"}</td>
+        <td>${vacs.length > 0 ? vacs.map(v => `${fmt(v.inicio)}–${fmt(v.fin)}`).join(", ") : "—"}</td>
+        <td>${asignadas.length > 0 ? asignadas.map(fmt).join(", ") : "—"} <span class="count">(${asignadas.length}/${res.guardiasmes})</span></td>
+      </tr>`;
+    }).join("");
+
+    // ── Documento completo ────────────────────────────────────────────
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Guardias ${nombreMes} ${anio}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:12px;color:#1e293b;background:#fff}
+  .page{padding:12mm 10mm}
+  @media print{.page-break{page-break-before:always}.page{padding:10mm 8mm}}
+  /* Calendar */
+  .cal-wrap{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}
+  .cal-hdr{background:#1e293b;color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+  .cal-hdr h1{font-size:14px;font-weight:700}
+  .cal-hdr span{font-size:11px;color:#94a3b8}
+  .cal-dow{display:grid;grid-template-columns:repeat(7,1fr);background:#f1f5f9;border-bottom:1px solid #e2e8f0}
+  .cal-dow div{text-align:center;font-size:10px;font-weight:600;padding:6px;color:#64748b}
+  .cal-dow .we{color:#ef4444}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+  .cal-cell{border-right:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;min-height:60px;padding:4px 5px}
+  .cal-cell.empty{background:#f8fafc}
+  .cal-cell.weekend{background:#f8fafc}
+  .cal-cell.sf{background:#fef2f2}
+  .cal-cell.festivo{background:#fff7ed}
+  .day-num{font-size:11px;font-weight:600;color:#475569;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+  .day-num.sf{color:#b91c1c}
+  .day-num.festivo{color:#c2410c}
+  .day-num.weekend{color:#ef4444}
+  .day-mark{font-size:8px}
+  .sf-mark{color:#b91c1c}
+  .f-mark{color:#c2410c}
+  .chip{display:inline-block;color:#fff;font-size:9px;font-weight:600;padding:2px 6px;border-radius:10px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .legend{padding:7px 12px;border-top:1px solid #e2e8f0;display:flex;flex-wrap:wrap;gap:10px;background:#fff}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#475569}
+  .legend-dot{width:10px;height:10px;border-radius:3px;display:inline-block;flex-shrink:0}
+  /* Config page */
+  .cfg-title{font-size:16px;font-weight:700;margin-bottom:3px}
+  .cfg-sub{font-size:11px;color:#64748b;margin-bottom:14px}
+  .section-title{font-size:11px;font-weight:600;color:#475569;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e2e8f0;text-transform:uppercase;letter-spacing:.04em}
+  .special-row{font-size:10px;margin-bottom:14px;display:flex;gap:24px;color:#475569}
+  .res-table{width:100%;border-collapse:collapse}
+  .res-table th{background:#f1f5f9;font-weight:600;text-align:left;padding:6px 8px;border:1px solid #e2e8f0;font-size:10px;color:#64748b;white-space:nowrap}
+  .res-table td{padding:6px 8px;border:1px solid #e2e8f0;vertical-align:top;font-size:10px}
+  .res-table tr:nth-child(even) td{background:#f8fafc}
+  .res-name{display:flex;align-items:center;gap:6px;font-weight:600}
+  .res-dot{width:9px;height:9px;border-radius:2px;display:inline-block;flex-shrink:0}
+  .count{color:#94a3b8}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="cal-wrap">
+    <div class="cal-hdr">
+      <h1>Guardias de Psiquiatría · ${nombreMes} ${anio}</h1>
+      ${estado.nombreHospital ? `<span>${estado.nombreHospital}</span>` : ""}
+    </div>
+    <div class="cal-dow">
+      <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div class="we">Sáb</div><div class="we">Dom</div>
+    </div>
+    <div class="cal-grid">${celdasHtml}</div>
+    <div class="legend">${legendaHtml}</div>
+  </div>
+</div>
+
+<div class="page page-break">
+  <p class="cfg-title">Configuración aplicada — ${nombreMes} ${anio}</p>
+  <p class="cfg-sub">Restricciones, bloqueos y vacaciones tomados en cuenta para la asignación.</p>
+  ${diasEspecialesHtml ? `<p class="section-title">Días especiales</p>${diasEspecialesHtml}` : ""}
+  <p class="section-title">Residentes</p>
+  <table class="res-table">
+    <thead><tr>
+      <th>Residente</th><th>Año</th><th>Guard./mes</th><th>Espaciado</th><th>Dobletes</th><th>Bloqueos</th><th>Vacaciones</th><th>Guardias asignadas</th>
+    </tr></thead>
+    <tbody>${filas}</tbody>
+  </table>
+</div>
+
+<script id="psiqui-guardias-state" type="application/json">${JSON.stringify(estado)}</script>
+</body></html>`;
+
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.download = `guardias-${nombreMes}-${anio}.html`;
+    a.href = url;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const renderCalendario = () => {
@@ -377,7 +634,7 @@ export default function OrganizadorGuardiasPage() {
       <div ref={calRef} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="bg-slate-900 text-white px-5 py-3 flex items-center justify-between">
           <span className="font-semibold">Guardias de Psiquiatría · {MESES[mes]} {anio}</span>
-          <span className="text-slate-400 text-xs">Hospital del Henares</span>
+          {estado.nombreHospital && <span className="text-slate-400 text-xs">{estado.nombreHospital}</span>}
         </div>
         <div className="grid grid-cols-7 border-b border-slate-200">
           {DIAS_SEMANA.map((d, i) => (
@@ -464,6 +721,15 @@ export default function OrganizadorGuardiasPage() {
 
   const renderConfig = () => (
     <div className="space-y-5">
+      <div className="bg-white rounded-xl border border-slate-200 p-5">
+        <h3 className="font-semibold text-slate-800 mb-3">Hospital / Servicio</h3>
+        <input
+          className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-slate-400 text-slate-800 placeholder:text-slate-400"
+          value={estado.nombreHospital ?? ""}
+          onChange={(e) => setEstado(s => ({ ...s, nombreHospital: e.target.value }))}
+          placeholder="Nombre del hospital o servicio (opcional)"
+        />
+      </div>
       <div className="bg-white rounded-xl border border-slate-200 p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-slate-800">Residentes del servicio</h3>
@@ -959,6 +1225,15 @@ export default function OrganizadorGuardiasPage() {
                 <button onClick={exportarImagen}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors">
                   <Download className="w-4 h-4" />Exportar imagen
+                </button>
+                <button onClick={exportarResumen}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors">
+                  <FileText className="w-4 h-4" />Exportar documento
+                </button>
+                <input ref={importInputRef} type="file" accept=".html" className="hidden" onChange={importarDocumento} />
+                <button onClick={() => importInputRef.current?.click()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors">
+                  <Upload className="w-4 h-4" />Importar
                 </button>
               </div>
             </div>
