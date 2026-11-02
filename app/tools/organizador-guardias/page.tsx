@@ -111,6 +111,13 @@ export default function OrganizadorGuardiasPage() {
     try { localStorage.setItem("psiqui_guardias", JSON.stringify(estado)); } catch {}
   }, [estado]);
 
+  const esSuperFestivoFijo = (fecha: string): boolean => {
+    const d = new Date(fecha + "T12:00:00");
+    const m = d.getMonth() + 1;
+    const dia = d.getDate();
+    return (m === 12 && (dia === 24 || dia === 25 || dia === 31)) || (m === 1 && (dia === 1 || dia === 6));
+  };
+
   const colorResidente = (id: string) => {
     const idx = estado.residentes.findIndex((r) => r.id === id);
     return COLORES_RESIDENTE[idx % COLORES_RESIDENTE.length];
@@ -157,7 +164,7 @@ export default function OrganizadorGuardiasPage() {
 
   const esPuenteContext = (f1: string, libre: string, f2: string): boolean =>
     [f1, libre, f2].some(f =>
-      estado.superFestivos.includes(f) || estado.festivosPersonalizados.includes(f)
+      esSuperFestivoFijo(f) || estado.festivosPersonalizados.includes(f)
     );
 
   const violaDoblete = (resId: string, fecha: string): string | null => {
@@ -389,7 +396,7 @@ export default function OrganizadorGuardiasPage() {
     const celdasHtml = celdas.map((dia, idx) => {
       if (!dia) return `<div class="cal-cell empty"></div>`;
       const fecha = fechaStr(anio, mes, dia);
-      const isSF = estado.superFestivos.includes(fecha);
+      const isSF = esSuperFestivoFijo(fecha);
       const isF = estado.festivosPersonalizados.includes(fecha);
       const isWE = idx % 7 >= 5;
       const resId = estado.asignaciones[fecha] ?? null;
@@ -483,7 +490,7 @@ export default function OrganizadorGuardiasPage() {
     const celdasHtml = celdas.map((dia, idx) => {
       if (!dia) return `<div class="cal-cell empty"></div>`;
       const fecha = fechaStr(anio, mes, dia);
-      const isSF = estado.superFestivos.includes(fecha);
+      const isSF = esSuperFestivoFijo(fecha);
       const isF = estado.festivosPersonalizados.includes(fecha);
       const isWE = idx % 7 >= 5;
       const resId = estado.asignaciones[fecha] ?? null;
@@ -504,7 +511,7 @@ export default function OrganizadorGuardiasPage() {
     }).join("");
 
     // ── PÁGINA 2: Configuración ───────────────────────────────────────
-    const superDelMes = estado.superFestivos.filter(f => f.startsWith(mesStr));
+    const superDelMes = Array.from({ length: diasEnMes(anio, mes) }, (_, i) => fechaStr(anio, mes, i + 1)).filter(esSuperFestivoFijo);
     const festDelMes = estado.festivosPersonalizados.filter(f => f.startsWith(mesStr));
     const diasEspecialesHtml = (superDelMes.length > 0 || festDelMes.length > 0) ? `
       <div class="special-row">
@@ -647,7 +654,7 @@ export default function OrganizadorGuardiasPage() {
             const fecha = fechaStr(anio, mes, dia);
             const resId = estado.asignaciones[fecha] || null;
             const res = estado.residentes.find((r) => r.id === resId);
-            const isSuperFestivo = estado.superFestivos.includes(fecha);
+            const isSuperFestivo = esSuperFestivoFijo(fecha);
             const isFestivo = estado.festivosPersonalizados.includes(fecha);
             const isWeekend = idx % 7 >= 5;
             const isBloqueadoParaSeleccionado = residenteSeleccionado ? esBloqueado(residenteSeleccionado, fecha) : false;
@@ -704,16 +711,30 @@ export default function OrganizadorGuardiasPage() {
             );
           })}
         </div>
-        <div className="px-4 py-2 border-t border-slate-100 flex flex-wrap gap-3 bg-white">
-          {[...estado.residentes].sort((a, b) => b.anio - a.anio).map((r) => {
-            const n = guardiasEnMes(r.id, mesActual.anio, mesActual.mes);
-            return (
-              <div key={r.id} className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: colorResidente(r.id) }} />
-                <span className="text-[10px] text-slate-600">R{r.anio} {r.nombre.split(" ")[0] || "—"} ({n}/{r.guardiasmes})</span>
-              </div>
-            );
-          })}
+        <div className="px-4 py-2 border-t border-slate-100 flex items-center justify-between bg-white">
+          <div className="flex flex-wrap gap-3">
+            {[...estado.residentes].sort((a, b) => b.anio - a.anio).map((r) => {
+              const n = guardiasEnMes(r.id, mesActual.anio, mesActual.mes);
+              return (
+                <div key={r.id} className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: colorResidente(r.id) }} />
+                  <span className="text-[10px] text-slate-600">R{r.anio} {r.nombre.split(" ")[0] || "—"} ({n}/{r.guardiasmes})</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center gap-2 ml-4 shrink-0">
+            <button onClick={deshacer} disabled={historial.length === 0}
+              title="Deshacer último cambio"
+              className="flex items-center gap-1.5 px-2.5 py-1 text-xs border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              <Undo2 className="w-3.5 h-3.5" />Deshacer
+              {historial.length > 0 && <span className="text-[10px] text-slate-400">{historial.length}</span>}
+            </button>
+            <button onClick={autocompletar} disabled={estado.residentes.length === 0}
+              className="flex items-center gap-1.5 px-2.5 py-1 text-xs border border-amber-300 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              <Wand2 className="w-3.5 h-3.5" />Autocompletar
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -902,28 +923,6 @@ export default function OrganizadorGuardiasPage() {
           })}
         </div>
       </div>
-      <div className="bg-white rounded-xl border border-slate-200 p-5">
-        <h3 className="font-semibold text-slate-800 mb-1">Superfestivos del año</h3>
-        <p className="text-xs text-slate-400 mb-4">Se eligen por jerarquía (R5 primero) al inicio del año.</p>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { label: "24 dic", fecha: `${mesActual.anio}-12-24` },
-            { label: "25 dic", fecha: `${mesActual.anio}-12-25` },
-            { label: "31 dic", fecha: `${mesActual.anio}-12-31` },
-            { label: "1 ene", fecha: `${mesActual.anio + 1}-01-01` },
-            { label: "6 ene", fecha: `${mesActual.anio + 1}-01-06` },
-          ].map(({ label, fecha }) => {
-            const activo = estado.superFestivos.includes(fecha);
-            return (
-              <button key={fecha} onClick={() => toggleFestivo(fecha, "super")}
-                className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
-                  activo ? "bg-red-600 text-white border-red-600" : "bg-white text-slate-600 border-slate-300 hover:border-red-400"}`}>
-                ★ {label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 
@@ -981,7 +980,7 @@ export default function OrganizadorGuardiasPage() {
         Object.entries(asigs).filter(([f, r]) => {
           if (r !== resId || !f.startsWith(prefix)) return false;
           const d = new Date(f + "T12:00:00").getDay();
-          return d === 0 || d === 6 || estado.superFestivos.includes(f) || estado.festivosPersonalizados.includes(f);
+          return d === 0 || d === 6 || esSuperFestivoFijo(f) || estado.festivosPersonalizados.includes(f);
         }).length;
 
       // Puntuación compuesta (menor = más prioritario)
@@ -989,7 +988,7 @@ export default function OrganizadorGuardiasPage() {
       const score = (resId: string, fecha: string): number => {
         const fd = dowOf(fecha);
         const isPremium = fd === 0 || fd === 6
-          || estado.superFestivos.includes(fecha) || estado.festivosPersonalizados.includes(fecha);
+          || esSuperFestivoFijo(fecha) || estado.festivosPersonalizados.includes(fecha);
         let s = guardiasLocales(resId) * 100;
         // Doblete: penalización dominante — siempre peor que cualquier otra consideración
         if (dobletOn(asigs, resId, fecha)) s += 800;
@@ -1212,16 +1211,6 @@ export default function OrganizadorGuardiasPage() {
                 </button>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={deshacer} disabled={historial.length === 0}
-                  title="Deshacer último cambio"
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                  <Undo2 className="w-4 h-4" />
-                  {historial.length > 0 && <span className="text-[11px] text-slate-400">{historial.length}</span>}
-                </button>
-                <button onClick={autocompletar} disabled={estado.residentes.length === 0}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                  <Wand2 className="w-4 h-4" />Autocompletar
-                </button>
                 <button onClick={exportarImagen}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors">
                   <Download className="w-4 h-4" />Exportar imagen
@@ -1299,7 +1288,7 @@ export default function OrganizadorGuardiasPage() {
         const fecha = diaVisualizando;
         const d = new Date(fecha + "T12:00:00");
         const etiquetaDia = d.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
-        const isSuperFestivo = estado.superFestivos.includes(fecha);
+        const isSuperFestivo = esSuperFestivoFijo(fecha);
         const isFestivo = estado.festivosPersonalizados.includes(fecha);
         const resAsignadoId = estado.asignaciones[fecha] ?? null;
         const resAsignado = estado.residentes.find(r => r.id === resAsignadoId);
